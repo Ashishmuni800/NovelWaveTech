@@ -7,17 +7,26 @@ using System.Threading.Tasks;
 
 namespace Application.DTO
 {
-    public class LoginDTO
+    public class ChangePasswordDTO
     {
+
         [Required]
-        public string Email { get; set; }
+        public string UserName { get; set; }
         [Required]
-        [MinLength(6)]
+        [MinLength(3)]
         [MaxLength(32)]
         public string Password { get; set; }
         [Required]
-        [MinLength(6)]
+        [MinLength(8)]
+        [MaxLength(32)]
+        public string NewPassword { get; set; }
+        [Required]
+        [MinLength(8)]
+        [MaxLength(32)]
+        public string ConfirmNewPassword { get; set; }
+        [Required]
         [MaxLength(6)]
+        [MinLength(6)]
         public string CaptchaCode { get; set; }
     }
 }

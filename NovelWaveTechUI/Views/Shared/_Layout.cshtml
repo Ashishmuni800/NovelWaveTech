@@ -3,17 +3,86 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - NovelWaveTechUI</title>
+    <title>@ViewData["Title"] - Novel Wave Tech</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/NovelWaveTechUI.styles.css" asp-append-version="true" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: "Lato", sans-serif;
+        }
+
+        .sidebar {
+            margin: 0;
+            padding: 0;
+            width: 200px;
+            background-color: #f1f1f1;
+            position: fixed;
+            height: 100%;
+            overflow: auto;
+        }
+
+            .sidebar a {
+                display: block;
+                color: black;
+                padding: 16px;
+                text-decoration: none;
+            }
+
+                .sidebar a.active {
+                    background-color: #04AA6D;
+                    color: white;
+                }
+
+                .sidebar a:hover:not(.active) {
+                    background-color: #555;
+                    color: white;
+                }
+
+        div.content {
+            margin-left: 200px;
+            padding: 1px 16px;
+            height: 1000px;
+        }
+
+        media screen and (max-width: 700px) {
+            .sidebar
+
+        {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+
+        .sidebar a {
+            float: left;
+        }
+
+        div.content {
+            margin-left: 0;
+        }
+
+        }
+
+        media screen and (max-width: 400px) {
+            .sidebar a
+
+        {
+            text-align: center;
+            float: none;
+        }
+
+        }
+    </style>
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">NovelWaveTechUI</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Novel Wave Tech</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -23,24 +92,33 @@
                         <li class="nav-item" id="registerLink">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Register">Register</a>
                         </li>
-                        <li class="nav-item" id="loginLink">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
+                        <li class="nav-item" id="loginLink" style="float:right">
+                            <a class="nav-link text-dark" style="float:right" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
                         </li>
-
-
-                        <li class="nav-item" id="logoutLink" style="display: none;">
+                        <li class="nav-item" id="logoutLink" style="display: none;float:right;">
                             <a class="nav-link text-dark">Logout</a>
-                        </li>
-
-
-                        <li class="nav-item" id="protectedLink" style="display: none;">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Proctected">Protected Data</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
+         <div class="sidebar">
+            <a class="active" href="#home">Home</a>
+
+            <a href="#news">News</a>
+            <a href="#contact">Contact</a>
+            <a href="#about">About</a>
+        <li class="nav-item" id="protectedLink" style="display: none;">
+            <a class="nav-link text-dark" asp-controller="Home" asp-action="Proctected">Protected Data</a>
+        </li>
+        <li class="nav-item" id="PasswordChangeLink" style="display: none;">
+            <a class="nav-link text-dark" asp-controller="Home" asp-action="PasswordChange">Password Change</a>
+        </li>
+        </div> 
+
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -49,7 +127,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - NovelWaveTechUI - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2025 - Novel Wave Tech - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -60,6 +138,8 @@
 </html>
 
 <script>
+
+
     // Check if the token exists in local storage
     const token = localStorage.getItem('token');
 
@@ -69,6 +149,7 @@
         document.getElementById("loginLink").style.display = 'none';   // Hide login link
         document.getElementById("registerLink").style.display = 'none'; // Hide register link
         document.getElementById("protectedLink").style.display = 'block'; // Hide register link
+        document.getElementById("PasswordChangeLink").style.display = 'block'; // Hide register link
     }
 
     // Add event listener for logout button
@@ -91,7 +172,7 @@
                     // Remove the token from local storage
                     localStorage.removeItem("token");
                     // Redirect to login page
-                    window.location.href = '/Home/Index';
+                    window.location.href = '/Home/Login';
                 } else {
                     // Handle error if logout fails
                     alert('Error logging out. Please try again.');

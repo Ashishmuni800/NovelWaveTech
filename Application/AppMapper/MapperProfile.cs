@@ -17,6 +17,15 @@ namespace Application.AppMapper
             CreateMap<RegisterModel, RegisterViewModel>();
             CreateMap<RegisterModel, RegisterDTO>();
             CreateMap<RegisterDTO, RegisterModel>();
+            CreateMap<ChangePasswordModel, ChangePasswordDTO>();
+            CreateMap<ChangePasswordDTO, ChangePasswordModel>();
+
+            CreateMap<PasswordChangeHistory, PasswordChangeHistoryDTO>();
+            CreateMap<PasswordChangeHistoryDTO, PasswordChangeHistory>();
+
+            CreateMap<GenerateCaptchaCode, GenerateCaptchaCodeViewModel>();
+            CreateMap<GenerateCaptchaCode, GenerateCaptchaCodeDTO>();
+            CreateMap<GenerateCaptchaCodeDTO, GenerateCaptchaCode>();
         }
     }
 }

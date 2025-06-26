@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Domain.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Context
@@ -7,5 +8,7 @@ namespace Infrastructure.Context
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
+        public DbSet<PasswordChangeHistory> PasswordChangeHistory { get; set; }
+        public DbSet<GenerateCaptchaCode> GenerateCaptchaCode { get; set; }
     }
 }

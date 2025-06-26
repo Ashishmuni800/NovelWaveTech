@@ -66,8 +66,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddScoped<IUserAuthService, UserAuthService>();
-builder.Services.AddScoped<IUserAuthRepository, UserAuthRepository>();
+builder.Services.AddScoped<IServiceInfra, ServiceInfra>();
+builder.Services.AddScoped<IServiceInfraRepo, ServiceInfraRepo>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

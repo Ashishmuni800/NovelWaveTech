@@ -2,6 +2,7 @@
 using Domain.RepositoryInterface;
 using Infrastructure.Context;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -19,10 +20,11 @@ namespace Infrastructure.Repository
         private readonly string? _jwtIssuer;
         private readonly string? _jwtAudience;
         private readonly int _JwtExpiry;
+        private readonly ApplicationDbContext _dbContext;
 
         public UserAuthRepository(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration, ApplicationDbContext dbContext)
         {
 
             _signInManager = signInManager;
@@ -31,12 +33,51 @@ namespace Infrastructure.Repository
             _jwtIssuer = configuration["Jwt:Issuer"];
             _jwtAudience = configuration["Jwt:Audience"];
             _JwtExpiry = int.Parse(configuration["Jwt:ExpiryMinutes"]);
+            _dbContext = dbContext;
+
         }
 
-        //public async Task<LoginModel> CheckPasswordSignInAsync(ApplicationUser user, string Password)
-        //{
-        //    var result = await _signInManager.CheckPasswordSignInAsync(user, Password, false);
-        //}
+        public async Task<GenerateCaptchaCode> CreateByGenerateCaptchaCodeAsync(GenerateCaptchaCode captchaCode)
+        {
+            GenerateCaptchaCode generateCaptcha = new GenerateCaptchaCode();
+            Guid Id = Guid.NewGuid();
+            generateCaptcha.Id = Id.ToString();
+            generateCaptcha.CaptchaCode = captchaCode.CaptchaCode;
+            generateCaptcha.CreatedDate = captchaCode.CreatedDate;
+            await _dbContext.GenerateCaptchaCode.AddAsync(generateCaptcha);
+            await _dbContext.SaveChangesAsync();
+
+            return captchaCode; // ← returning the saved entity makes more sense
+        }
+
+        public async Task<PasswordChangeHistory> CreateByPasswordChangeHistoryAsync(PasswordChangeHistory passwordChangeHistoryModel)
+        {
+            if (passwordChangeHistoryModel == null)
+                throw new ArgumentNullException(nameof(passwordChangeHistoryModel));
+
+            var passwordHistory = new PasswordChangeHistory
+            {
+                Id = passwordChangeHistoryModel.Id,
+                UserPassword = passwordChangeHistoryModel.UserPassword,
+                OldPassword = passwordChangeHistoryModel.OldPassword,
+                CreatedDate = passwordChangeHistoryModel.CreatedDate,
+            };
+
+            await _dbContext.PasswordChangeHistory.AddAsync(passwordHistory);
+            await _dbContext.SaveChangesAsync();
+
+            return passwordHistory; // ← returning the saved entity makes more sense
+        }
+
+        public async Task<bool> DeleteByGenerateCaptchaCodeAsync()
+        {
+            var ExpireDataTime = DateTime.Now.AddMinutes(-10);
+            var OldData = _dbContext.GenerateCaptchaCode.Where(op => op.CreatedDate < ExpireDataTime);
+            _dbContext.GenerateCaptchaCode.RemoveRange(OldData);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
+
 
         public async Task<RegisterModel> FindByEmailAsync(string Email)
         {
@@ -51,14 +92,27 @@ namespace Infrastructure.Repository
             }
         }
 
-        public Task<LoginModel> LoginAsync(LoginModel user)
+        public async Task<RegisterModel> FindByUserNameAsync(string Name)
         {
-            throw new NotImplementedException();
+            RegisterModel registerModel = new RegisterModel();
+            registerModel.Name=Name;
+            var result = await _userManager.FindByNameAsync(Name).ConfigureAwait(false);
+            if (result == null)
+                return null;
+            else
+            {
+                return registerModel;
+            }
         }
 
-        public void Logout()
+        public async Task<GenerateCaptchaCode> GetByGenerateCaptchaCodeAsync(string captchaCode)
         {
-            throw new NotImplementedException();
+            return await _dbContext.GenerateCaptchaCode.Where(op => op.CaptchaCode == captchaCode).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<PasswordChangeHistory>> GetByPasswordChangeHistoryAsync(string UserPassword)
+        {
+            return await _dbContext.PasswordChangeHistory.Where(op => op.UserPassword == UserPassword).ToListAsync();
         }
 
         public async Task<RegisterModel> RegisterAsync(RegisterModel registerModel)

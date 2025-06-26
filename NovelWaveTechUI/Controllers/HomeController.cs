@@ -30,5 +30,13 @@ namespace NovelWaveTechUI.Controllers
         {
             return View();
         }
+        public IActionResult PasswordChange()
+        {
+            return View();
+        }
+        public IActionResult Profile()
+        {
+            return View();
+        }
     }
 }
