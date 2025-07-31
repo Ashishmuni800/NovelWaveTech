@@ -47,33 +47,52 @@ namespace NovelWaveTechAPI.Controllers
             _jwtAudience = configuration["Jwt:Audience"];
             _JwtExpiry = int.Parse(configuration["Jwt:ExpiryMinutes"]);
         }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Get(int skip = 0, int take = 50)
+        {
+            var result = await _userAuthService.AuthService.GetUsersIncrementalAsync(skip, take);
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
         {
             if (registerDTO == null
                 || string.IsNullOrWhiteSpace(registerDTO.Name)
                 || string.IsNullOrWhiteSpace(registerDTO.Email)
-                || string.IsNullOrWhiteSpace(registerDTO.Password))
+                || string.IsNullOrWhiteSpace(registerDTO.Password)
+                || string.IsNullOrWhiteSpace(registerDTO.CaptchaCode))
             {
                 return BadRequest("Invalid registration details");
             }
-
-            var existingUser = await _userAuthService.AuthService.FindByEmailAsync(registerDTO.Email).ConfigureAwait(false);
-            if (existingUser != null)
+            var captchaCode = await _userAuthService.AuthService.GetByGenerateCaptchaCodeAsync(registerDTO.CaptchaCode);
+            if (captchaCode != null)
             {
-                return Conflict("Email already exists");
-            }
+                DateTime CreatedDate2 = DateTime.Now;
+                if (CreatedDate2 - captchaCode.CreatedDate < TimeSpan.FromMinutes(3))
+                {
+                    var existingUser = await _userAuthService.AuthService.FindByEmailUserAsync(registerDTO.Email).ConfigureAwait(false);
+                    if (existingUser != null)
+                    {
+                        return Conflict("Email already exists");
+                    }
 
-            var result = await _userAuthService.AuthService.RegisterAsync(registerDTO).ConfigureAwait(false);
-            if (result == null)
-            {
-                return BadRequest("User creation failed");
-            }
+                    var result = await _userAuthService.AuthService.RegisterAsync(registerDTO).ConfigureAwait(false);
+                    if (result == null)
+                    {
+                        return BadRequest("User creation failed");
+                    }
 
-            return Ok("User created successfully");
+                    return Ok("User created successfully");
+                }
+                return BadRequest("Please generate the captcha code and entered the correct captcha code due to the captcha code is expired!");
+            }
+            return BadRequest("Please generate the captcha code and entered the correct captcha code");
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> FindByUserName([FromBody] RegisterDTO registerDTO)
         {
             if (registerDTO.Name == null
@@ -82,13 +101,23 @@ namespace NovelWaveTechAPI.Controllers
                 return BadRequest("User Name not found");
             }
 
-            var existingUser = await _userAuthService.AuthService.FindByUserNameAsync(registerDTO.Name).ConfigureAwait(false);
-            if (existingUser == null)
+            var captchaCode = await _userAuthService.AuthService.GetByGenerateCaptchaCodeAsync(registerDTO.CaptchaCode);
+            if (captchaCode != null)
             {
-                return Conflict("User Name not exists");
-            }
+                DateTime CreatedDate2 = DateTime.Now;
+                if (CreatedDate2 - captchaCode.CreatedDate < TimeSpan.FromMinutes(3))
+                {
+                    var existingUser = await _userAuthService.AuthService.FindByUserNameAsync(registerDTO.Name).ConfigureAwait(false);
+                    if (existingUser == null)
+                    {
+                        return Conflict("User Name not exists");
+                    }
 
-            return Ok(existingUser);
+                    return Ok(existingUser);
+                }
+                return BadRequest("Please generate the captcha code and entered the correct captcha code due to the captcha code is expired!");
+            }
+            return BadRequest("Please generate the captcha code and entered the correct captcha code");
         }
         [Authorize]
         [HttpPost]
@@ -159,8 +188,12 @@ namespace NovelWaveTechAPI.Controllers
                     {
                         return Unauthorized(new { success = false, message = "Invalid username or password" });
                     }
-
+                    
                     var token = GeneratedJwtToken(result);
+                    AuthorizationDataDTO authorizationDataDTO = new AuthorizationDataDTO();
+                    authorizationDataDTO.token = token;
+                    authorizationDataDTO.CreatedDatetime = CreatedDate;
+                    await _userAuthService.AuthService.CreateByAuthorizationDataAsync(authorizationDataDTO);
                     return Ok(new { success = true, token });
                 }
                 return BadRequest("Please generate the captcha code and entered the correct captcha code due to the captcha code is expired!");
@@ -169,10 +202,22 @@ namespace NovelWaveTechAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return Ok("User logged out successfully.");
+        }
+        [HttpGet("{token}")]
+        [Authorize]
+        public async Task<IActionResult> GetToken([FromRoute] string token)
+        {
+            var data = await _userAuthService.AuthService.GetByAuthorizationDataUserIdAsync(token);
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data);
         }
         private string GeneratedJwtToken(ApplicationUser user)
         {
@@ -188,8 +233,8 @@ namespace NovelWaveTechAPI.Controllers
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                //issuer: _jwtIssuer,
-                //audience: _jwtAudience,
+                issuer: _jwtIssuer,
+                audience: _jwtAudience,
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(_JwtExpiry),
                 signingCredentials: creds);
@@ -214,6 +259,7 @@ namespace NovelWaveTechAPI.Controllers
                 CreatedDate = CreatedDate,
             };
             await _userAuthService.AuthService.CreateByGenerateCaptchaCodeAsync(GenerateCaptchaCodeDTO);
+            await _userAuthService.AuthService.DeleteByGenerateCaptchaCodeAsync();
             return Ok(code);
         }
         [HttpGet]

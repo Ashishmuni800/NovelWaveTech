@@ -12,6 +12,7 @@ namespace Application.ServiceInterface
 {
     public interface IUserAuthService
     {
+        Task<PaginatedResult<UserDto>> GetUsersIncrementalAsync(int skip, int take);
         Task<RegisterDTO> RegisterAsync(RegisterDTO registerDTO);
         Task<RegisterDTO> FindByEmailAsync(string Email);
         Task<ApplicationUser> FindByEmailUserAsync(string Email);
@@ -24,6 +25,9 @@ namespace Application.ServiceInterface
         Task<GenerateCaptchaCodeViewModel> GetByGenerateCaptchaCodeAsync(string captchaCode);
         Task<ApplicationUser> CheckPasswordSignInAsync(ApplicationUser user, string Password);
         Task<bool> DeleteByGenerateCaptchaCodeAsync();
+        Task<AuthorizationDataDTO> CreateByAuthorizationDataAsync(AuthorizationDataDTO authorizationDataDTO);
+        Task<bool> DeleteByAuthorizationDataAsync();
+        Task<AuthorizationDataViewModel> GetByAuthorizationDataUserIdAsync(string UserId);
         //Task<string> GeneratedJwtToken(ApplicationUser user);
         //void Logout();
     }

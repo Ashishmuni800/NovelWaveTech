@@ -6,6 +6,7 @@ using Domain.Model;
 using Domain.RepositoryInterface;
 using Infrastructure.Context;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +56,27 @@ namespace Application.Service
             return user;
         }
 
+        public async Task<AuthorizationDataDTO> CreateByAuthorizationDataAsync(AuthorizationDataDTO authorizationDataDTO)
+        {
+            if (authorizationDataDTO == null)
+                throw new ArgumentNullException(nameof(authorizationDataDTO));
+
+            if (_Mapp == null)
+                throw new InvalidOperationException("_Mapp is not initialized.");
+
+            if (_userAuthRepository?.AuthRepo == null)
+                throw new InvalidOperationException("_userAuthRepository.AuthRepo is not initialized.");
+
+            var model = _Mapp.Map<AuthorizationData>(authorizationDataDTO);
+
+            var result = await _userAuthRepository.AuthRepo
+                .CreateByAuthorizationDataAsync(model)
+                .ConfigureAwait(false);
+
+            var dto = _Mapp.Map<AuthorizationDataDTO>(result);
+            return dto;
+        }
+
         public async Task<GenerateCaptchaCodeDTO> CreateByGenerateCaptchaCodeAsync(GenerateCaptchaCodeDTO captchaCodeDTO)
         {
             if(captchaCodeDTO == null)
@@ -98,6 +120,16 @@ namespace Application.Service
             return dto;
         }
 
+        public async Task<bool> DeleteByAuthorizationDataAsync()
+        {
+            var result = await _userAuthRepository.AuthRepo.DeleteByAuthorizationDataAsync().ConfigureAwait(false);
+            if (result != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public async Task<bool> DeleteByGenerateCaptchaCodeAsync()
         {
             var result = await _userAuthRepository.AuthRepo.DeleteByGenerateCaptchaCodeAsync().ConfigureAwait(false);
@@ -138,6 +170,19 @@ namespace Application.Service
             return null;
         }
 
+        public async Task<AuthorizationDataViewModel> GetByAuthorizationDataUserIdAsync(string token)
+        {
+            var result = await _userAuthRepository.AuthRepo.GetByAuthorizationDataUserIdAsync(token).ConfigureAwait(false);
+
+            if (result != null)
+            {
+                var dtoList = _Mapp.Map<AuthorizationDataViewModel>(result);
+                return dtoList;
+            }
+
+            return null;
+        }
+
         public async Task<GenerateCaptchaCodeViewModel> GetByGenerateCaptchaCodeAsync(string captchaCode)
         {
             var result = await _userAuthRepository.AuthRepo.GetByGenerateCaptchaCodeAsync(captchaCode).ConfigureAwait(false);
@@ -172,5 +217,30 @@ namespace Application.Service
             var dto = _Mapp.Map<RegisterDTO>(model);
             return dto;
         }
+        public async Task<PaginatedResult<UserDto>> GetUsersIncrementalAsync(int skip, int take)
+        {
+            var query = _userManager.Users.AsNoTracking().OrderBy(u => u.Id); 
+
+            var list = await query
+                .Skip(skip)
+                .Take(take + 1)
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email
+                })
+                .ToListAsync();
+
+            var hasMore = list.Count > take;
+            if (hasMore) list.RemoveAt(take);
+
+            return new PaginatedResult<UserDto>
+            {
+                Items = list,
+                HasMore = hasMore
+            };
+        }
     }
 }
+

@@ -1,47 +1,113 @@
 ﻿@{
     ViewData["Title"] = "Login";
 }
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+    body {
+        background: linear-gradient(to right, #74ebd5, #acb6e5);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-<div class="container mt-5">
+    .card {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        border: none;
+        border-radius: 15px;
+    }
+
+    .form-control:focus {
+        border-color: #5e72e4;
+        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
+    }
+
+    .input-group-text {
+        background-color: #f1f1f1;
+        border: none;
+    }
+
+    #img-captcha {
+        height: 38px;
+        width: auto;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+
+    .login-header {
+        background: #5e72e4;
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 1rem 0;
+    }
+
+        .login-header h3 {
+            margin: 0;
+        }
+
+    .btn-primary {
+        background-color: #5e72e4;
+        border-color: #5e72e4;
+    }
+
+        .btn-primary:hover {
+            background-color: #4e61d1;
+            border-color: #4e61d1;
+        }
+
+    .input-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+    }
+
+    .input-group .form-control {
+        padding-left: 35px;
+    }
+</style>
+
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-6 col-lg-5">
             <div class="card">
-                <div class="card-header text-center">
-                    <h3>Login</h3>
+                <div class="login-header text-center">
+                    <h3><i class="fa fa-sign-in-alt me-2"></i>Login</h3>
                 </div>
-                <div class="card-body">
-                    <form id="loginForm">
-                        <div class="mb-3">
+                <div class="card-body p-4">
+                    <form id="loginForm" autocomplete="off">
+                        <div class="mb-3 position-relative">
                             <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" required autocomplete="off" />
+                            <i class="fa fa-envelope input-icon"></i>
+                            <input type="email" class="form-control" id="email" name="email" required />
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3 position-relative">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required autocomplete="off" />
-                        </div>
-                        <div class="form-group mb-3">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <img id="img-captcha" src="https://localhost:7112/api/UserAuth/GenerateCaptcha" alt="captcha" style="cursor: pointer;" onclick="loadCaptcha()" />
-                                </div>
-                                <input type="text" class="form-control py-2 border-right-0 border" style="height:38px;" placeholder="Captcha Code" id="CaptchaCode" name="CaptchaCode" required autocomplete="off">
-                                <span class="input-group-append">
-                                    <div class="input-group-text bg-transparent">
-                                        <i id="captchaRefresh" class="fa fa-repeat" style="cursor:pointer;font-size:25px;"></i>
-                                    </div>
-                                </span>
-                            </div>
+                            <i class="fa fa-lock input-icon"></i>
+                            <input type="password" class="form-control" id="password" name="password" required />
                         </div>
 
-                        <!-- Hidden input to store captcha ID if needed -->
+                        <div class="mb-3">
+                            <label class="form-label">Captcha</label>
+                            <div class="input-group">
+                                <img id="img-captcha" src="https://localhost:7112/api/UserAuth/GenerateCaptcha" alt="captcha" onclick="loadCaptcha()" />
+                                <button class="btn btn-outline-secondary" type="button" id="captchaRefresh" title="Refresh Captcha">
+                                    <i class="fa fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            <input type="text" class="form-control mt-2" id="CaptchaCode" name="CaptchaCode" placeholder="Enter Captcha" required />
+                        </div>
+
                         <input type="hidden" id="Id" name="Id" />
 
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fa fa-key me-2"></i>Login
+                            </button>
+                            <div class="text-center mt-3">
+                                <p>Don't have an account? <a href="/Home/Register">Register here</a></p>
+                            </div>
                         </div>
+                        <div id="statusMessage" class="text-center mt-3"></div>
                     </form>
-                    <div id="statusMessage" class="text-center"></div>
                 </div>
             </div>
         </div>
@@ -52,14 +118,13 @@
     const loginForm = document.getElementById('loginForm');
     const statusMessage = document.getElementById('statusMessage');
 
-    // Remove expired token on page load
+    // Expired token removal
     const expiry = localStorage.getItem('token_expiry');
     if (expiry && Date.now() > expiry) {
         localStorage.removeItem('token');
         localStorage.removeItem('token_expiry');
     }
 
-    // Handle Login form submission
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -71,9 +136,7 @@
         try {
             const response = await fetch('https://localhost:7112/api/UserAuth/Login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, CaptchaCode, Id })
             });
 
@@ -81,42 +144,35 @@
                 const data = await response.json();
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('token_expiry', Date.now() + 5 * 60 * 1000);
-
                 statusMessage.innerHTML = '<div class="alert alert-success">Login successful! Redirecting...</div>';
-                setTimeout(() => {
-                    window.location.href = '/Home/Index';
-                }, 1000);
+                setTimeout(() => window.location.href = '/Home/Index', 1000);
             } else {
-                const errData = await response.json();
-                statusMessage.innerHTML = `<div class="alert alert-danger">${errData.message || 'Invalid credentials, please try again.'}</div>`;
-                loadCaptcha(); // Refresh captcha on failure
+                const err = await response.json();
+                statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Invalid credentials. Please try again.'}</div>`;
+                loadCaptcha(); // Refresh captcha
             }
-        } catch (error) {
-            console.error('Login error:', error);
-            statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred. Please try again later.</div>';
+        } catch (err) {
+            console.error(err);
+            statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred. Please try again.</div>';
         }
     });
 
-    // Load new captcha
     async function loadCaptcha() {
         try {
             const response = await fetch('https://localhost:7112/api/UserAuth/GenerateCaptcha');
             const blob = await response.blob();
             const idHeader = response.headers.get("Content-Disposition");
             const id = idHeader?.split("filename=")[1] || '';
-
             const imageUrl = URL.createObjectURL(blob);
             document.getElementById("img-captcha").src = imageUrl;
             document.getElementById("Id").value = id;
-        } catch (error) {
-            console.error('Captcha load failed:', error);
+        } catch (err) {
+            console.error('Captcha load failed:', err);
             statusMessage.innerHTML = '<div class="alert alert-warning">Could not load captcha. Please refresh the page.</div>';
         }
     }
 
-    // Load captcha on page load
+    // Initial load
     window.addEventListener('load', loadCaptcha);
-
-    // Refresh captcha on icon click
     document.getElementById('captchaRefresh').addEventListener('click', loadCaptcha);
 </script>

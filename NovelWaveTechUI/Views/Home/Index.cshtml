@@ -1,1 +1,97 @@
-﻿
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+<h2 class="mb-4">Dashboard Overview</h2>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card shadow border-primary">
+            <div class="card-body">
+                <h6 class="text-muted">Users</h6>
+                <h4>1,240</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow border-success">
+            <div class="card-body">
+                <h6 class="text-muted">Revenue</h6>
+                <h4>$18,000</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title">Weekly Users</h5>
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title">Revenue Breakdown</h5>
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const lineChart = new Chart(document.getElementById("lineChart"), {
+            type: 'line',
+            data: {
+                labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                datasets: [{
+                    label: 'Users',
+                    data: [120, 190, 300, 250, 200, 300, 400],
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    tension: 0.4
+                }]
+            }
+        });
+
+        const pieChart = new Chart(document.getElementById("pieChart"), {
+            type: 'doughnut',
+            data: {
+                labels: ["Subscriptions", "One-Time", "Refunds"],
+                datasets: [{
+                    data: [70, 20, 10],
+                    backgroundColor: ["#0d6efd", "#20c997", "#ffc107"]
+                }]
+            }
+        });
+                async function FetchWeatherData2() {
+            const jwtToken2 = localStorage.getItem('token');
+
+            fetch(`https://localhost:7112/api/UserAuth/GetToken/${jwtToken2}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${jwtToken2}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    window.location.href = "/Home/Login"; // Redirect to login if unauthorized
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Weather data:', data);
+                // You can now use the data to update the UI
+            })
+            .catch(error => console.error('Error fetching weather data:', error));
+        }
+
+         window.addEventListener('load', FetchWeatherData2);
+    </script>
+}

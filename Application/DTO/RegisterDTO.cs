@@ -18,5 +18,13 @@ namespace Application.DTO
         [MinLength(8)]
         [MaxLength(32)]
         public string Password { get; set; }
+        [Required]
+        [MinLength(6)]
+        [MaxLength(6)]
+        public string CaptchaCode { get; set; }
+        [Required]
+        [MinLength(10)]
+        [MaxLength(10)]
+        public string PhoneNumber { get; set; }
     }
 }

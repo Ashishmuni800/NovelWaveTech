@@ -10,5 +10,6 @@ namespace Infrastructure.Context
             : base(options) { }
         public DbSet<PasswordChangeHistory> PasswordChangeHistory { get; set; }
         public DbSet<GenerateCaptchaCode> GenerateCaptchaCode { get; set; }
+        public DbSet<AuthorizationData> AuthorizationData { get; set; }
     }
 }

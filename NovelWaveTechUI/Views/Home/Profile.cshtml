@@ -1,1 +1,119 @@
-﻿
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .profile-pic img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #007bff;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg">
+                    <div class="card-body text-center">
+                        <!-- Profile Image -->
+                        <div class="profile-pic mb-3">
+                            <img src="https://via.placeholder.com/120" id="profileImage" alt="User Picture">
+                            <input type="file" id="imageUpload" accept="image/*" class="form-control mt-2 w-50 mx-auto">
+                        </div>
+
+                        <!-- Profile Info Form -->
+                        <form id="profileForm">
+                            <div class="mb-3 text-start">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="userName" value="John Doe">
+                            </div>
+                            <div class="mb-3 text-start">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="userEmail" value="john@example.com">
+                            </div>
+                            <div class="mb-3 text-start">
+                                <label class="form-label">Bio</label>
+                                <textarea class="form-control" rows="3" id="userBio">Web developer passionate about creating beautiful apps.</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Save Profile</button>
+                            <div class="alert alert-success mt-3 d-none" id="successMsg">Profile updated successfully!</div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script>
+            FetchWeatherData2();
+        document.addEventListener("DOMContentLoaded", () => {
+          const form = document.getElementById("profileForm");
+          const successMsg = document.getElementById("successMsg");
+
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            successMsg.classList.remove("d-none");
+            setTimeout(() => {
+              successMsg.classList.add("d-none");
+            }, 2000);
+          });
+
+          // Profile image preview
+          const imageInput = document.getElementById("imageUpload");
+          const profileImg = document.getElementById("profileImage");
+
+          imageInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+              profileImg.src = URL.createObjectURL(file);
+            }
+          });
+        });
+
+
+        function FetchWeatherData2() {
+            const jwtToken2 = localStorage.getItem('token');
+
+            fetch(`https://localhost:7112/api/UserAuth/GetToken/${jwtToken2}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${jwtToken2}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    window.location.href = "/Home/Login"; // Redirect to login if unauthorized
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Weather data:', data);
+                // You can now use the data to update the UI
+            })
+            .catch(error => console.error('Error fetching weather data:', error));
+        }
+    </script>
+
+</body>
+</html>

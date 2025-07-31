@@ -1,54 +1,98 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] - Novel Wave Tech</title>
-    <script type="importmap"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/NovelWaveTechUI.styles.css" asp-append-version="true" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
         body {
-            margin: 0;
-            font-family: "Lato", sans-serif;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         .sidebar {
-            margin: 0;
-            padding: 0;
-            width: 200px;
-            background-color: #f1f1f1;
+            height: 100vh;
+            width: 240px;
             position: fixed;
-            height: 100%;
-            overflow: auto;
+            top: 0;
+            left: 0;
+            background: #343a40;
+            color: #fff;
+            padding-top: 60px;
+            transition: width 0.3s;
+            overflow-x: hidden;
+            z-index: 1030;
         }
 
+            .sidebar.collapsed {
+                width: 60px;
+            }
+
             .sidebar a {
-                display: block;
-                color: black;
-                padding: 16px;
+                display: flex;
+                align-items: center;
+                padding: 12px 20px;
+                color: #ccc;
                 text-decoration: none;
             }
 
-                .sidebar a.active {
-                    background-color: #04AA6D;
-                    color: white;
+                .sidebar a i {
+                    width: 20px;
                 }
 
-                .sidebar a:hover:not(.active) {
-                    background-color: #555;
-                    color: white;
-                }
+            .sidebar.collapsed a span {
+                display: none;
+            }
 
-        div.content {
-            margin-left: 200px;
-            padding: 1px 16px;
-            height: 1000px;
+            .sidebar a:hover,
+            .sidebar a.active {
+                background: #495057;
+                color: #fff;
+            }
+
+        .content-wrapper {
+            margin-left: 240px;
+            transition: margin-left 0.3s;
+            padding: 20px;
         }
 
-        media screen and (max-width: 700px) {
+            .content-wrapper.collapsed {
+                margin-left: 60px;
+            }
+
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 240px;
+            width: calc(100% - 240px);
+            background: #0d6efd;
+            color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1020;
+            transition: left 0.3s, width 0.3s;
+        }
+
+            .topbar.collapsed {
+                left: 60px;
+                width: calc(100% - 60px);
+            }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 16px 0;
+            border-top: 1px solid #dee2e6;
+            margin-top: 60px;
+        }
+
+        media (max-width: 768px) {
             .sidebar
 
         {
@@ -57,132 +101,197 @@
             position: relative;
         }
 
-        .sidebar a {
-            float: left;
+        .topbar {
+            left: 0 !important;
+            width: 100% !important;
         }
 
-        div.content {
-            margin-left: 0;
-        }
-
-        }
-
-        media screen and (max-width: 400px) {
-            .sidebar a
-
-        {
-            text-align: center;
-            float: none;
+        .content-wrapper {
+            margin-left: 0 !important;
         }
 
         }
     </style>
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Novel Wave Tech</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item" id="registerLink">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Register">Register</a>
-                        </li>
-                        <li class="nav-item" id="loginLink" style="float:right">
-                            <a class="nav-link text-dark" style="float:right" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
-                        </li>
-                        <li class="nav-item" id="logoutLink" style="display: none;float:right;">
-                            <a class="nav-link text-dark">Logout</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+    <!-- Sidebar -->
+    <nav id="sidebar" class="sidebar" aria-label="Main Navigation" style="display:none;">
+        <div class="m-lg-4 mt-0">
+            <img src="/images/logo.png" alt="Novel Wave Tech" />
+        </div>
+        <a href="javascript:void(0);" id="toggleSidebar" class="mb-3">
+            <i class="fa fa-bars me-2"></i><span>Menu</span>
+        </a>
+
+        <div class="px-3 pb-2">
+            <input type="text" class="form-control form-control-sm" placeholder="Search..." />
+        </div>
+
+        <a id="navDashboard" href="/Home/Index"><i class="fa fa-chart-pie"></i><span>Dashboard</span></a>
+
+        <hr class="bg-secondary" />
+        <small class="px-3 text-uppercase text-muted">Account</small>
+        <a id="navLogin" href="/Home/Login"><i class="fa fa-sign-in-alt"></i><span>Login</span></a>
+        <a id="navRegister" href="/Home/Register"><i class="fa fa-user-plus"></i><span>Register</span></a>
+        <a id="navProtected" href="/Home/Proctected" style="display:none;"><i class="fa fa-lock"></i><span>Protected</span></a>
+        <a id="navProtected2" href="/Home/Userlist" style="display:none;"><i class="fa fa-lock"></i><span>Users</span></a>
+
+        <hr class="bg-secondary" />
+        <small class="px-3 text-uppercase text-muted">Tools</small>
+        <a href="#" id="toggleTheme"><i class="fa fa-moon" id="themeIcon"></i><span>Toggle Theme</span></a>
+        <a href="/Home/Settings"><i class="fa fa-cogs"></i><span>Settings</span></a>
+        <a href="/Home/Help"><i class="fa fa-question-circle"></i><span>Help</span></a>
+    </nav>
+
+
+    <!-- Topbar -->
+    <header id="topbar" class="topbar" style="display:none;">
+        <div class="d-flex align-items-center">
+            @RenderSection("HeaderButtons", required: false)
+        </div>
+        <div class="dropdown" id="userMenuShow" style="float:right;background-color:white;">
+            <a class="btn btn-outline-light dropdown-toggle" href="#" role="button" id="userMenu"
+               data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-user-circle me-1"></i><span id="userNameDisplay">User</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                <li><a class="dropdown-item" href="/Home/Profile"><i class="fa fa-id-card me-1"></i>Profile</a></li>
+                <li><a class="dropdown-item" href="/Home/PasswordChange"><i class="fa fa-key me-1"></i>Change Password</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" id="dropdownLogout"><i class="fa fa-sign-out-alt me-1"></i>Logout</a></li>
+            </ul>
+        </div>
     </header>
 
-         <div class="sidebar">
-            <a class="active" href="#home">Home</a>
-
-            <a href="#news">News</a>
-            <a href="#contact">Contact</a>
-            <a href="#about">About</a>
-        <li class="nav-item" id="protectedLink" style="display: none;">
-            <a class="nav-link text-dark" asp-controller="Home" asp-action="Proctected">Protected Data</a>
-        </li>
-        <li class="nav-item" id="PasswordChangeLink" style="display: none;">
-            <a class="nav-link text-dark" asp-controller="Home" asp-action="PasswordChange">Password Change</a>
-        </li>
-        </div> 
-
-
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    
+    <!-- Main Content -->
+    <div id="content" class="content-wrapper">
+        @RenderBody()
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- Footer -->
+    <footer class="footer text-center text-muted">
         <div class="container">
-            &copy; 2025 - Novel Wave Tech - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2025 - Novel Wave Tech - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+
+                const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        const topbar = document.getElementById('topbar');
+        const token = localStorage.getItem('token');
+        const storedTheme = localStorage.getItem('theme');
+
+        // Apply saved theme
+        if (storedTheme) {
+            document.documentElement.setAttribute('data-bs-theme', storedTheme);
+        }
+
+        // Auth logic with token validation
+        if (token) {
+            // Validate token with server
+            fetch(`https://localhost:7112/api/UserAuth/GetToken/${token}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Invalid token');
+                }
+                return res.json();
+            })
+            .then(data => {
+                // Token is valid, show protected content
+                document.getElementById('navLogin').style.display = 'none';
+                document.getElementById('navRegister').style.display = 'none';
+                document.getElementById('navProtected').style.display = 'block';
+                document.getElementById('navProtected2').style.display = 'block';
+                document.getElementById('userNameDisplay').innerText = `Welcome, ${data.Id || 'User'}!`;
+                sidebar.style.display = 'block';
+                topbar.style.display = 'block';
+            })
+            .catch(err => {
+                // Invalid token, clear it and show public view
+                console.warn(err.message);
+                // const token2 = localStorage.getItem('token');
+                // if(token2!=null){
+                // localStorage.removeItem('token');
+                // }
+                document.getElementById('navLogin').style.display = 'block';
+                document.getElementById('navRegister').style.display = 'block';
+                document.getElementById('navProtected').style.display = 'none';
+                document.getElementById('navProtected2').style.display = 'none';
+                sidebar.style.display = 'none';
+                topbar.style.display = 'none';
+            });
+        } else {
+            // No token, show public view
+            document.getElementById('navLogin').style.display = 'block';
+            document.getElementById('navRegister').style.display = 'block';
+            document.getElementById('navProtected').style.display = 'none';
+            document.getElementById('navProtected2').style.display = 'none';
+            sidebar.style.display = 'none';
+            topbar.style.display = 'none';
+        }
+
+
+        // Logout
+        function doLogout() {
+            if (!confirm('Are you sure you want to log out??')) return;
+            fetch('https://localhost:7112/api/UserAuth/Logout', { method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+            })
+                .then(r => {
+                    if (r.ok) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('token_expiry');
+                        window.location.href = '/Home/Login';
+                    } else {
+                        alert('Logout failed.');
+                    }
+                })
+                .catch(() => alert('Error logging out.'));
+        }
+
+        //document.getElementById('navLogout').addEventListener('click', doLogout);
+        document.getElementById('dropdownLogout').addEventListener('click', doLogout);
+
+        // Sidebar toggle
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
+            topbar.classList.toggle('collapsed');
+        });
+
+        // Theme toggle
+                // Theme toggle with icon swap
+        document.getElementById('toggleTheme').addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Change icon
+            document.getElementById('themeIcon').classList.toggle('fa-moon');
+            document.getElementById('themeIcon').classList.toggle('fa-sun');
+        });
+
+
+          
+    </script>
 </body>
 </html>
-
-<script>
-
-
-    // Check if the token exists in local storage
-    const token = localStorage.getItem('token');
-
-    // If the token exists, show the logout button and hide login/register
-    if (token) {
-        document.getElementById("logoutLink").style.display = 'block'; // Show logout button
-        document.getElementById("loginLink").style.display = 'none';   // Hide login link
-        document.getElementById("registerLink").style.display = 'none'; // Hide register link
-        document.getElementById("protectedLink").style.display = 'block'; // Hide register link
-        document.getElementById("PasswordChangeLink").style.display = 'block'; // Hide register link
-    }
-
-    // Add event listener for logout button
-    document.getElementById("logoutLink").addEventListener("click", function () {
-        // Show a confirmation dialog
-        const userConfirmed = confirm("Are you sure you want to log out?");
-
-        if (userConfirmed) {
-            // Call the API to log out the user
-            fetch('https://localhost:7112/api/UserAuth/Logout', {
-                method: 'POST', // or 'GET' depending on your API
-                headers: {
-                    'Content-Type': 'application/json',
-                    // 'Authorization': 'Bearer ' + localStorage.getItem('token') Send token if required
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Successfully logged out on server side
-                    // Remove the token from local storage
-                    localStorage.removeItem("token");
-                    // Redirect to login page
-                    window.location.href = '/Home/Login';
-                } else {
-                    // Handle error if logout fails
-                    alert('Error logging out. Please try again.');
-                }
-            })
-            .catch(error => {
-                // Handle network or other errors
-                console.error('Logout error:', error);
-                alert('Error logging out. Please try again.');
-            });
-        }
-    });
-</script>

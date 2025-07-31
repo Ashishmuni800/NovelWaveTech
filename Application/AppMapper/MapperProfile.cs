@@ -26,6 +26,10 @@ namespace Application.AppMapper
             CreateMap<GenerateCaptchaCode, GenerateCaptchaCodeViewModel>();
             CreateMap<GenerateCaptchaCode, GenerateCaptchaCodeDTO>();
             CreateMap<GenerateCaptchaCodeDTO, GenerateCaptchaCode>();
+
+            CreateMap<AuthorizationData, AuthorizationDataViewModel>();
+            CreateMap<AuthorizationData, AuthorizationDataDTO>();
+            CreateMap<AuthorizationDataDTO, AuthorizationData>();
         }
     }
 }

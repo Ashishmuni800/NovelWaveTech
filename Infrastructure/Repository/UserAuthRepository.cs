@@ -37,6 +37,19 @@ namespace Infrastructure.Repository
 
         }
 
+        public async Task<AuthorizationData> CreateByAuthorizationDataAsync(AuthorizationData authorizationData)
+        {
+            AuthorizationData authorization = new AuthorizationData();
+            Guid Id = Guid.NewGuid();
+            authorization.Id = Id.ToString();
+            authorization.token = authorizationData.token;
+            authorization.CreatedDatetime = authorizationData.CreatedDatetime;
+            await _dbContext.AuthorizationData.AddAsync(authorization);
+            await _dbContext.SaveChangesAsync();
+
+            return authorization; // ← returning the saved entity makes more sense
+        }
+
         public async Task<GenerateCaptchaCode> CreateByGenerateCaptchaCodeAsync(GenerateCaptchaCode captchaCode)
         {
             GenerateCaptchaCode generateCaptcha = new GenerateCaptchaCode();
@@ -69,13 +82,30 @@ namespace Infrastructure.Repository
             return passwordHistory; // ← returning the saved entity makes more sense
         }
 
+        public async Task<bool> DeleteByAuthorizationDataAsync()
+        {
+            var ExpireDataTime = DateTime.Now.AddMinutes(-5);
+            var OldData = _dbContext.AuthorizationData.Where(op => op.CreatedDatetime < ExpireDataTime);
+            if (OldData.Count() > 0)
+            {
+                _dbContext.AuthorizationData.RemoveRange(OldData);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
         public async Task<bool> DeleteByGenerateCaptchaCodeAsync()
         {
-            var ExpireDataTime = DateTime.Now.AddMinutes(-10);
+            var ExpireDataTime = DateTime.Now.AddMinutes(-5);
             var OldData = _dbContext.GenerateCaptchaCode.Where(op => op.CreatedDate < ExpireDataTime);
-            _dbContext.GenerateCaptchaCode.RemoveRange(OldData);
-            await _dbContext.SaveChangesAsync();
-            return true;
+            if(OldData.Count()>0)
+            {
+                _dbContext.GenerateCaptchaCode.RemoveRange(OldData);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
 
 
@@ -103,6 +133,11 @@ namespace Infrastructure.Repository
             {
                 return registerModel;
             }
+        }
+
+        public async Task<AuthorizationData> GetByAuthorizationDataUserIdAsync(string token)
+        {
+            return await _dbContext.AuthorizationData.Where(op => op.token == token).FirstOrDefaultAsync();
         }
 
         public async Task<GenerateCaptchaCode> GetByGenerateCaptchaCodeAsync(string captchaCode)
