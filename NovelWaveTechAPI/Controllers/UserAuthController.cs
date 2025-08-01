@@ -219,6 +219,18 @@ namespace NovelWaveTechAPI.Controllers
             }
             return Ok(data);
         }
+
+        [HttpGet("{CaptchaCode}")]
+        public async Task<IActionResult> GetCaptcha([FromRoute] string CaptchaCode)
+        {
+            var data = await _userAuthService.AuthService.GetByGenerateCaptchaCodeAsync(CaptchaCode);
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data);
+        }
+
         private string GeneratedJwtToken(ApplicationUser user)
         {
             var claims = new[]
