@@ -208,6 +208,7 @@
     <div id="alert" class="alert"></div>
 
     <script>
+        var Urls='@ViewBag.URLs';
         const listEl = document.getElementById('list');
         const loadingEl = document.getElementById('loading');
         const alertBox = document.getElementById('alert');
@@ -298,10 +299,11 @@
             if (!hasMore || loading) return;
             loading = true;
             loadingEl.style.display = 'block';
-
+            
             try {
+                //var Urls='@ViewBag.URLs';
                 const jwtToken = localStorage.getItem('token');
-                const resp = await fetch(`https://localhost:7112/api/UserAuth/Get?skip=${skip}&take=${take}`, {
+                const resp = await fetch(`${Urls}/api/UserAuth/Get?skip=${skip}&take=${take}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`
@@ -346,7 +348,7 @@
 
             try {
                 const jwtToken = localStorage.getItem('token');
-                const resp = await fetch(`https://localhost:7112/api/UserAuth/Update/${currentEditId}`, {
+                const resp = await fetch(`${Urls}/api/UserAuth/Update/${currentEditId}`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`,
@@ -376,7 +378,7 @@
 
             try {
                 const jwtToken = localStorage.getItem('token');
-                const resp = await fetch(`https://localhost:7112/api/UserAuth/Delete/${id}`, {
+                const resp = await fetch(`${Urls}/api/UserAuth/Delete/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`
@@ -405,7 +407,7 @@
 
         window.addEventListener('load', () => {
             const token = localStorage.getItem('token');
-            fetch(`https://localhost:7112/api/UserAuth/GetToken/${token}`, {
+            fetch(`${Urls}/api/UserAuth/GetToken/${token}`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${token}` }
             })

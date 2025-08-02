@@ -11,44 +11,60 @@ namespace NovelWaveTechUI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         //private readonly BaseURLs _baseURL;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
         }
         public IActionResult Userlist()
         {
+            string baseurl = _configuration["BaseUrl"];
+            ViewBag.URLs = baseurl;
             return View();
         }
         public IActionResult Index()
         {
+            string baseurl = _configuration["BaseUrl"];
+            ViewBag.URLs = baseurl;
             return View();
         }
         public IActionResult Register()
         {
+            string baseurl = _configuration["BaseUrl"];
+            ViewBag.URLs = baseurl;
             return View();
         }
         public IActionResult Login()
         {
-            //var url = _baseURL.SetURL("/api/UserAuth/GenerateCaptcha");
-           // ViewBag.Url = url;
+            string baseurl = _configuration["BaseUrl"];
+            ViewBag.URLs = baseurl;
             return View();
         }
         [HttpGet]
         public IActionResult Proctected()
         {
+            string baseurl = _configuration["BaseUrl"];
+            ViewBag.URLs = baseurl;
             return View();
         }
         public IActionResult PasswordChange()
         {
+            string baseurl = _configuration["BaseUrl"];
+            ViewBag.URLs = baseurl;
             return View();
         }
         public IActionResult Profile()
         {
+            string baseurl = _configuration["BaseUrl"];
+            ViewBag.URLs = baseurl;
             return View();
         }
         public IActionResult Chat()
         {
+            string baseurl = _configuration["BaseUrl"];
+            ViewBag.URLs = baseurl;
             return View();
         }
     }

@@ -19,11 +19,11 @@
 <script>
     FetchWeatherData2();
     FetchWeatherData();
-
+    var Urls='@ViewBag.URLs';
     function FetchWeatherData(){
         const jwtToken = localStorage.getItem('token');  // Replace with your actual JWT token
 
-        fetch('https://localhost:7112/weatherForecast', {
+        fetch(`${Urls}/weatherForecast`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${jwtToken}`,
@@ -66,7 +66,7 @@
         function FetchWeatherData2() {
         const jwtToken2 = localStorage.getItem('token');
 
-        fetch(`https://localhost:7112/api/UserAuth/GetToken/${jwtToken2}`, {
+        fetch(`${Urls}/api/UserAuth/GetToken/${jwtToken2}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${jwtToken2}`,
