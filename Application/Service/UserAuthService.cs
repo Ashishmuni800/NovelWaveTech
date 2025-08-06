@@ -238,8 +238,8 @@ namespace Application.Service
 
             return new PaginatedResult<UserDto>
             {
-                items = list,
-                hasMore = hasMore
+                Items = list,
+                HasMore = hasMore
             };
         }
 
