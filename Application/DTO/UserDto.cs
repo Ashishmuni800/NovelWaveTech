@@ -15,8 +15,8 @@ namespace Application.DTO
 
     public class PaginatedResult<T>
     {
-        public IEnumerable<T> Items { get; set; } = Enumerable.Empty<T>();
-        public bool HasMore { get; set; }
+        public IEnumerable<T> items { get; set; } = Enumerable.Empty<T>();
+        public bool hasMore { get; set; }
     }
 
 }

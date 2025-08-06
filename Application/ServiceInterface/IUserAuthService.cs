@@ -24,9 +24,11 @@ namespace Application.ServiceInterface
         Task<GenerateCaptchaCodeDTO> CreateByGenerateCaptchaCodeAsync(GenerateCaptchaCodeDTO captchaCodeDTO);
         Task<GenerateCaptchaCodeViewModel> GetByGenerateCaptchaCodeAsync(string captchaCode);
         Task<ApplicationUser> CheckPasswordSignInAsync(ApplicationUser user, string Password);
+        Task<UserEditDTO> Edit(UserEditDTO user);
         Task<bool> DeleteByGenerateCaptchaCodeAsync();
         Task<AuthorizationDataDTO> CreateByAuthorizationDataAsync(AuthorizationDataDTO authorizationDataDTO);
         Task<bool> DeleteByAuthorizationDataAsync();
+        Task<bool> Delete(string Id);
         Task<AuthorizationDataViewModel> GetByAuthorizationDataUserIdAsync(string UserId);
         //Task<string> GeneratedJwtToken(ApplicationUser user);
         //void Logout();

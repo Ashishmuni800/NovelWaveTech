@@ -6,12 +6,14 @@ using Infrastructure.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using SixLaborsCaptcha.Core;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
+using SixLaborsCaptcha.Core;
 using System;
 using System.CodeDom.Compiler;
 using System.Drawing;
@@ -21,7 +23,6 @@ using System.IO;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using SixLabors.ImageSharp.Formats.Webp;
 namespace NovelWaveTechAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
@@ -49,7 +50,7 @@ namespace NovelWaveTechAPI.Controllers
         }
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Get(int skip = 0, int take = 50)
+        public async Task<IActionResult> Get(int skip, int take)
         {
             var result = await _userAuthService.AuthService.GetUsersIncrementalAsync(skip, take);
             return Ok(result);
@@ -258,6 +259,21 @@ namespace NovelWaveTechAPI.Controllers
         public async Task<IActionResult> GetByPasswordChangeHistory([FromRoute] string UserPassword)
         {
             var data= await _userAuthService.AuthService.GetByPasswordChangeHistoryAsync(UserPassword);
+            return Ok(data);
+        }
+        [Authorize]
+        [HttpGet("{Id}")]
+        public async Task<IActionResult> Delete([FromRoute] string Id)
+        {
+            var data = await _userAuthService.AuthService.Delete(Id);
+            return Ok(data);
+        }
+        [Authorize]
+        [HttpPost("{Id}")]
+        public async Task<IActionResult> EditUser([FromBody] UserEditDTO userEditDTO, [FromRoute] string Id)
+        {
+            var data = await _userAuthService.AuthService.Edit(userEditDTO);
+            if (data == null) return BadRequest("Update failed");
             return Ok(data);
         }
         [HttpGet]

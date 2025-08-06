@@ -236,6 +236,7 @@
         function renderUsers(users) {
             listEl.innerHTML = '';
             users.forEach(u => {
+                 //const userIdStr = string(u.id);  // 👈 convert to string
                 const row = document.createElement('tr');
                 row.id = `row-${u.id}`;
                 row.innerHTML = `
@@ -243,10 +244,10 @@
                     <td class="username">${u.userName}</td>
                     <td class="email">${u.email}</td>
                     <td class="actions">
-                        <span class="action-btn edit-btn" title="Edit" onclick="editUser(${u.id}, '${u.userName}', '${u.email}')">
+                          <span class="action-btn edit-btn" title="Edit" onclick="editUser('${u.id}', '${u.userName}', '${u.email}')">
                             <i class="fas fa-edit"></i>
                         </span>
-                        <span class="action-btn delete-btn" title="Delete" onclick="deleteUser(${u.id})">
+                          <span class="action-btn delete-btn" title="Delete" onclick="deleteUser('${u.id}')">
                             <i class="fas fa-trash-alt"></i>
                         </span>
                     </td>
@@ -348,8 +349,8 @@
 
             try {
                 const jwtToken = localStorage.getItem('token');
-                const resp = await fetch(`${Urls}/api/UserAuth/Update/${currentEditId}`, {
-                    method: 'PUT',
+                 const resp = await fetch(`${Urls}/api/UserAuth/EditUser/${currentEditId}`, {
+                    method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`,
                         'Content-Type': 'application/json'
@@ -372,14 +373,15 @@
                 showAlert('Edit failed', 'error');
             }
         }
-
+       //debugger        
         async function deleteUser(id) {
             if (!confirm('Delete this user?')) return;
 
             try {
                 const jwtToken = localStorage.getItem('token');
+                
                 const resp = await fetch(`${Urls}/api/UserAuth/Delete/${id}`, {
-                    method: 'DELETE',
+                    method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`
                     }

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -237,9 +238,29 @@ namespace Application.Service
 
             return new PaginatedResult<UserDto>
             {
-                Items = list,
-                HasMore = hasMore
+                items = list,
+                hasMore = hasMore
             };
+        }
+
+        public async Task<bool> Delete(string Id)
+        {
+            var data= await _userManager.FindByIdAsync(Id);
+            if (data == null) return false;
+            var deletedat= await _userManager.DeleteAsync(data);
+            if (deletedat == null) return false;
+            return true;
+        }
+
+        public async Task<UserEditDTO> Edit(UserEditDTO user)
+        {
+            var data = await _userManager.FindByIdAsync(user.Id);
+            if (data == null) return null;
+            data.UserName = user.userName;
+            data.Email = user.email;
+            var updatedat = await _userManager.UpdateAsync(data);
+            if (updatedat == null) return null;
+            return user;
         }
     }
 }
