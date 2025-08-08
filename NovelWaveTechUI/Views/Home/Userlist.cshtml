@@ -202,8 +202,6 @@
     <div id="alert" class="alert"></div>
 
     <script>
-        const Urls = 'https://localhost:7112'; // ✅ Replace with your actual backend URL
-
         const listEl = document.getElementById('list');
         const loadingEl = document.getElementById('loading');
         const alertBox = document.getElementById('alert');
@@ -297,9 +295,9 @@
 
             try {
                 const jwtToken = localStorage.getItem('token');
-                console.log("➡️ Fetching:", `${Urls}/api/UserAuth/Get?skip=${skip}&take=${take}`);
+                console.log("➡️ Fetching:", `/Home/UserlistApi?skip=${skip}&take=${take}`);
 
-                const resp = await fetch(`${Urls}/api/UserAuth/Get?skip=${skip}&take=${take}`, {
+                const resp = await fetch(`/Home/UserlistApi?skip=${skip}&take=${take}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`
@@ -351,7 +349,7 @@
 
             try {
                 const jwtToken = localStorage.getItem('token');
-                const resp = await fetch(`${Urls}/api/UserAuth/EditUser/${currentEditId}`, {
+                const resp = await fetch(`/Home/UpdatePost/${currentEditId}`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`,
@@ -382,7 +380,7 @@
 
             try {
                 const jwtToken = localStorage.getItem('token');
-                const resp = await fetch(`${Urls}/api/UserAuth/Delete/${id}`, {
+                const resp = await fetch(`/Home/Delete/${id}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${jwtToken}`
@@ -429,7 +427,7 @@
                 return;
             }
 
-            fetch(`${Urls}/api/UserAuth/GetToken/${token}`, {
+            fetch(`/Home/GetToken`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${token}` }
             })

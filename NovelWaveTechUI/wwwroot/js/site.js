@@ -173,7 +173,7 @@ async function loadCaptcha() {
 }
 
 // Initial load
-window.addEventListener('load', loadCaptcha);
+//window.addEventListener('load', loadCaptcha);
 document.getElementById('captchaRefresh').addEventListener('click', loadCaptcha);
 // Load CAPTCHA on initial page load
 //window.addEventListener('DOMContentLoaded', loadCaptcha);

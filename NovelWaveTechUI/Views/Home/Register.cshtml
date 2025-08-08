@@ -134,7 +134,6 @@
 <script>
     const registerForm = document.getElementById('registerForm');
     const statusMessage = document.getElementById('statusMessage');
-    var Urls='@ViewBag.URLs';
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -152,14 +151,14 @@
         }
 
         try {
-            const captchaResponse = await fetch(`${Urls}/api/UserAuth/GetCaptcha/${CaptchaCode}`, {
+            const captchaResponse = await fetch(`/Home/GetCaptcha?CaptchaCode=${CaptchaCode}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });
 
             if (captchaResponse.ok) {
                 try {
-            const response = await fetch(`${Urls}/api/UserAuth/Register`, {
+            const response = await fetch('/Home/RegisterPost', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, PhoneNumber, password, CaptchaCode, Id })
@@ -192,7 +191,7 @@
 
     async function loadCaptcha() {
         try {
-            const response = await fetch(`${Urls}/api/UserAuth/GenerateCaptcha`);
+            const response = await fetch('/Home/Captcha');
             const blob = await response.blob();
             const idHeader = response.headers.get("Content-Disposition");
             const id = idHeader?.split("filename=")[1] || '';
@@ -205,6 +204,6 @@
         }
     }
 
-    window.addEventListener('load', loadCaptcha);
+    //window.addEventListener('load', loadCaptcha);
     document.getElementById('captchaRefresh').addEventListener('click', loadCaptcha);
 </script>

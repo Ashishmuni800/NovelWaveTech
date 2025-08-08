@@ -72,7 +72,7 @@
                 async function FetchWeatherData2() {
             const jwtToken2 = localStorage.getItem('token');
 
-            fetch(`${Urls}/api/UserAuth/GetToken/${jwtToken2}`, {
+            fetch('/Home/GetToken', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${jwtToken2}`,
