@@ -229,7 +229,9 @@ namespace Application.Service
                 {
                     Id = u.Id,
                     UserName = u.UserName,
-                    Email = u.Email
+                    Email = u.Email,
+                    Name=u.Name,
+                    PhoneNumber=u.PhoneNumber
                 })
                 .ToListAsync();
 

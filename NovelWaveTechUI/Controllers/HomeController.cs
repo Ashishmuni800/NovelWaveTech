@@ -1,10 +1,13 @@
+using Application.ApiHttpClient;
 using Application.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NovelWaveTechUI.BaseURL;
 using NovelWaveTechUI.Filters;
 using NovelWaveTechUI.Models;
+using System;
 using System.Buffers.Text;
 using System.Diagnostics;
 using System.Net.Http.Headers;
@@ -16,11 +19,12 @@ namespace NovelWaveTechUI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IConfiguration _configuration;
-
-        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
+        private readonly IHttpClients _httpClient;
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration,IHttpClients httpClient)
         {
             _logger = logger;
             _configuration = configuration;
+            _httpClient=httpClient;
         }
         public IActionResult Userlist()
         {
@@ -38,24 +42,11 @@ namespace NovelWaveTechUI.Controllers
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/Get?skip={skip}&take={take}";
 
-            using var client = new HttpClient();
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.GetAsync(fullUrl);
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
-            var contentStream = await response.Content.ReadAsStreamAsync();
-
-            return Ok(contentStream);
+            var response = await _httpClient.GetAsync(fullUrl,jwtToken).ConfigureAwait(false);
+            return Ok(response);
         }
         public IActionResult Index()
         {
-            string baseurl = _configuration["BaseUrl"];
-            ViewBag.URLs = baseurl;
             return View();
         }
         public IActionResult Register()
@@ -68,21 +59,8 @@ namespace NovelWaveTechUI.Controllers
 
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/Register";
-
-            using var client = new HttpClient();
-
-            var jsonContent = JsonConvert.SerializeObject(registerDTO);
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync(fullUrl, httpContent);
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/json";
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            return Content(responseString, contentType);
+            var response = await _httpClient.PostAsync(fullUrl, registerDTO).ConfigureAwait(false);
+            return Ok(response);
         }
         public IActionResult Login()
         {
@@ -94,21 +72,8 @@ namespace NovelWaveTechUI.Controllers
 
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/Login";
-
-            using var client = new HttpClient();
-
-            var jsonContent = JsonConvert.SerializeObject(loginDTO);
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync(fullUrl, httpContent);
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/json";
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            return Content(responseString, contentType);
+            var response = await _httpClient.PostAsync(fullUrl, loginDTO).ConfigureAwait(false);
+            return Ok(response);
         }
 
         [HttpGet]
@@ -127,20 +92,8 @@ namespace NovelWaveTechUI.Controllers
 
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/weatherForecast";
-
-            using var client = new HttpClient();
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.GetAsync(fullUrl);
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
-            var contentStream = await response.Content.ReadAsStreamAsync();
-
-            return Ok(contentStream);
+            var response = await _httpClient.GetAsync(fullUrl, jwtToken).ConfigureAwait(false);
+            return Ok(response);
         }
         public IActionResult PasswordChange()
         {
@@ -158,36 +111,15 @@ namespace NovelWaveTechUI.Controllers
 
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/ChangePassword";
-
-            using var client = new HttpClient();
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var jsonContent = JsonConvert.SerializeObject(changePasswordDTO);
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync(fullUrl, httpContent);
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/json";
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            return Content(responseString, contentType);
+            var response = await _httpClient.PostAsync(fullUrl, changePasswordDTO,jwtToken).ConfigureAwait(false);
+            return Ok(response);
         }
-
-
         public IActionResult Profile()
         {
-            string baseurl = _configuration["BaseUrl"];
-            ViewBag.URLs = baseurl;
             return View();
         }
         public IActionResult Chat()
         {
-            string baseurl = _configuration["BaseUrl"];
-            ViewBag.URLs = baseurl;
             return View();
         }
 
@@ -207,7 +139,6 @@ namespace NovelWaveTechUI.Controllers
             var contentType = response.Content.Headers.ContentType?.ToString() ?? "image/png";
             var contentDisposition = response.Content.Headers.ContentDisposition?.ToString()
                                      ?? $"inline; filename={Guid.NewGuid()}";
-
             Response.Headers["Content-Disposition"] = contentDisposition;
 
             return File(content, contentType);
@@ -217,17 +148,8 @@ namespace NovelWaveTechUI.Controllers
         {
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/GetCaptcha/{CaptchaCode}";
-
-            using var client = new HttpClient();
-            var response = await client.GetAsync(fullUrl);
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
-            var contentStream = await response.Content.ReadAsStreamAsync();
-
-            return Ok(contentStream);
+            var response = await _httpClient.GetAsync(fullUrl).ConfigureAwait(false);
+            return Ok(response);
         }
         [HttpGet]
         public async Task<IActionResult> GetToken()
@@ -240,20 +162,8 @@ namespace NovelWaveTechUI.Controllers
 
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/GetToken/{jwtToken}";
-
-            using var client = new HttpClient();
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.GetAsync(fullUrl);
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
-            var contentStream = await response.Content.ReadAsStreamAsync();
-
-            return Ok(contentStream);
+            var response = await _httpClient.GetAsync(fullUrl, jwtToken).ConfigureAwait(false);
+            return Ok(response);
         }
         [HttpGet]
         public async Task<IActionResult> Delete(string Id)
@@ -266,20 +176,8 @@ namespace NovelWaveTechUI.Controllers
 
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/Delete/{Id}";
-
-            using var client = new HttpClient();
-
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.GetAsync(fullUrl);
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
-            var contentStream = await response.Content.ReadAsStreamAsync();
-
-            return Ok(contentStream);
+            var response = await _httpClient.GetAsync(fullUrl, jwtToken).ConfigureAwait(false);
+            return Ok(response);
         }
         [HttpPost]
         public async Task<IActionResult> UpdatePost([FromBody] UserEditDTO userEditDTO, [FromRoute] string Id)
@@ -292,22 +190,8 @@ namespace NovelWaveTechUI.Controllers
 
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/EditUser/{Id}";
-
-            using var client = new HttpClient();
-
-            var jsonContent = JsonConvert.SerializeObject(userEditDTO);
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-
-            var response = await client.PostAsync(fullUrl, httpContent);
-
-            if (!response.IsSuccessStatusCode)
-                return StatusCode((int)response.StatusCode);
-
-            var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
-            var contentStream = await response.Content.ReadAsStreamAsync();
-
-            return Ok(contentStream);
+            var response = await _httpClient.PostAsync(fullUrl, userEditDTO, jwtToken).ConfigureAwait(false);
+            return Ok(response);
         }
         
     }

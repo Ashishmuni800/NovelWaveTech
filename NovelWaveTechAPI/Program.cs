@@ -1,3 +1,4 @@
+using Application.ApiHttpClient;
 using Application.AppMapper;
 using Application.Service;
 using Application.ServiceInterface;
@@ -68,6 +69,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<IServiceInfra, ServiceInfra>();
 builder.Services.AddScoped<IServiceInfraRepo, ServiceInfraRepo>();
+//builder.Services.AddTransient<IHttpClients, HttpClients>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

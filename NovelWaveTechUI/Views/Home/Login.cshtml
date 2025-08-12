@@ -115,7 +115,7 @@
 </div>
 
 <script>
-    var Urls='@ViewBag.URLs';
+     FetchWeatherData2()
     const loginForm = document.getElementById('loginForm');
     const statusMessage = document.getElementById('statusMessage');
 
@@ -194,4 +194,33 @@
     // Initial load
    // window.addEventListener('load', loadCaptcha);
     document.getElementById('captchaRefresh').addEventListener('click', loadCaptcha);
+
+     function FetchWeatherData2() {
+         const jwtToken2 = localStorage.getItem('token');
+
+         fetch('/Home/GetToken', {
+             method: 'GET',
+             headers: {
+                 'Authorization': `Bearer ${jwtToken2}`,
+                 'Content-Type': 'application/json'
+             }
+         })
+         .then(response => {
+             if (response.ok) {
+                 window.location.href = "/Home/Index"; // Redirect to login if unauthorized
+                 return;
+             }
+             else{
+                  window.location.href = "/Home/Login"; // Redirect to login if unauthorized
+                  return;
+             }
+            
+         })
+         .then(data => {
+             console.log('Weather data:', data);
+             // You can now use the data to update the UI
+         })
+         .catch(error => console.error('Error fetching weather data:', error));
+     }
+
 </script>

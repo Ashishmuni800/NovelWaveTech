@@ -1,3 +1,4 @@
+using Application.ApiHttpClient;
 using NovelWaveTechUI.BaseURL;
 using NovelWaveTechUI.Chat;
 
@@ -6,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<HttpClient, HttpClient>();
+builder.Services.AddSingleton<IHttpClients, HttpClients>();
 var app = builder.Build();
 
 

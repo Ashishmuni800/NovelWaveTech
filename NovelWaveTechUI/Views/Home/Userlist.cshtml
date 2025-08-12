@@ -6,21 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
     <style>
+        html {
+            font-size: 16px;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 1rem;
             background-color: #f9f9f9;
+            font-size: clamp(0.9rem, 1vw + 0.5rem, 1.1rem); /* responsive font sizing */
         }
 
         .container {
-            max-width: 1000px;
+            width: 100%;
+            max-width: 1200px;
             margin: auto;
             background: white;
             padding: 1rem;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            margin-top:25px;
         }
+
 
         h2 {
             margin-top: 0;
@@ -115,10 +124,6 @@
             border-radius: 6px;
         }
 
-            #editModalContent h3 {
-                margin-top: 0;
-            }
-
             #editModalContent input {
                 width: 100%;
                 padding: 0.6rem;
@@ -148,22 +153,27 @@
                 background: #dc3545;
             }
 
-        media (max-width: 600px) {
+        @@media (max-width: 600px) {
             .controls
 
         {
             flex-direction: column;
         }
 
+        .actions {
+            white-space: nowrap;
+        }
+
         .action-btn {
-            font-size: 1.3rem;
+            display: inline-block;
+            vertical-align: middle;
         }
 
         }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
+    <div class="container mt-6">
         <h2>Users Management</h2>
         <div class="controls">
             <input type="text" id="searchInput" placeholder="Search by username or email" />
@@ -177,9 +187,10 @@
         <table>
             <thead>
                 <tr>
-                    <th class="sortable" onclick="sortBy('id')">ID</th>
+                    <th class="sortable" onclick="sortBy('Name')">Name</th>
                     <th class="sortable" onclick="sortBy('userName')">Username</th>
                     <th class="sortable" onclick="sortBy('email')">Email</th>
+                    <th class="sortable" onclick="sortBy('phoneNumber')">Phone Number</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -192,8 +203,10 @@
     <div id="editModal">
         <div id="editModalContent">
             <h3>Edit User</h3>
+            <input type="text" id="editName" placeholder="Name" />
             <input type="text" id="editUsername" placeholder="Username" />
             <input type="email" id="editEmail" placeholder="Email" />
+            <input type="text" id="editPhoneNumber" placeholder="Phone Number" />
             <button onclick="saveEdit()">Save</button>
             <button onclick="closeModal()">Cancel</button>
         </div>
@@ -207,8 +220,10 @@
         const alertBox = document.getElementById('alert');
 
         const editModal = document.getElementById('editModal');
+        const editNameInput = document.getElementById('editName');
         const editUsernameInput = document.getElementById('editUsername');
         const editEmailInput = document.getElementById('editEmail');
+        const editPhoneNumberInput = document.getElementById('editPhoneNumber');
 
         const searchInput = document.getElementById('searchInput');
         const filterSelect = document.getElementById('filterSelect');
@@ -232,14 +247,17 @@
                 const row = document.createElement('tr');
                 row.id = `row-${u.id}`;
                 row.innerHTML = `
-                    <td>${u.id}</td>
-                    <td class="username">${u.userName}</td>
+                    <td class="username">${u.name}</td>
+                    <td class="name">${u.userName}</td>
                     <td class="email">${u.email}</td>
+                    <td class="phoneNumber">${u.phoneNumber}</td>
                     <td class="actions">
-                        <span class="action-btn edit-btn" title="Edit" onclick="editUser('${u.id}', '${u.userName}', '${u.email}')">
+                        <span class="action-btn edit-btn" title="Edit"
+                            onclick="editUser('${u.id}', '${u.name}', '${u.userName}', '${u.email}', '${u.phoneNumber}')">
                             <i class="fas fa-edit"></i>
                         </span>
-                        <span class="action-btn delete-btn" title="Delete" onclick="deleteUser('${u.id}')">
+                        <span class="action-btn delete-btn" title="Delete"
+                            onclick="deleteUser('${u.id}')">
                             <i class="fas fa-trash-alt"></i>
                         </span>
                     </td>
@@ -288,27 +306,20 @@
 
         async function loadMore() {
             if (!hasMore || loading) return;
-            console.log("⏳ Loading more users...");
 
             loading = true;
             loadingEl.style.display = 'block';
 
             try {
                 const jwtToken = localStorage.getItem('token');
-                console.log("➡️ Fetching:", `/Home/UserlistApi?skip=${skip}&take=${take}`);
-
                 const resp = await fetch(`/Home/UserlistApi?skip=${skip}&take=${take}`, {
                     method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${jwtToken}`
-                    }
+                    headers: { 'Authorization': `Bearer ${jwtToken}` }
                 });
 
                 if (!resp.ok) throw new Error('Failed to fetch');
 
                 const data = await resp.json();
-                console.log("✅ Received:", data);
-
                 allUsers = allUsers.concat(data.items);
                 applySearchFilterSort();
 
@@ -317,7 +328,7 @@
 
                 if (!hasMore) observer.disconnect();
             } catch (err) {
-                console.error("❌ Error in loadMore:", err);
+                console.error(err);
                 showAlert('Error fetching users', 'error');
             } finally {
                 loading = false;
@@ -325,12 +336,12 @@
             }
         }
 
-
-
-        function editUser(id, username, email) {
+        function editUser(id, name, username, email, phoneNumber) {
             currentEditId = id;
+            editNameInput.value = name;
             editUsernameInput.value = username;
             editEmailInput.value = email;
+            editPhoneNumberInput.value = phoneNumber;
             editModal.style.display = 'flex';
         }
 
@@ -339,10 +350,12 @@
         }
 
         async function saveEdit() {
+            const name = editNameInput.value.trim();
             const username = editUsernameInput.value.trim();
             const email = editEmailInput.value.trim();
+            const phoneNumber = editPhoneNumberInput.value.trim();
 
-            if (!username || !email) {
+            if (!username || !email || !name || !phoneNumber) {
                 showAlert('All fields are required', 'error');
                 return;
             }
@@ -355,15 +368,14 @@
                         'Authorization': `Bearer ${jwtToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ id: currentEditId, userName: username, email })
+                    body: JSON.stringify({ id: currentEditId, name, userName: username, email, phoneNumber })
                 });
 
                 if (!resp.ok) throw new Error('Failed to edit user');
 
                 const idx = allUsers.findIndex(u => u.id === currentEditId);
                 if (idx !== -1) {
-                    allUsers[idx].userName = username;
-                    allUsers[idx].email = email;
+                    allUsers[idx] = { ...allUsers[idx], name, userName: username, email, phoneNumber };
                 }
 
                 applySearchFilterSort();
@@ -382,9 +394,7 @@
                 const jwtToken = localStorage.getItem('token');
                 const resp = await fetch(`/Home/Delete/${id}`, {
                     method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${jwtToken}`
-                    }
+                    headers: { 'Authorization': `Bearer ${jwtToken}` }
                 });
 
                 if (!resp.ok) throw new Error('Failed to delete user');
@@ -398,28 +408,21 @@
             }
         }
 
-                const observer = new IntersectionObserver(entries => {
+        const observer = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting) loadMore();
         }, { rootMargin: '200px' });
 
-                window.addEventListener('scroll', () => {
+        observer.observe(loadingEl);
+
+        window.addEventListener('scroll', () => {
             if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
                 loadMore();
             }
         });
 
-
-        observer.observe(loadingEl);
-
-
-        // Initial load
-        loadMore();
-
-        // Event listeners
         searchInput.addEventListener('input', applySearchFilterSort);
         filterSelect.addEventListener('change', applySearchFilterSort);
 
-        // Token validation on page load
         window.addEventListener('load', () => {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -435,8 +438,9 @@
                 if (!r.ok) window.location.href = "/Home/Login";
             })
             .catch(() => window.location.href = "/Home/Login");
+
+            loadMore();
         });
     </script>
 </body>
 </html>
-
