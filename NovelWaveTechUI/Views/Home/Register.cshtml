@@ -103,12 +103,12 @@
                         <div class="mb-3">
                             <label class="form-label">Captcha</label>
                             <div class="input-group">
-                                <img id="img-captcha" src="https://localhost:7112/api/UserAuth/GenerateCaptcha" alt="captcha" onclick="loadCaptcha()" />
+                                <img id="img-captcha" src="/Home/Captcha" alt="captcha" onclick="loadCaptcha()" />
                                 <button class="btn btn-outline-secondary" type="button" id="captchaRefresh" title="Refresh Captcha">
                                     <i class="fa fa-sync-alt"></i>
                                 </button>
                             </div>
-                            <input type="text" class="form-control mt-2" id="CaptchaCode" name="CaptchaCode" placeholder="Enter Captcha" required />
+                            <input type="text" class="form-control mt-2" id="CaptchaCode" maxlength="6" name="CaptchaCode" placeholder="Enter Captcha" required />
                         </div>
 
                         <input type="hidden" id="Id" name="Id" />
@@ -183,7 +183,7 @@
             }
         } catch (err) {
             console.error(err);
-            statusMessage.innerHTML = '<div class="alert alert-danger">An unexpected error occurred. Please try again.</div>';
+            statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred. Please try again.</div>';
         }
 
         

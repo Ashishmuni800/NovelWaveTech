@@ -93,12 +93,12 @@ passwordForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    const jwtToken = localStorage.getItem('token');
-    if (!jwtToken) {
-        statusMessage.innerHTML = '<div class="alert alert-danger">You are not authenticated. Please log in again.</div>';
-        resetFormUI();
-        return;
-    }
+    //const jwtToken = localStorage.getItem('token');
+    //if (!jwtToken) {
+    //    statusMessage.innerHTML = '<div class="alert alert-danger">You are not authenticated. Please log in again.</div>';
+    //    resetFormUI();
+    //    return;
+    //}
 
     try {
         const captchaResponse = await fetch(`/Home/GetCaptcha?CaptchaCode=${CaptchaCode}`, {
@@ -117,8 +117,7 @@ passwordForm.addEventListener('submit', async (e) => {
         const response = await fetch(`/Home/PasswordChangePost`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${jwtToken}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 userName,

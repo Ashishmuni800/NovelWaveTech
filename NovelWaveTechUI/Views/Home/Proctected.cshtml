@@ -20,12 +20,10 @@
     FetchWeatherData2();
     FetchWeatherData();
     function FetchWeatherData(){
-        const jwtToken = localStorage.getItem('token');  // Replace with your actual JWT token
 
         fetch('/Home/weatherForecast', {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${jwtToken}`,
                 'Content-Type': 'application/json'
             }
         })
@@ -63,12 +61,10 @@
     // window.addEventListener('load', callProtectedAction);
 
         function FetchWeatherData2() {
-        const jwtToken2 = localStorage.getItem('token');
 
-        fetch('/Home/GetToken', {
+        fetch(`/Home/GetToken`, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${jwtToken2}`,
                 'Content-Type': 'application/json'
             }
         })

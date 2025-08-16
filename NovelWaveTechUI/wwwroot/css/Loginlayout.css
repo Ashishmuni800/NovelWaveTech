@@ -1,0 +1,113 @@
+﻿body {
+    background: linear-gradient(to right, #74ebd5, #acb6e5);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.card {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    border: none;
+    border-radius: 15px;
+    background: white;
+}
+
+.login-header {
+    background: #5e72e4;
+    color: white;
+    border-radius: 15px 15px 0 0;
+    padding: 1rem;
+    text-align: center;
+}
+
+    .login-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+.form-control:focus {
+    border-color: #5e72e4;
+    box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
+}
+
+.input-group-text {
+    background-color: #f1f1f1;
+    border: none;
+}
+
+#img-captcha {
+    height: 38px;
+    width: auto;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #5e72e4;
+    border-color: #5e72e4;
+}
+
+    .btn-primary:hover {
+        background-color: #4e61d1;
+        border-color: #4e61d1;
+    }
+
+.input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+}
+
+.input-group .form-control {
+    padding-left: 35px;
+}
+
+.position-relative {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .login-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .form-control {
+        font-size: 0.95rem;
+    }
+
+    .btn {
+        font-size: 0.95rem;
+        padding: 0.6rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #img-captcha {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .input-group button {
+        width: 100%;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Optional: improve padding on small screens */
+@media (max-width: 576px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}

@@ -91,12 +91,9 @@
 
 
         function FetchWeatherData2() {
-            const jwtToken2 = localStorage.getItem('token');
-
-            fetch('/Home/GetToken', {
+            fetch(`/Home/GetToken`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${jwtToken2}`,
                     'Content-Type': 'application/json'
                 }
             })

@@ -44,7 +44,6 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        var Urls='@ViewBag.URLs';
         const lineChart = new Chart(document.getElementById("lineChart"), {
             type: 'line',
             data: {
@@ -70,12 +69,9 @@
             }
         });
                 async function FetchWeatherData2() {
-            const jwtToken2 = localStorage.getItem('token');
-
-            fetch('/Home/GetToken', {
+            fetch(`/Home/GetToken`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${jwtToken2}`,
                     'Content-Type': 'application/json'
                 }
             })

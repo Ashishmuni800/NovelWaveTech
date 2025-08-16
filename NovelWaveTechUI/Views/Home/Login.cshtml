@@ -1,75 +1,18 @@
 ﻿@{
     ViewData["Title"] = "Login";
 }
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap & Font Awesome -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-<style>
-    body {
-        background: linear-gradient(to right, #74ebd5, #acb6e5);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .card {
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-        border: none;
-        border-radius: 15px;
-    }
-
-    .form-control:focus {
-        border-color: #5e72e4;
-        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.25);
-    }
-
-    .input-group-text {
-        background-color: #f1f1f1;
-        border: none;
-    }
-
-    #img-captcha {
-        height: 38px;
-        width: auto;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-    }
-
-    .login-header {
-        background: #5e72e4;
-        color: white;
-        border-radius: 15px 15px 0 0;
-        padding: 1rem 0;
-    }
-
-        .login-header h3 {
-            margin: 0;
-        }
-
-    .btn-primary {
-        background-color: #5e72e4;
-        border-color: #5e72e4;
-    }
-
-        .btn-primary:hover {
-            background-color: #4e61d1;
-            border-color: #4e61d1;
-        }
-
-    .input-icon {
-        position: absolute;
-        left: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #aaa;
-    }
-
-    .input-group .form-control {
-        padding-left: 35px;
-    }
-</style>
+<link rel="stylesheet" href="~/css/Loginlayout.css" asp-append-version="true" />
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
+        <div class="col-12 col-sm-10 col-md-6 col-lg-4">
             <div class="card">
-                <div class="login-header text-center">
+                <div class="login-header">
                     <h3><i class="fa fa-sign-in-alt me-2"></i>Login</h3>
                 </div>
                 <div class="card-body p-4">
@@ -88,7 +31,7 @@
                         <div class="mb-3">
                             <label class="form-label">Captcha</label>
                             <div class="input-group">
-                                <img id="img-captcha" src="/Home/Captcha" alt="captcha" onclick="loadCaptcha()" />
+                                <img id="img-captcha" src="/Home/Captcha" alt="captcha" />
                                 <button class="btn btn-outline-secondary" type="button" id="captchaRefresh" title="Refresh Captcha">
                                     <i class="fa fa-sync-alt"></i>
                                 </button>
@@ -114,19 +57,22 @@
     </div>
 </div>
 
+<!-- Script -->
 <script>
-     FetchWeatherData2()
+    // window.addEventListener('load', () => {
+    //     checkTokenAndRedirect();
+    // });
+
     const loginForm = document.getElementById('loginForm');
     const statusMessage = document.getElementById('statusMessage');
 
-    // Expired token removal
-    const expiry = localStorage.getItem('token_expiry');
-    if (expiry && Date.now() > expiry) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('token_expiry');
-    }
+    // const expiry = localStorage.getItem('token_expiry');
+    // if (expiry && Date.now() > expiry) {
+    //     localStorage.removeItem('token');
+    //     localStorage.removeItem('token_expiry');
+    // }
 
-        loginForm.addEventListener('submit', async (e) => {
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const email = document.getElementById('email').value;
@@ -135,53 +81,47 @@
         const Id = document.getElementById('Id').value;
 
         try {
-              const captchaResponse = await fetch(`/Home/GetCaptcha?CaptchaCode=${CaptchaCode}`, {
+            const captchaResponse = await fetch(`/Home/GetCaptcha?CaptchaCode=${CaptchaCode}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });
 
             if (captchaResponse.ok) {
-                try {
-                     const loginResponse = await fetch('/Home/LoginPost', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, password, CaptchaCode, Id })
-                    });
+                const loginResponse = await fetch('/Home/LoginPost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, CaptchaCode, Id })
+                });
 
-                    if (loginResponse.ok) {
-                        const data = await loginResponse.json();
-                        localStorage.setItem('token', data.token);
-                        localStorage.setItem('token_expiry', Date.now() + 5 * 60 * 1000); // 5 minutes
+                if (loginResponse.ok) {
+                    const data = await loginResponse.json();
+                    // localStorage.setItem('token', data.token);
+                    // localStorage.setItem('token_expiry', Date.now() + 5 * 60 * 1000);
 
-                        statusMessage.innerHTML = '<div class="alert alert-success">Login successful! Redirecting...</div>';
-                        setTimeout(() => window.location.href = '/Home/Index', 1000);
-                    } else {
-                        const err = await loginResponse.json();
-                        statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Invalid credentials. Please try again.'}</div>`;
-                        loadCaptcha(); // Refresh captcha
-                    }
-                } catch (err) {
-                    console.error(err);
-                    statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred during login. Please try again.</div>';
+                    statusMessage.innerHTML = '<div class="alert alert-success">Login successful! Redirecting...</div>';
+                    setTimeout(() => window.location.href = '/Home/Index', 1000);
+                } else {
+                    const err = await loginResponse.json();
+                    statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Invalid credentials. Please try again.'}</div>`;
+                    loadCaptcha();
                 }
             } else {
                 const err = await captchaResponse.json();
                 statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Please enter the correct Captcha.'}</div>`;
-                loadCaptcha(); // Refresh captcha
+                loadCaptcha();
             }
         } catch (err) {
             console.error(err);
-            statusMessage.innerHTML = '<div class="alert alert-danger">An unexpected error occurred. Please try again.</div>';
+            statusMessage.innerHTML = '<div class="alert alert-danger">Please enter the correct Captcha and please try again.</div>';
         }
     });
 
-
     async function loadCaptcha() {
         try {
-             const response = await fetch('/Home/Captcha');
+            const response = await fetch('/Home/Captcha');
             const blob = await response.blob();
             const idHeader = response.headers.get("Content-Disposition");
-            const id = idHeader?.split("filename=")[1] || '';
+            const id = idHeader?.match(/filename="?(.+?)"?$/)?.[1] || '';
             const imageUrl = URL.createObjectURL(blob);
             document.getElementById("img-captcha").src = imageUrl;
             document.getElementById("Id").value = id;
@@ -191,36 +131,6 @@
         }
     }
 
-    // Initial load
-   // window.addEventListener('load', loadCaptcha);
     document.getElementById('captchaRefresh').addEventListener('click', loadCaptcha);
-
-     function FetchWeatherData2() {
-         const jwtToken2 = localStorage.getItem('token');
-
-         fetch('/Home/GetToken', {
-             method: 'GET',
-             headers: {
-                 'Authorization': `Bearer ${jwtToken2}`,
-                 'Content-Type': 'application/json'
-             }
-         })
-         .then(response => {
-             if (response.ok) {
-                 window.location.href = "/Home/Index"; // Redirect to login if unauthorized
-                 return;
-             }
-             else{
-                  window.location.href = "/Home/Login"; // Redirect to login if unauthorized
-                  return;
-             }
-            
-         })
-         .then(data => {
-             console.log('Weather data:', data);
-             // You can now use the data to update the UI
-         })
-         .catch(error => console.error('Error fetching weather data:', error));
-     }
-
+    document.getElementById('img-captcha').addEventListener('click', loadCaptcha);
 </script>

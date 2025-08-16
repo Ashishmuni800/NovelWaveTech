@@ -1,5 +1,6 @@
 using Application.ApiHttpClient;
 using Application.DTO;
+using Application.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -28,26 +29,36 @@ namespace NovelWaveTechUI.Controllers
         }
         public IActionResult Userlist()
         {
-            return View();
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                return View();
+            }
         }
         [HttpGet]
         public async Task<IActionResult> UserlistApi(int skip, int take)
         {
-            string authHeader = HttpContext.Request.Headers["Authorization"];
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-                return Unauthorized("Missing or invalid Authorization header.");
-
-            string jwtToken = authHeader.Substring("Bearer ".Length).Trim();
-
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/Get?skip={skip}&take={take}";
 
-            var response = await _httpClient.GetAsync(fullUrl,jwtToken).ConfigureAwait(false);
+            var response = await _httpClient.GetAsync(fullUrl,true).ConfigureAwait(false);
             return Ok(response);
         }
         public IActionResult Index()
         {
-            return View();
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                return View();
+            }
         }
         public IActionResult Register()
         {
@@ -64,7 +75,15 @@ namespace NovelWaveTechUI.Controllers
         }
         public IActionResult Login()
         {
-            return View();
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
         }
         [HttpPost]
         public async Task<IActionResult> LoginPost([FromBody] LoginDTO loginDTO)
@@ -73,54 +92,89 @@ namespace NovelWaveTechUI.Controllers
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/Login";
             var response = await _httpClient.PostAsync(fullUrl, loginDTO).ConfigureAwait(false);
+            var tokenObj = JsonConvert.DeserializeObject<TokenResponse>(response);
+            var token = tokenObj?.Token;
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return BadRequest("Invalid token received.");
+            }
+            var copkiesOtions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.Now.AddMinutes(15)
+            };
+            Response.Cookies.Append("AuthToken", token, copkiesOtions);
             return Ok(response);
         }
 
         [HttpGet]
         public IActionResult Proctected()
         {
-            return View();
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                return View();
+            }
         }
         [HttpGet]
         public async Task<IActionResult> weatherForecast()
         {
-            string authHeader = HttpContext.Request.Headers["Authorization"];
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-                return Unauthorized("Missing or invalid Authorization header.");
-
-            string jwtToken = authHeader.Substring("Bearer ".Length).Trim();
-
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/weatherForecast";
-            var response = await _httpClient.GetAsync(fullUrl, jwtToken).ConfigureAwait(false);
+            var response = await _httpClient.GetAsync(fullUrl, true).ConfigureAwait(false);
             return Ok(response);
         }
         public IActionResult PasswordChange()
         {
-            return View();
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                return View();
+            }
         }
         //[Authorize]
         [HttpPost]
         public async Task<IActionResult> PasswordChangePost([FromBody] ChangePasswordDTO changePasswordDTO)
         {
-            string authHeader = HttpContext.Request.Headers["Authorization"];
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-                return Unauthorized("Missing or invalid Authorization header.");
-
-            string jwtToken = authHeader.Substring("Bearer ".Length).Trim();
-
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/ChangePassword";
-            var response = await _httpClient.PostAsync(fullUrl, changePasswordDTO,jwtToken).ConfigureAwait(false);
+            var response = await _httpClient.PostAsync(fullUrl, changePasswordDTO,true).ConfigureAwait(false);
             return Ok(response);
         }
         public IActionResult Profile()
         {
-            return View();
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                return View();
+            }
         }
         public IActionResult Chat()
         {
-            return View();
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         [HttpGet]
@@ -154,45 +208,41 @@ namespace NovelWaveTechUI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetToken()
         {
-            string authHeader = HttpContext.Request.Headers["Authorization"];
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-                return Unauthorized("Missing or invalid Authorization header.");
-
-            string jwtToken = authHeader.Substring("Bearer ".Length).Trim();
-
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token)) return Unauthorized();
+            
             string baseUrl = _configuration["BaseUrl"];
-            string fullUrl = $"{baseUrl}/api/UserAuth/GetToken/{jwtToken}";
-            var response = await _httpClient.GetAsync(fullUrl, jwtToken).ConfigureAwait(false);
+            string fullUrl = $"{baseUrl}/api/UserAuth/GetToken?token={token}";
+        
+            var response = await _httpClient.GetAsync(fullUrl, true).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(response)) return Unauthorized();
             return Ok(response);
         }
         [HttpGet]
         public async Task<IActionResult> Delete(string Id)
         {
-            string authHeader = HttpContext.Request.Headers["Authorization"];
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-                return Unauthorized("Missing or invalid Authorization header.");
-
-            string jwtToken = authHeader.Substring("Bearer ".Length).Trim();
-
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/Delete/{Id}";
-            var response = await _httpClient.GetAsync(fullUrl, jwtToken).ConfigureAwait(false);
+            var response = await _httpClient.GetAsync(fullUrl, true).ConfigureAwait(false);
             return Ok(response);
         }
         [HttpPost]
         public async Task<IActionResult> UpdatePost([FromBody] UserEditDTO userEditDTO, [FromRoute] string Id)
         {
-            string authHeader = HttpContext.Request.Headers["Authorization"];
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-                return Unauthorized("Missing or invalid Authorization header.");
-
-            string jwtToken = authHeader.Substring("Bearer ".Length).Trim();
-
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/EditUser/{Id}";
-            var response = await _httpClient.PostAsync(fullUrl, userEditDTO, jwtToken).ConfigureAwait(false);
+            var response = await _httpClient.PostAsync(fullUrl, userEditDTO, true).ConfigureAwait(false);
             return Ok(response);
         }
-        
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/Logout";
+            var response = await _httpClient.GetAsync(fullUrl, true).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(response)) return Unauthorized();
+            Response.Cookies.Delete("AuthToken");
+            return Ok(response);
+        }
     }
 }

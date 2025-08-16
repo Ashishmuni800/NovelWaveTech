@@ -311,10 +311,8 @@
             loadingEl.style.display = 'block';
 
             try {
-                const jwtToken = localStorage.getItem('token');
                 const resp = await fetch(`/Home/UserlistApi?skip=${skip}&take=${take}`, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${jwtToken}` }
+                    method: 'GET'
                 });
 
                 if (!resp.ok) throw new Error('Failed to fetch');
@@ -361,11 +359,9 @@
             }
 
             try {
-                const jwtToken = localStorage.getItem('token');
                 const resp = await fetch(`/Home/UpdatePost/${currentEditId}`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${jwtToken}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ id: currentEditId, name, userName: username, email, phoneNumber })
@@ -391,10 +387,8 @@
             if (!confirm('Are you sure you want to delete this user?')) return;
 
             try {
-                const jwtToken = localStorage.getItem('token');
                 const resp = await fetch(`/Home/Delete/${id}`, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${jwtToken}` }
+                    method: 'GET'
                 });
 
                 if (!resp.ok) throw new Error('Failed to delete user');
@@ -424,15 +418,9 @@
         filterSelect.addEventListener('change', applySearchFilterSort);
 
         window.addEventListener('load', () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = "/Home/Login";
-                return;
-            }
 
             fetch(`/Home/GetToken`, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` }
+                method: 'GET'
             })
             .then(r => {
                 if (!r.ok) window.location.href = "/Home/Login";

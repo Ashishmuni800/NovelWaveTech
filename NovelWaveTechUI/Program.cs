@@ -4,10 +4,12 @@ using NovelWaveTechUI.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<HttpClient, HttpClient>();
+//builder.Services.AddSingleton<IHttpContextAccessor, IHttpContextAccessor>();
 builder.Services.AddSingleton<IHttpClients, HttpClients>();
 var app = builder.Build();
 

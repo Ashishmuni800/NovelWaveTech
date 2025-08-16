@@ -202,16 +202,16 @@ namespace NovelWaveTechAPI.Controllers
             return BadRequest("Please generate the captcha code and entered the correct captcha code");
         }
 
-        [HttpPost]
+        [HttpGet]
         [Authorize]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return Ok("User logged out successfully.");
         }
-        [HttpGet("{token}")]
+        [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetToken([FromRoute] string token)
+        public async Task<IActionResult> GetToken([FromQuery] string token)
         {
             var data = await _userAuthService.AuthService.GetByAuthorizationDataUserIdAsync(token);
             if (data == null)
