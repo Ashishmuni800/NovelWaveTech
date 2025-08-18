@@ -328,10 +328,12 @@ namespace NovelWaveTechAPI.Controllers
         [HttpPost]
         public IActionResult GenerateQRCode([FromBody] QRRequest request)
         {
+            DateTime CreatedDatenow = DateTime.Now;
             var loginData = new LoginData
             {
                 Email = request.Email,
-                Password = request.Password
+                Password = request.Password,
+                CreatedDate = CreatedDatenow
             };
 
             var qrBytes = _qrService.GenerateQrCode(loginData);
@@ -350,6 +352,8 @@ namespace NovelWaveTechAPI.Controllers
             {
                 var loginData = _qrService.DecodeQrCode(stream);
                 if (loginData == null) return BadRequest("Invalid QR Code");
+                //if (CreatedDatenow - loginData.CreatedDate > TimeSpan.FromMinutes(2)) return BadRequest("QR Code is expired");
+                if (DateTime.UtcNow > loginData.CreatedDate.AddHours(24)) return BadRequest("QR Code is expired");
                 var result = await _userAuthService.AuthService.FindByEmailUserAsync(loginData.Email).ConfigureAwait(false); ;
                 if (result == null)
                 {
@@ -379,10 +383,12 @@ namespace NovelWaveTechAPI.Controllers
         [HttpPost]
         public IActionResult GenerateAndSaveQRCode([FromBody] QRRequest request)
         {
+            DateTime CreatedDatenow = DateTime.Now;
             var loginData = new LoginData
             {
                 Email = request.Email,
-                Password = request.Password
+                Password = request.Password,
+                CreatedDate= CreatedDatenow
             };
 
             string fileName = $"{Guid.NewGuid()}.png";

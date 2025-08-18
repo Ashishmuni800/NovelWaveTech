@@ -8,30 +8,32 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <link rel="stylesheet" href="~/css/Loginlayout.css" asp-append-version="true" />
 
-<div class="container">
+<div class="container pb-5">
     <div class="row justify-content-center">
         <div class="col-12 col-sm-10 col-md-6 col-lg-4">
-            <div class="card">
-                <div class="login-header">
-                    <h3><i class="fa fa-sign-in-alt me-2"></i>Login</h3>
+            <div class="card shadow-sm mt-5 mb-5">
+                <div class="card-header text-center bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fa fa-sign-in-alt me-2"></i>Login
+                    </h4>
                 </div>
                 <div class="card-body p-4">
                     <form id="loginForm" autocomplete="off">
                         <div class="mb-3 position-relative">
                             <label for="email" class="form-label">Email Address</label>
-                            <i class="fa fa-envelope input-icon"></i>
-                            <input type="email" class="form-control" id="email" name="email" required />
+                            <i class="fa fa-envelope input-icon position-absolute text-muted" style="top: 38px; left: 10px;"></i>
+                            <input type="email" class="form-control ps-4" id="email" name="email" required />
                         </div>
                         <div class="mb-3 position-relative">
                             <label for="password" class="form-label">Password</label>
-                            <i class="fa fa-lock input-icon"></i>
-                            <input type="password" class="form-control" id="password" name="password" required />
+                            <i class="fa fa-lock input-icon position-absolute text-muted" style="top: 38px; left: 10px;"></i>
+                            <input type="password" class="form-control ps-4" id="password" name="password" required />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Captcha</label>
                             <div class="input-group">
-                                <img id="img-captcha" src="/Home/Captcha" alt="captcha" />
+                                <img id="img-captcha" src="/Home/Captcha" alt="captcha" style="height: 40px;" />
                                 <button class="btn btn-outline-secondary" type="button" id="captchaRefresh" title="Refresh Captcha">
                                     <i class="fa fa-sync-alt"></i>
                                 </button>
@@ -46,9 +48,7 @@
                                 <i class="fa fa-key me-2"></i>Login
                             </button>
                             <div class="text-center mt-3">
-                                <p>Already have an QR Code account? <a href="/Home/LoginWithQR">Login here with QR Code</a></p>
-                            </div>
-                            <div class="text-center mt-3">
+                                <p>Already have a QR Code account? <a href="/Home/LoginWithQR">Login here with QR Code</a></p>
                                 <p>Don't have an account? <a href="/Home/Register">Register here</a></p>
                             </div>
                         </div>
@@ -62,18 +62,8 @@
 
 <!-- Script -->
 <script>
-    // window.addEventListener('load', () => {
-    //     checkTokenAndRedirect();
-    // });
-
     const loginForm = document.getElementById('loginForm');
     const statusMessage = document.getElementById('statusMessage');
-
-    // const expiry = localStorage.getItem('token_expiry');
-    // if (expiry && Date.now() > expiry) {
-    //     localStorage.removeItem('token');
-    //     localStorage.removeItem('token_expiry');
-    // }
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -98,9 +88,6 @@
 
                 if (loginResponse.ok) {
                     const data = await loginResponse.json();
-                    // localStorage.setItem('token', data.token);
-                    // localStorage.setItem('token_expiry', Date.now() + 5 * 60 * 1000);
-
                     statusMessage.innerHTML = '<div class="alert alert-success">Login successful! Redirecting...</div>';
                     setTimeout(() => window.location.href = '/Home/Index', 1000);
                 } else {
@@ -115,7 +102,7 @@
             }
         } catch (err) {
             console.error(err);
-            statusMessage.innerHTML = '<div class="alert alert-danger">Please enter the correct Captcha and please try again.</div>';
+            statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred. Please try again.</div>';
         }
     });
 
