@@ -1,5 +1,7 @@
 ﻿using Application.DTO;
+using Application.Service;
 using Application.ServiceInterface;
+using Azure.Core;
 using CaptchaGen;
 using CaptchaGen.NetCore;
 using Infrastructure.Context;
@@ -36,6 +38,7 @@ namespace NovelWaveTechAPI.Controllers
         private readonly string? _jwtIssuer;
         private readonly string? _jwtAudience;
         private readonly int _JwtExpiry;
+        private readonly QRCodeService _qrService;
         public UserAuthController(IServiceInfra userAuthService, UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration)
@@ -47,6 +50,7 @@ namespace NovelWaveTechAPI.Controllers
             _jwtIssuer = configuration["Jwt:Issuer"];
             _jwtAudience = configuration["Jwt:Audience"];
             _JwtExpiry = int.Parse(configuration["Jwt:ExpiryMinutes"]);
+            _qrService = new QRCodeService();
         }
         [HttpGet]
         [Authorize]
@@ -319,6 +323,82 @@ namespace NovelWaveTechAPI.Controllers
             await _userAuthService.AuthService.CreateByGenerateCaptchaCodeAsync(generateCaptchaCodeDTO);
             await _userAuthService.AuthService.DeleteByGenerateCaptchaCodeAsync();
             return File(imageStream, "image/png");
+        }
+        // POST: api/qr/generate
+        [HttpPost]
+        public IActionResult GenerateQRCode([FromBody] QRRequest request)
+        {
+            var loginData = new LoginData
+            {
+                Email = request.Email,
+                Password = request.Password
+            };
+
+            var qrBytes = _qrService.GenerateQrCode(loginData);
+            return File(qrBytes, "image/png");
+        }
+
+        // POST: api/qr/scan
+        [HttpPost]
+        public async Task<IActionResult> LoginWithQRCode([FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("File is missing.");
+
+            using var stream = file.OpenReadStream();
+            try
+            {
+                var loginData = _qrService.DecodeQrCode(stream);
+                if (loginData == null) return BadRequest("Invalid QR Code");
+                var result = await _userAuthService.AuthService.FindByEmailUserAsync(loginData.Email).ConfigureAwait(false); ;
+                if (result == null)
+                {
+                    return Unauthorized(new { success = false, message = "Invalid username or password" });
+                }
+                var results = await _userAuthService.AuthService.CheckPasswordSignInAsync(result, loginData.Password);
+                if (results == null)
+                {
+                    return Unauthorized(new { success = false, message = "Invalid username or password" });
+                }
+
+                var token = GeneratedJwtToken(result);
+                DateTime CreatedDate = DateTime.Now;
+                AuthorizationDataDTO authorizationDataDTO = new AuthorizationDataDTO();
+                authorizationDataDTO.token = token;
+                authorizationDataDTO.CreatedDatetime = CreatedDate;
+                await _userAuthService.AuthService.CreateByAuthorizationDataAsync(authorizationDataDTO);
+                return Ok(new { success = true, token });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // POST: api/qr/generate-and-save
+        [HttpPost]
+        public IActionResult GenerateAndSaveQRCode([FromBody] QRRequest request)
+        {
+            var loginData = new LoginData
+            {
+                Email = request.Email,
+                Password = request.Password
+            };
+
+            string fileName = $"{Guid.NewGuid()}.png";
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "SavedQRCodes");
+
+            // Ensure directory exists
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string filePath = Path.Combine(folderPath, fileName);
+
+            var qrBytes = _qrService.GenerateAndSaveQrCode(loginData, filePath);
+
+            return Ok(new { Message = "QR Code generated and saved.", FilePath = filePath });
         }
     }
  }

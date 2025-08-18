@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload QR Code</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/QRCode.css" asp-append-version="true" />
+</head>
+<body>
+
+    <div class="container">
+        <h2>Login With QR Code</h2>
+        <form id="uploadForm">
+            <input type="file" id="qrFile" name="qrFile" accept="image/png" required />
+            <button type="submit">Login</button>
+        </form>
+        <div class="text-center">
+            <p>Already have an without QR Code account? <a href="/Home/Login">Login here</a></p>
+        </div>
+        <div class="text-center mt-3">
+            <p>Don't have an account? <a href="/Home/Register">Register here</a></p>
+        </div>
+        <p id="response"></p>
+    </div>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById("qrFile");
+            if (fileInput.files.length === 0) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                const response = await fetch("/Home/LoginWithQRCode", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+                document.getElementById("response").innerText = result.message || "Login successful! Redirecting...";
+                setTimeout(() => window.location.href = '/Home/Index', 1000);
+            } catch (error) {
+                document.getElementById("response").innerText = "Upload failed!";
+                console.error(error);
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -244,5 +244,64 @@ namespace NovelWaveTechUI.Controllers
             Response.Cookies.Delete("AuthToken");
             return Ok(response);
         }
+        public IActionResult LoginWithQR()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> LoginWithQRCode([FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            // Read file into byte array
+            byte[] imageBytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+                imageBytes = memoryStream.ToArray();
+            }
+
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/LoginWithQRCode";
+
+            // Prepare multipart/form-data content
+            using var content = new MultipartFormDataContent();
+            using var imageContent = new ByteArrayContent(imageBytes);
+            imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+
+            // Must match parameter name in the target controller ("file")
+            content.Add(imageContent, "file", file.FileName);
+            var _httpClient2 = new HttpClient();
+            // Send to API
+            var response = await _httpClient2.PostAsync(fullUrl, content).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return BadRequest($"QR login failed: {error}");
+            }
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var tokenObj = JsonConvert.DeserializeObject<TokenResponse>(responseBody);
+            var token = tokenObj?.Token;
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return BadRequest("Invalid token received.");
+            }
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.Now.AddMinutes(15)
+            };
+
+            Response.Cookies.Append("AuthToken", token, cookieOptions);
+
+            return Ok(new { message = "Login successful.", token });
+        }
+
     }
 }
