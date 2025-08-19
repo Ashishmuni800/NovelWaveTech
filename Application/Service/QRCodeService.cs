@@ -1,11 +1,21 @@
 ﻿using Application.DTO;
 using QRCoder;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+//using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using ZXing;
+using ZXing.QrCode.Internal;
 using ZXing.Windows.Compatibility;
+
 namespace Application.Service
 {
+
     public class QRCodeService
     {
         public byte[] GenerateQrCode(LoginData data)
@@ -66,8 +76,84 @@ namespace Application.Service
                 CreatedDate = createdDate // Or parse to DateTime if needed
             };
         }
-        
 
-    }
+    //    public byte[] GenerateQrCodeWithLogo(LoginData data, string filePath, string logoPath, bool cropLogoToCircle = true)
+    //    {
+    //        string content = $"{data.Email}|{data.Password}|{data.CreatedDate:yyyy-MM-ddTHH:mm:ss}";
+    //        using QRCodeGenerator qrGenerator = new();
+    //        using QRCodeData qrCodeData = qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.L);
+    //        using QRCode qrCode = new(qrCodeData);
+
+    //        int pixelsPerModule = 5;
+    //        byte[] qrBytes = null;
+
+    //        while (pixelsPerModule >= 1)
+    //        {
+    //            using Bitmap qrBitmap = qrCode.GetGraphic(pixelsPerModule);
+    //            using Bitmap logo = new Bitmap(logoPath);
+
+    //            using Bitmap processedLogo = cropLogoToCircle ? CropToCircle(logo) : new Bitmap(logo);
+    //            using Bitmap qrWithLogo = AddLogoToQr(qrBitmap, processedLogo);
+
+    //            using MemoryStream ms = new();
+    //            var encoder = GetEncoder(ImageFormat.Png);
+    //            var encoderParams = new EncoderParameters(1);
+    //            encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
+
+    //            qrWithLogo.Save(ms, encoder, encoderParams);
+    //            qrBytes = ms.ToArray();
+
+    //            if (qrBytes.Length <= 50 * 1024)
+    //            {
+    //                File.WriteAllBytes(filePath, qrBytes);
+    //                return qrBytes;
+    //            }
+
+    //            pixelsPerModule--;
+    //        }
+
+    //        throw new Exception("QR Code with logo exceeds 50 KB. Try smaller content or logo.");
+    //    }
+    //    private Bitmap AddLogoToQr(Bitmap qrCode, Bitmap logo)
+    //    {
+    //        int overlaySize = qrCode.Width / 5; // 20% of QR code size
+    //        Bitmap resizedLogo = new Bitmap(logo, new Size(overlaySize, overlaySize));
+
+    //        Bitmap combined = new Bitmap(qrCode.Width, qrCode.Height, PixelFormat.Format32bppArgb);
+    //        using Graphics g = Graphics.FromImage(combined)
+    //{
+    //            g.CompositingMode = CompositingMode.SourceOver;
+    //            g.SmoothingMode = SmoothingMode.AntiAlias;
+    //            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+    //            g.DrawImage(qrCode, 0, 0);
+    //            g.DrawImage(resizedLogo, (qrCode.Width - overlaySize) / 2, (qrCode.Height - overlaySize) / 2, overlaySize, overlaySize);
+    //        }
+
+    //        return combined;
+    //    }
+    //    private Bitmap CropToCircle(Bitmap logo)
+    //    {
+    //        int size = Math.Min(logo.Width, logo.Height);
+    //        Bitmap circleLogo = new Bitmap(size, size, PixelFormat.Format32bppArgb);
+
+    //        using (Graphics g = Graphics.FromImage(circleLogo))
+    //        {
+    //            using (GraphicsPath path = new GraphicsPath())
+    //            {
+    //                path.AddEllipse(0, 0, size, size);
+    //                g.SetClip(path);
+    //                g.DrawImage(logo, new Rectangle(0, 0, size, size));
+    //            }
+    //        }
+
+    //        return circleLogo;
+    //    }
+    //    public string ConvertToBase64(byte[] imageBytes)
+    //    {
+    //        return $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}";
+    //    }
+
+
+}
 }
 

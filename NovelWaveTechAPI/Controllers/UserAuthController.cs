@@ -1,6 +1,7 @@
 ﻿using Application.DTO;
 using Application.Service;
 using Application.ServiceInterface;
+using Application.ViewModel;
 using Azure.Core;
 using CaptchaGen;
 using CaptchaGen.NetCore;
@@ -39,9 +40,11 @@ namespace NovelWaveTechAPI.Controllers
         private readonly string? _jwtAudience;
         private readonly int _JwtExpiry;
         private readonly QRCodeService _qrService;
+        private readonly QRCodeWithLogoService _qrWithLogoService;
+        private readonly IWebHostEnvironment _env;
         public UserAuthController(IServiceInfra userAuthService, UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration, IWebHostEnvironment env)
         {
             _userAuthService = userAuthService;
             _signInManager = signInManager;
@@ -51,6 +54,8 @@ namespace NovelWaveTechAPI.Controllers
             _jwtAudience = configuration["Jwt:Audience"];
             _JwtExpiry = int.Parse(configuration["Jwt:ExpiryMinutes"]);
             _qrService = new QRCodeService();
+            _qrWithLogoService = new QRCodeWithLogoService();
+            _env = env;
         }
         [HttpGet]
         [Authorize]
@@ -404,6 +409,45 @@ namespace NovelWaveTechAPI.Controllers
 
             var qrBytes = _qrService.GenerateAndSaveQrCode(loginData, filePath);
 
+            return Ok(new { Message = "QR Code generated and saved.", FilePath = filePath });
+        }
+        [HttpPost]
+        public IActionResult GenerateAndSaveQRCodeWithLogo([FromBody] QRRequest request)
+        {
+            DateTime CreatedDatenow = DateTime.Now;
+            var loginData = new LoginData
+            {
+                Email = request.Email,
+                Password = request.Password,
+                CreatedDate = CreatedDatenow
+            };
+
+            string fileName = $"{Guid.NewGuid()}.png";
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "SavedQRCodes");
+
+            // Ensure directory exists
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string filePath = Path.Combine(folderPath, fileName);
+            //string logofilepath = "/images/logo.png";
+            string logofilepath = Path.Combine(_env.WebRootPath, "images", "logo.png");
+            //var style = new QrStyleOptions
+            //{
+            //    BackgroundColor = SixLabors.ImageSharp.Color.White,
+            //    GradientStart = SixLabors.ImageSharp.Color.DarkBlue,
+            //    GradientEnd = SixLabors.ImageSharp.Color.DeepSkyBlue,
+            //    TransparentBackground = false,
+            //    CircularLogo = true,
+            //    HeaderText = "Scan to Login"
+            //};
+
+            
+
+            var qrBytes = _qrWithLogoService.GenerateQrCodeWithLogoAsync(loginData, logofilepath, filePath);
+            if (qrBytes.Result == null) return BadRequest("QRCode Not a generate");
             return Ok(new { Message = "QR Code generated and saved.", FilePath = filePath });
         }
     }
