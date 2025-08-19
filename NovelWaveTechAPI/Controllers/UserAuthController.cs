@@ -434,19 +434,7 @@ namespace NovelWaveTechAPI.Controllers
             string filePath = Path.Combine(folderPath, fileName);
             //string logofilepath = "/images/logo.png";
             string logofilepath = Path.Combine(_env.WebRootPath, "images", "logo.png");
-            //var style = new QrStyleOptions
-            //{
-            //    BackgroundColor = SixLabors.ImageSharp.Color.White,
-            //    GradientStart = SixLabors.ImageSharp.Color.DarkBlue,
-            //    GradientEnd = SixLabors.ImageSharp.Color.DeepSkyBlue,
-            //    TransparentBackground = false,
-            //    CircularLogo = true,
-            //    HeaderText = "Scan to Login"
-            //};
-
-            
-
-            var qrBytes = _qrWithLogoService.GenerateQrCodeWithLogoAsync(loginData, logofilepath, filePath);
+            var qrBytes = _qrWithLogoService.GenerateQrCodeWithLogoAsync(loginData, filePath);
             if (qrBytes.Result == null) return BadRequest("QRCode Not a generate");
             return Ok(new { Message = "QR Code generated and saved.", FilePath = filePath });
         }
