@@ -41,6 +41,7 @@ namespace NovelWaveTechAPI.Controllers
         private readonly int _JwtExpiry;
         private readonly QRCodeService _qrService;
         private readonly QRCodeWithLogoService _qrWithLogoService;
+        //private readonly CryptoHelperService _CryptoHelperService;
         private readonly IWebHostEnvironment _env;
         public UserAuthController(IServiceInfra userAuthService, UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
@@ -359,12 +360,14 @@ namespace NovelWaveTechAPI.Controllers
                 if (loginData == null) return BadRequest("Invalid QR Code");
                 //if (CreatedDatenow - loginData.CreatedDate > TimeSpan.FromMinutes(2)) return BadRequest("QR Code is expired");
                 if (DateTime.UtcNow > loginData.CreatedDate.AddHours(24)) return BadRequest("QR Code is expired");
-                var result = await _userAuthService.AuthService.FindByEmailUserAsync(loginData.Email).ConfigureAwait(false); ;
+                var Email = CryptoHelperService.Decrypt(loginData.Email);
+                var Password = CryptoHelperService.Decrypt(loginData.Password);
+                var result = await _userAuthService.AuthService.FindByEmailUserAsync(Email).ConfigureAwait(false); ;
                 if (result == null)
                 {
                     return Unauthorized(new { success = false, message = "Invalid username or password" });
                 }
-                var results = await _userAuthService.AuthService.CheckPasswordSignInAsync(result, loginData.Password);
+                var results = await _userAuthService.AuthService.CheckPasswordSignInAsync(result, Password);
                 if (results == null)
                 {
                     return Unauthorized(new { success = false, message = "Invalid username or password" });
@@ -414,14 +417,15 @@ namespace NovelWaveTechAPI.Controllers
         [HttpPost]
         public IActionResult GenerateAndSaveQRCodeWithLogo([FromBody] QRRequest request)
         {
+            var Email = CryptoHelperService.CryptoHelper.Encrypt(request.Email);
+            var Password = CryptoHelperService.CryptoHelper.Encrypt(request.Password);
             DateTime CreatedDatenow = DateTime.Now;
             var loginData = new LoginData
             {
-                Email = request.Email,
-                Password = request.Password,
+                Email = Email,
+                Password = Password,
                 CreatedDate = CreatedDatenow
             };
-
             string fileName = $"{Guid.NewGuid()}.png";
             string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "SavedQRCodes");
 
