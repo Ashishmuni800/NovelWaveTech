@@ -302,6 +302,43 @@ namespace NovelWaveTechUI.Controllers
 
             return Ok(new { message = "Login successful.", token });
         }
+        public IActionResult QRScan()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> QRScanPost([FromBody] QrDataModel model)
+        {
+            if (model.QrData == null)
+                return BadRequest("No data Found.");
 
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/QRScanPost";
+            var response = await _httpClient.PostAsync(fullUrl, model).ConfigureAwait(false);
+            var tokenObj = JsonConvert.DeserializeObject<TokenResponse>(response);
+            var token = tokenObj?.Token;
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return BadRequest("Invalid token received.");
+            }
+            var copkiesOtions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.Now.AddMinutes(15)
+            };
+            Response.Cookies.Append("AuthToken", token, copkiesOtions);
+            return Ok(response);
+        }
+        public async Task<IActionResult> getusername()
+        {
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/getusername";
+            var response = await _httpClient.GetAsync(fullUrl, true).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(response)) return Unauthorized();
+            return Ok(response);
+        }
     }
 }

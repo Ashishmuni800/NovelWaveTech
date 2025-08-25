@@ -18,7 +18,7 @@
 <body>
     <!-- Sidebar -->
     <nav id="sidebar" class="sidebar" aria-label="Main Navigation" style="display: none;">
-        <div class="m-lg-4 mt-0">
+        <div class="m-lg-4 mt-0 mrl">
             <img src="/images/logo.png" alt="Novel Wave Tech" />
         </div>
         <a href="javascript:void(0);" id="toggleSidebar" class="mb-3">
@@ -111,7 +111,8 @@
         .then(data => {
             document.getElementById('navProtected').style.display = 'block';
             document.getElementById('navProtected2').style.display = 'block';
-            document.getElementById('userNameDisplay').innerText = `Welcome, ${data.Id || 'User'}!`;
+            //document.getElementById('userNameDisplay').innerText = `Welcome, ${data.Id || 'User'}!`;
+            console.log(data.Id)
             sidebar.style.display = 'block';
             topbar.style.display = 'block';
         })
@@ -120,6 +121,22 @@
             document.getElementById('navProtected2').style.display = 'none';
             sidebar.style.display = 'none';
             topbar.style.display = 'none';
+        });
+
+        fetch(`/Home/getusername`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Invalid token');
+            return res.json();
+        })
+        .then(data => {
+            document.getElementById('userNameDisplay').innerText = `Welcome, ${data.username || 'User'}!`;
+            console.log(data.username);
+        })
+        .catch(() => {
+            console.log(data.Error);
         });
 
         // Logout

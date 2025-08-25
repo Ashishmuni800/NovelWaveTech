@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
@@ -43,9 +44,10 @@ namespace NovelWaveTechAPI.Controllers
         private readonly QRCodeWithLogoService _qrWithLogoService;
         //private readonly CryptoHelperService _CryptoHelperService;
         private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _configuration;
         public UserAuthController(IServiceInfra userAuthService, UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration, IWebHostEnvironment env)
+            IConfiguration configuration, IWebHostEnvironment env, IConfiguration configuration1)
         {
             _userAuthService = userAuthService;
             _signInManager = signInManager;
@@ -57,6 +59,7 @@ namespace NovelWaveTechAPI.Controllers
             _qrService = new QRCodeService();
             _qrWithLogoService = new QRCodeWithLogoService();
             _env = env;
+            _configuration = configuration1;
         }
         [HttpGet]
         [Authorize]
@@ -199,8 +202,9 @@ namespace NovelWaveTechAPI.Controllers
                     {
                         return Unauthorized(new { success = false, message = "Invalid username or password" });
                     }
-                    
-                    var token = GeneratedJwtToken(result);
+
+                    //var token = GeneratedJwtToken(result);
+                    var token = await GenerateJwtToken(result, _userManager, _configuration);
                     AuthorizationDataDTO authorizationDataDTO = new AuthorizationDataDTO();
                     authorizationDataDTO.token = token;
                     authorizationDataDTO.CreatedDatetime = CreatedDate;
@@ -247,6 +251,7 @@ namespace NovelWaveTechAPI.Controllers
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub ,user.Id),
+                new Claim(ClaimTypes.Name ,user.Name),
                 new Claim(JwtRegisteredClaimNames.Email , user.Email),
                 new Claim("Name" , user.Name),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())
@@ -332,6 +337,7 @@ namespace NovelWaveTechAPI.Controllers
         }
         // POST: api/qr/generate
         [HttpPost]
+        [Authorize]
         public IActionResult GenerateQRCode([FromBody] QRRequest request)
         {
             DateTime CreatedDatenow = DateTime.Now;
@@ -373,7 +379,8 @@ namespace NovelWaveTechAPI.Controllers
                     return Unauthorized(new { success = false, message = "Invalid username or password" });
                 }
 
-                var token = GeneratedJwtToken(result);
+                //var token = GeneratedJwtToken(result);
+                var token = await GenerateJwtToken(result, _userManager, _configuration);
                 DateTime CreatedDate = DateTime.Now;
                 AuthorizationDataDTO authorizationDataDTO = new AuthorizationDataDTO();
                 authorizationDataDTO.token = token;
@@ -389,6 +396,7 @@ namespace NovelWaveTechAPI.Controllers
 
         // POST: api/qr/generate-and-save
         [HttpPost]
+        [Authorize]
         public IActionResult GenerateAndSaveQRCode([FromBody] QRRequest request)
         {
             DateTime CreatedDatenow = DateTime.Now;
@@ -415,6 +423,7 @@ namespace NovelWaveTechAPI.Controllers
             return Ok(new { Message = "QR Code generated and saved.", FilePath = filePath });
         }
         [HttpPost]
+        [Authorize]
         public IActionResult GenerateAndSaveQRCodeWithLogo([FromBody] QRRequest request)
         {
             var Email = CryptoHelperService.CryptoHelper.Encrypt(request.Email);
@@ -442,5 +451,97 @@ namespace NovelWaveTechAPI.Controllers
             if (qrBytes.Result == null) return BadRequest("QRCode Not a generate");
             return Ok(new { Message = "QR Code generated and saved.", FilePath = filePath });
         }
+        public async Task<IActionResult> QRScanPost([FromBody] QrDataModel model)
+        {
+            if (model.QrData == null)
+                return BadRequest("No data Found.");
+            try
+            {
+                var parts = model.QrData.Split('|');
+                if (parts.Length != 3)
+                    throw new Exception("Invalid QR Code format. Expected: Email|Password|CreatedDate");
+
+                if (!DateTime.TryParse(parts[2], out var createdDate))
+                    throw new Exception("Invalid date format in QR Code.");
+
+                if (DateTime.UtcNow > createdDate.AddHours(24))
+                    throw new Exception("QR Code has expired. It was generated over 24 hours ago.");
+                var loginData = new LoginData
+                {
+                    Email = parts[0],
+                    Password = parts[1],
+                    CreatedDate = createdDate
+                };
+                var Email = CryptoHelperService.Decrypt(loginData.Email);
+                var Password = CryptoHelperService.Decrypt(loginData.Password);
+                var result = await _userAuthService.AuthService.FindByEmailUserAsync(Email).ConfigureAwait(false); ;
+                if (result == null)
+                {
+                    return Unauthorized(new { success = false, message = "Invalid username or password" });
+                }
+                var results = await _userAuthService.AuthService.CheckPasswordSignInAsync(result, Password);
+                if (results == null)
+                {
+                    return Unauthorized(new { success = false, message = "Invalid username or password" });
+                }
+
+                //var token = GeneratedJwtToken(result);
+                var token = await GenerateJwtToken(result, _userManager, _configuration);
+                DateTime CreatedDate = DateTime.Now;
+                AuthorizationDataDTO authorizationDataDTO = new AuthorizationDataDTO();
+                authorizationDataDTO.token = token;
+                authorizationDataDTO.CreatedDatetime = CreatedDate;
+                await _userAuthService.AuthService.CreateByAuthorizationDataAsync(authorizationDataDTO);
+                return Ok(new { success = true, token });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [Authorize]
+        [HttpGet]
+        public IActionResult getusername()
+        {
+            var username = User.FindFirst(ClaimTypes.Name)?.Value;
+            return Ok(new { username });
+        }
+        public async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        {
+            var userRoles = await userManager.GetRolesAsync(user);
+
+            var authClaims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.NameIdentifier, user.Id)
+    };
+
+            // Add role claims
+            foreach (var userRole in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+            }
+
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+
+            var token = new JwtSecurityToken(
+                issuer: configuration["Jwt:Issuer"],
+                audience: configuration["Jwt:Audience"],
+                expires: DateTime.Now.AddHours(3),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        [Authorize(Roles = "Admin")]
+        //[HttpGet("admin/dashboard")]
+        [HttpGet]
+        public IActionResult AdminDashboard()
+        {
+            return Ok("Welcome, Admin!");
+        }
+
     }
- }
+}

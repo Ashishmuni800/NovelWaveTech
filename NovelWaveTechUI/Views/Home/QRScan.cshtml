@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Scanner | Your App</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+        }
+
+            .logo img {
+                height: 80px;
+            }
+
+        .card {
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .mode-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+            .mode-buttons button {
+                padding: 10px 20px;
+                font-size: 16px;
+                border: none;
+                background: #005f99;
+                color: white;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background 0.3s ease;
+            }
+
+                .mode-buttons button:hover {
+                    background: #00456d;
+                }
+
+        #qr-result {
+            font-weight: bold;
+            margin-top: 15px;
+            color: green;
+        }
+
+        #reader {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        input[type="file"] {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGO -->
+    @* <div class="logo">
+        <img src="/images/logo.png" alt="App Logo" />
+    </div> *@
+
+    <!-- MAIN CARD -->
+    <div class="card">
+        <h2>Scan or Upload QR Code</h2>
+
+        <!-- Mode Buttons -->
+        <div class="mode-buttons">
+            <button onclick="setMode('scan')">📷 Scan QR</button>
+            <button onclick="setMode('upload')">🖼️ Upload QR</button>
+        </div>
+
+        <!-- Scan Mode -->
+        <div id="scan-mode" style="display: none;">
+            <div id="reader"></div>
+        </div>
+
+        <!-- Upload Mode -->
+        <div id="upload-mode" style="display: none;">
+            <input type="file" id="file-input" accept="image/*">
+        </div>
+
+        <!-- Result -->
+        <p id="qr-result"></p>
+        <p id="response"></p>
+    </div>
+
+    <script>
+        let html5QrCode;
+
+        function setMode(mode) {
+            document.getElementById('scan-mode').style.display = 'none';
+            document.getElementById('upload-mode').style.display = 'none';
+            document.getElementById('qr-result').textContent = "";
+
+            if (mode === 'scan') {
+                document.getElementById('scan-mode').style.display = 'block';
+                startScanner();
+            } else {
+                document.getElementById('upload-mode').style.display = 'block';
+                stopScanner();
+            }
+        }
+
+        function startScanner() {
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                (decodedText) => {
+                    document.getElementById('qr-result').textContent = `✅ Scanned: ${decodedText}`;
+                    sendToApi(decodedText);
+                    stopScanner();
+                }
+            );
+        }
+
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                }).catch(err => console.error(err));
+            }
+        }
+
+        document.getElementById('file-input').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function () {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+                    if (code) {
+                        document.getElementById('qr-result').textContent = `✅ Uploaded: ${code.data}`;
+                        sendToApi(code.data);
+                    } else {
+                        document.getElementById('qr-result').textContent = '❌ No QR code found.';
+                    }
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function sendToApi(qrData) {
+            fetch('/Home/QRScanPost', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ qrData })
+            })
+            .then(res => {
+                if (res.ok) {
+                document.getElementById("response").innerText ="Login successful! Redirecting...";
+                setTimeout(() => window.location.href = '/Home/Index', 1000);
+                } else {
+                    alert('❌ Failed to send data.');
+                }
+            })
+            .catch(err => {
+                alert('Error: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>

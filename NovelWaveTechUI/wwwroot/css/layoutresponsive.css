@@ -17,6 +17,10 @@ body {
     transition: transform 0.3s ease, width 0.3s ease;
     z-index: 1040;
 }
+    .sidebar .mrl{
+        margin-left:5px;
+        margin-top:0px;
+    }
 
     .sidebar.collapsed {
         width: 60px;
