@@ -12,7 +12,10 @@ namespace Application.ServiceInterface
 {
     public interface IUserAuthService
     {
+        Task<UpdatePermissionsRequestDTO> UpdateUserPermissions(UpdatePermissionsRequestDTO request);
+        Task<List<UserPermissionDTO>> GetUserPermissions(string UserId);
         Task<PaginatedResult<UserDto>> GetUsersIncrementalAsync(int skip, int take);
+        Task<UserDto> GetUsersAsync(string UserId);
         Task<RegisterDTO> RegisterAsync(RegisterDTO registerDTO);
         Task<RegisterDTO> FindByEmailAsync(string Email);
         Task<ApplicationUser> FindByEmailUserAsync(string Email);

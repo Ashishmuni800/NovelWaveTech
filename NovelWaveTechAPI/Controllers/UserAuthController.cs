@@ -1,4 +1,5 @@
 ﻿using Application.DTO;
+using Application.Permissions;
 using Application.Service;
 using Application.ServiceInterface;
 using Application.ViewModel;
@@ -45,9 +46,10 @@ namespace NovelWaveTechAPI.Controllers
         //private readonly CryptoHelperService _CryptoHelperService;
         private readonly IWebHostEnvironment _env;
         private readonly IConfiguration _configuration;
+        private readonly RoleManager<IdentityRole> _roleManager;
         public UserAuthController(IServiceInfra userAuthService, UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration, IWebHostEnvironment env, IConfiguration configuration1)
+            IConfiguration configuration, IWebHostEnvironment env, IConfiguration configuration1, RoleManager<IdentityRole> roleManager)
         {
             _userAuthService = userAuthService;
             _signInManager = signInManager;
@@ -60,12 +62,22 @@ namespace NovelWaveTechAPI.Controllers
             _qrWithLogoService = new QRCodeWithLogoService();
             _env = env;
             _configuration = configuration1;
+            _roleManager = roleManager;
         }
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> Get(int skip, int take)
         {
             var result = await _userAuthService.AuthService.GetUsersIncrementalAsync(skip, take);
+            return Ok(result);
+        }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUsers()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string UserIdstr = userId.ToString();
+            var result = await _userAuthService.AuthService.GetUsersAsync(UserIdstr);
             return Ok(result);
         }
 
@@ -232,7 +244,18 @@ namespace NovelWaveTechAPI.Controllers
             {
                 return NotFound();
             }
-            return Ok(data);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var roles = User.Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+
+            return Ok(new
+            {
+                Id = userId,
+                Roles = roles
+            });
+            //return Ok(data);
         }
 
         [HttpGet("{CaptchaCode}")]
@@ -508,13 +531,15 @@ namespace NovelWaveTechAPI.Controllers
         }
         public async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
+            var asp = new CustomUserClaimsPrincipalFactory(userManager,_roleManager, IOptions<IdentityOptions>, _userAuthService);
             var userRoles = await userManager.GetRolesAsync(user);
-
+            //var userp = User.HasPermission("ManageRoles");
             var authClaims = new List<Claim>
     {
         new Claim(ClaimTypes.Name, user.UserName),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim(ClaimTypes.NameIdentifier, user.Id)
+        //new Claim(ClaimsPrincipal.PrimaryIdentitySelector,user)
     };
 
             // Add role claims
@@ -535,12 +560,66 @@ namespace NovelWaveTechAPI.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        [Authorize(Roles = "Admin")]
-        //[HttpGet("admin/dashboard")]
         [HttpGet]
-        public IActionResult AdminDashboard()
+        public async Task<IActionResult> GetAllUsers()
         {
-            return Ok("Welcome, Admin!");
+            var users = _userManager.Users.ToList();
+            var result = new List<object>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                result.Add(new
+                {
+                    user.Id,
+                    user.UserName,
+                    user.Email,
+                    Roles = roles
+                });
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("assign-role")]
+        public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto model)
+        {
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+                return NotFound("User not found");
+
+            if (!await _roleManager.RoleExistsAsync(model.Role))
+                return BadRequest("Role does not exist");
+
+            var result = await _userManager.AddToRoleAsync(user, model.Role);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok($"Role '{model.Role}' assigned to user {user.UserName}");
+        }
+
+        [HttpPost("remove-role")]
+        public async Task<IActionResult> RemoveRole([FromBody] AssignRoleDto model)
+        {
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+                return NotFound("User not found");
+
+            if (!await _userManager.IsInRoleAsync(user, model.Role))
+                return BadRequest("User does not have this role");
+
+            var result = await _userManager.RemoveFromRoleAsync(user, model.Role);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok($"Role '{model.Role}' removed from user {user.UserName}");
+        }
+
+        [HttpGet]
+        public IActionResult GetAllRoles()
+        {
+            var roles = _roleManager.Roles.Select(r => r.Name).ToList();
+            return Ok(roles);
         }
 
     }

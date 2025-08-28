@@ -260,9 +260,46 @@ namespace Application.Service
             if (data == null) return null;
             data.UserName = user.userName;
             data.Email = user.email;
+            data.PhoneNumber = user.PhoneNumber;
             var updatedat = await _userManager.UpdateAsync(data);
             if (updatedat == null) return null;
             return user;
+        }
+
+        public async Task<UserDto> GetUsersAsync(string UserId)
+        {
+            var data = await _userManager.Users.Where(u => u.Id == UserId).ToListAsync();
+            if (data == null) return null;
+            var userlist = new UserDto()
+            {
+                Id = data[0].Id,
+                Name = data[0].Name,
+                UserName = data[0].UserName,
+                Email = data[0].Email,
+                PhoneNumber = data[0].PhoneNumber
+            };
+            return userlist;
+        }
+
+        public async Task<UpdatePermissionsRequestDTO> UpdateUserPermissions(UpdatePermissionsRequestDTO request)
+        {
+            var model = _Mapp.Map<UpdatePermissionsRequest>(request);
+            await _userAuthRepository.AuthRepo.UpdateUserPermissions(model).ConfigureAwait(false);
+            var dto = _Mapp.Map<UpdatePermissionsRequestDTO>(model);
+            return dto;
+        }
+
+        public async Task<List<UserPermissionDTO>> GetUserPermissions(string UserId)
+        {
+            //var model = _Mapp.Map<UserPermissionDTO>(UserId);
+            var result = await _userAuthRepository.AuthRepo.GetUserPermissions(UserId).ConfigureAwait(false);
+            if (result != null)
+            {
+                var dtoList = _Mapp.Map<List<UserPermissionDTO>>(result);
+                return dtoList;
+            }
+
+            return null;
         }
     }
 }

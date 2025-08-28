@@ -48,6 +48,27 @@ namespace NovelWaveTechUI.Controllers
             var response = await _httpClient.GetAsync(fullUrl,true).ConfigureAwait(false);
             return Ok(response);
         }
+        public IActionResult User()
+        {
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                return View();
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetUsers()
+        {
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/GetUsers";
+
+            var response = await _httpClient.GetAsync(fullUrl, true).ConfigureAwait(false);
+            return Ok(response);
+        }
         public IActionResult Index()
         {
             var token = Request.Cookies["AuthToken"];
@@ -340,5 +361,6 @@ namespace NovelWaveTechUI.Controllers
             if (string.IsNullOrEmpty(response)) return Unauthorized();
             return Ok(response);
         }
+
     }
 }

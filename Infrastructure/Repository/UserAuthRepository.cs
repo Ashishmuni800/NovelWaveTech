@@ -150,6 +150,14 @@ namespace Infrastructure.Repository
             return await _dbContext.PasswordChangeHistory.Where(op => op.UserPassword == UserPassword).ToListAsync();
         }
 
+        public async Task<List<UserPermission>> GetUserPermissions(string userId)
+        {
+            return await _dbContext.UserPermissions
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+        }
+
+
         public async Task<RegisterModel> RegisterAsync(RegisterModel registerModel)
         {
             var user = new ApplicationUser
@@ -160,6 +168,25 @@ namespace Infrastructure.Repository
             };
             await _userManager.CreateAsync(user, registerModel.Password);
             return registerModel;
+        }
+
+        public async Task<UpdatePermissionsRequest> UpdateUserPermissions(UpdatePermissionsRequest request)
+        {
+            var current = await _dbContext.UserPermissions
+                .Where(p => p.UserId == request.UserId)
+                .ToListAsync();
+
+            _dbContext.UserPermissions.RemoveRange(current);
+
+            var newPermissions = request.Permissions.Select(p => new UserPermission
+            {
+                UserId = request.UserId,
+                Permission = p
+            });
+
+            await _dbContext.UserPermissions.AddRangeAsync(newPermissions);
+            await _dbContext.SaveChangesAsync();
+            return request;
         }
     }
 }

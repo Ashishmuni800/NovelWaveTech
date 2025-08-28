@@ -1,0 +1,71 @@
+﻿@model List<Application.ViewModel.UserWithRolesViewModel>
+@using Application.Permissions
+@inject IHttpContextAccessor HttpContextAccessor
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="toast position-fixed bottom-0 end-0 m-4" role="alert"
+         aria-live="assertive" aria-atomic="true"
+         data-bs-delay="5000" data-bs-autohide="true" style="z-index: 1055;">
+        <div class="toast-header bg-success text-white">
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">@TempData["SuccessMessage"]</div>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="toast position-fixed bottom-0 end-0 m-4" role="alert"
+         aria-live="assertive" aria-atomic="true"
+         data-bs-delay="5000" data-bs-autohide="true" style="z-index: 1055;">
+        <div class="toast-header bg-danger text-white">
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">@TempData["ErrorMessage"]</div>
+    </div>
+}
+
+
+
+<h2>Admin Panel - Users</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Manage</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@string.Join(", ", user.Roles)</td>
+                <td>
+                    @if (HttpContextAccessor.HttpContext.User.HasPermission("ManageRoles"))
+                    {
+                        <a asp-action="ManageRoles" asp-route-userId="@user.UserId">Manage Roles</a>
+                    }
+                    <a asp-action="PermissionMatrix" asp-route-userId="@user.UserId">Permission Matrix</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        toastElList.forEach(function (toastEl) {
+            var toast = new bootstrap.Toast(toastEl)
+            toast.show()
+        })
+    });
+</script>
+
+
+
+

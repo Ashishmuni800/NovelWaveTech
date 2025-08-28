@@ -1,0 +1,31 @@
+﻿@model Application.ViewModel.PermissionMatrixViewModel
+
+<h2>Permissions for @Model.Email</h2>
+
+<form asp-action="UpdateUserPermissions" method="post">
+    <input type="hidden" name="userId" value="@Model.UserId" />
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Permission</th>
+                <th>Granted</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var perm in Model.AllPermissions)
+            {
+                <tr>
+                    <td>@perm</td>
+                    <td>
+                        <input type="checkbox" name="selectedPermissions" value="@perm"
+                               @(Model.AssignedPermissions.Contains(perm) ? "checked" : "") />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Update Permissions</button>
+</form>
+<a asp-action="Index">Back to User List</a>

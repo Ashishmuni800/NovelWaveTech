@@ -10,8 +10,10 @@ namespace Domain.RepositoryInterface
     public interface IUserAuthRepository
     {
         Task<RegisterModel> RegisterAsync(RegisterModel registerModel);
+        Task<UpdatePermissionsRequest> UpdateUserPermissions(UpdatePermissionsRequest request);
         //Task<LoginModel> LoginAsync(LoginModel user);
         Task<RegisterModel> FindByEmailAsync(string Email);
+        Task<List<UserPermission>> GetUserPermissions(string UserId);
         Task<RegisterModel> FindByUserNameAsync(string Name);
         Task<IEnumerable<PasswordChangeHistory>> GetByPasswordChangeHistoryAsync(string UserPassword);
         Task<GenerateCaptchaCode> GetByGenerateCaptchaCodeAsync(string captchaCode);

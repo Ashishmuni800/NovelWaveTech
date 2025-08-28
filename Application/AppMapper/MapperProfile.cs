@@ -30,6 +30,14 @@ namespace Application.AppMapper
             CreateMap<AuthorizationData, AuthorizationDataViewModel>();
             CreateMap<AuthorizationData, AuthorizationDataDTO>();
             CreateMap<AuthorizationDataDTO, AuthorizationData>();
+
+            CreateMap<UserPermission, PermissionMatrixViewModel>();
+            CreateMap<UserPermission, UserPermissionDTO>();
+            CreateMap<UserPermissionDTO, UserPermission>();
+
+            CreateMap<UpdatePermissionsRequest, PermissionMatrixViewModel>();
+            CreateMap<UpdatePermissionsRequest, UpdatePermissionsRequestDTO>();
+            CreateMap<UpdatePermissionsRequestDTO, UpdatePermissionsRequest>();
         }
     }
 }

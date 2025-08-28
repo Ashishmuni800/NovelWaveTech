@@ -31,8 +31,13 @@
         <hr class="bg-secondary" />
         <small class="px-3 text-uppercase text-muted">Account</small>
         <a id="navProtected" href="/Home/Proctected" style="display:none;"><i class="fa fa-lock"></i><span>Protected</span></a>
-        <a id="navProtected2" href="/Home/Userlist" style="display:none;"><i class="fa fa-lock"></i><span>Users</span></a>
         <hr class="bg-secondary" />
+        <a id="navProtected2" href="/Home/User" style="display:none;"><i class="fa fa-lock"></i><span>Users</span></a>
+        <hr class="bg-secondary" />
+        <a id="navProtected4" href="/Home/Userlist" style="display:none;"><i class="fa fa-lock"></i><span>Users List</span></a>
+        <hr class="bg-secondary" id="hide" style="display:none;" />
+        <a id="navProtected3" href="/Admin/Index" style="display:none;"><i class="fa fa-lock"></i><span>Admin user</span></a>
+        <hr class="bg-secondary" id="hide2" style="display:none;" />
         <small class="px-3 text-uppercase text-muted">Tools</small>
         <a href="#" id="toggleTheme"><i class="fa fa-moon" id="themeIcon"></i><span>Toggle Theme</span></a>
         <a href="/Home/Settings"><i class="fa fa-cogs"></i><span>Settings</span></a>
@@ -115,6 +120,14 @@
             console.log(data.Id)
             sidebar.style.display = 'block';
             topbar.style.display = 'block';
+            //console.log(data.id);
+           // console.log(data.roles[0]);
+            if(data.roles[0]=="Admin"){
+                document.getElementById('navProtected3').style.display = 'block';
+                document.getElementById('hide').style.display = 'block';
+                document.getElementById('navProtected4').style.display = 'block';
+                document.getElementById('hide2').style.display = 'block';
+            }
         })
         .catch(() => {
             document.getElementById('navProtected').style.display = 'none';

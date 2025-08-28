@@ -1,5 +1,6 @@
 using Application.ApiHttpClient;
 using Application.AppMapper;
+using Application.Permissions;
 using Application.Service;
 using Application.ServiceInterface;
 using AutoMapper;
@@ -75,6 +76,9 @@ builder.Services.AddAuthentication(options =>
 // DI Services
 builder.Services.AddScoped<IServiceInfra, ServiceInfra>();
 builder.Services.AddScoped<IServiceInfraRepo, ServiceInfraRepo>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, CustomUserClaimsPrincipalFactory>();
+
 //builder.Services.AddTransient<IHttpClients, HttpClients>();
 
 builder.Services.AddControllers();

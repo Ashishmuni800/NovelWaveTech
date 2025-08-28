@@ -11,5 +11,7 @@ namespace Infrastructure.Context
         public DbSet<PasswordChangeHistory> PasswordChangeHistory { get; set; }
         public DbSet<GenerateCaptchaCode> GenerateCaptchaCode { get; set; }
         public DbSet<AuthorizationData> AuthorizationData { get; set; }
+        public DbSet<UserPermission> UserPermissions { get; set; }
+
     }
 }
