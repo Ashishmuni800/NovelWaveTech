@@ -178,10 +178,12 @@ namespace Infrastructure.Repository
 
             _dbContext.UserPermissions.RemoveRange(current);
 
+            //var Id=Guid.NewGuid();
             var newPermissions = request.Permissions.Select(p => new UserPermission
             {
                 UserId = request.UserId,
-                Permission = p
+                Permission = p,
+                Id= Guid.NewGuid().ToString()
             });
 
             await _dbContext.UserPermissions.AddRangeAsync(newPermissions);

@@ -1,6 +1,6 @@
 ﻿@model List<Application.ViewModel.UserWithRolesViewModel>
-@using Application.Permissions
-@inject IHttpContextAccessor HttpContextAccessor
+@* @using Application.Permissions
+@inject IHttpContextAccessor HttpContextAccessor *@
 
 @if (TempData["SuccessMessage"] != null)
 {
@@ -46,11 +46,10 @@
                 <td>@user.Email</td>
                 <td>@string.Join(", ", user.Roles)</td>
                 <td>
-                    @if (HttpContextAccessor.HttpContext.User.HasPermission("ManageRoles"))
-                    {
-                        <a asp-action="ManageRoles" asp-route-userId="@user.UserId">Manage Roles</a>
-                    }
-                    <a asp-action="PermissionMatrix" asp-route-userId="@user.UserId">Permission Matrix</a>
+                    <a asp-action="ManageRoles" id="ManageRoles-@user.UserId" style="display:none;"
+                       asp-route-userId="@user.UserId">Manage Roles</a>
+                    <a asp-action="PermissionMatrix" id="ManageRoles2-@user.UserId" style="display:none;"
+                       asp-route-userId="@user.UserId">Permission Matrix</a>
                 </td>
             </tr>
         }
@@ -64,6 +63,33 @@
             toast.show()
         })
     });
+        fetch(`/Admin/GetUserLoginPermissions`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Invalid token');
+        return res.json();
+    })
+    .then(data => {
+        if (data.roles.includes("ManageRoles")) {
+            document.querySelectorAll('[id^="ManageRoles"]').forEach(el => {
+                el.style.display = 'inline-block';
+            });
+            document.querySelectorAll('[id^="ManageRoles2"]').forEach(el => {
+                el.style.display = 'inline-block';
+            });
+        }
+    })
+    .catch(() => {
+        document.querySelectorAll('[id^="ManageRoles"]').forEach(el => {
+            el.style.display = 'none';
+        });
+        document.querySelectorAll('[id^="ManageRoles2"]').forEach(el => {
+            el.style.display = 'none';
+        });
+    });
+
 </script>
 
 

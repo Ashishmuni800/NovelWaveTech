@@ -126,39 +126,23 @@ namespace NovelWaveTechAPI.Controllers
                 return BadRequest("Invalid or null user id");
 
             var assigned = await _userAuthService.AuthService.GetUserPermissions(userId);
-
-            // Make sure list is not empty
-            //if (assigned == null || !assigned.Any())
-            //{
-            //    return Ok(new
-            //    {
-            //        AllPermissions = Permissions.All,
-            //        Assigned = new List<object>
-            //{
-            //    new { UserId = userId, Permission = string.Empty }
-            //}
-            //    });
-            //}
-
-            //// Ensure each item has UserId populated
-            //foreach (var item in assigned.Where(a => string.IsNullOrEmpty(a.UserId)))
-            //{
-            //    item.UserId = userId;
-            //}
-
-            //return Ok(new
-            //{
-            //    AllPermissions = Permissions.All,
-            //    Assigned = assigned
-            //});
             var user = await _userManager.FindByIdAsync(userId);
+
+            var listdata = new List<string>();
+
+            foreach (var item in assigned)
+            {
+                listdata.Add(item.Permission);
+            }
+
             var getdata = new PermissionMatrixViewModel()
             {
                 AllPermissions = Permissions.All,
                 UserId = (assigned != null && assigned.Any() && !string.IsNullOrEmpty(assigned[0].UserId))
                 ? assigned[0].UserId
                 : userId,
-                Email = user.Email //assigned?.Select(a => a.Permission).ToList() ?? new List<string>()
+                Email = user.Email, //assigned?.Select(a => a.Permission).ToList() ?? new List<string>()
+                AssignedPermissions = listdata
             };
             return Ok(getdata);
         }
@@ -173,6 +157,19 @@ namespace NovelWaveTechAPI.Controllers
             var UpdatePermission = await _userAuthService.AuthService.UpdateUserPermissions(request);
             if (UpdatePermission == null) return BadRequest("Failed to update Permissios.");
             return Ok("Permissions updated");
+        }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUserLoginPermissions()
+        {
+            var roles = User.Claims
+                       .Where(c => c.Type == "permission")
+                       .Select(c => c.Value)
+                       .ToList();
+            return Ok(new
+            {
+                Roles = roles
+            });
         }
     }
 }

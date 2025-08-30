@@ -529,37 +529,42 @@ namespace NovelWaveTechAPI.Controllers
             var username = User.FindFirst(ClaimTypes.Name)?.Value;
             return Ok(new { username });
         }
-        public async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public async Task<string> GenerateJwtToken(
+    ApplicationUser user,
+    UserManager<ApplicationUser> userManager,
+    IConfiguration configuration)
         {
-            var asp = new CustomUserClaimsPrincipalFactory(userManager,_roleManager, IOptions<IdentityOptions>, _userAuthService);
             var userRoles = await userManager.GetRolesAsync(user);
-            //var userp = User.HasPermission("ManageRoles");
+            var assignedPermissions = await _userAuthService.AuthService.GetUserPermissions(user.Id);
+
             var authClaims = new List<Claim>
     {
         new Claim(ClaimTypes.Name, user.UserName),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim(ClaimTypes.NameIdentifier, user.Id)
-        //new Claim(ClaimsPrincipal.PrimaryIdentitySelector,user)
     };
 
-            // Add role claims
-            foreach (var userRole in userRoles)
-            {
+            foreach (var userRole in userRoles.Distinct())
                 authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-            }
 
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+            foreach (var permission in assignedPermissions.Distinct())
+                authClaims.Add(new Claim("permission", permission.Permission));
+
+            var authSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(configuration["Jwt:Key"])
+            );
 
             var token = new JwtSecurityToken(
                 issuer: configuration["Jwt:Issuer"],
                 audience: configuration["Jwt:Audience"],
-                expires: DateTime.Now.AddHours(3),
+                expires: DateTime.UtcNow.AddHours(int.Parse(configuration["Jwt:ExpiryHours"] ?? "3")),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {

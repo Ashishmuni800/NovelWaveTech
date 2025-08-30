@@ -69,7 +69,7 @@ namespace NovelWaveTechUI.Controllers
                 var userResponse = await _httpClient.GetAsync(userUrl, true);
                 //userResponse.EnsureSuccessStatusCode();
                 //var userJson = await userResponse.Content.ReadAsStringAsync();
-                var userWithRoles = JsonConvert.DeserializeObject<UserWithRolesViewModel>(userResponse);
+                var userWithRoles = JsonConvert.DeserializeObject<ManageRolesViewModel>(userResponse);
 
                 // ✅ 2. Get all available roles
                 string rolesUrl = $"{baseUrl}/api/Admin/GetAllRoles";
@@ -81,7 +81,7 @@ namespace NovelWaveTechUI.Controllers
                 {
                     UserId = userWithRoles.UserId,
                     Email = userWithRoles.Email,
-                    AssignedRoles = userWithRoles.Roles ?? new List<string>(),
+                    AssignedRoles = userWithRoles.AssignedRoles ?? new List<string>(),
                     AllRoles = allRoles ?? new List<string>()
                 };
 
@@ -196,6 +196,14 @@ namespace NovelWaveTechUI.Controllers
                 TempData["ErrorMessage"] = "An error occurred while updating Permissios.";
                 return RedirectToAction("Index");
             }
+        }
+        public async Task<IActionResult> GetUserLoginPermissions()
+        {
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/Admin/GetUserLoginPermissions";
+            var response = await _httpClient.GetAsync(fullUrl, true).ConfigureAwait(false);
+            if (string.IsNullOrEmpty(response)) return Unauthorized();
+            return Ok(response);
         }
     }
 }
