@@ -84,6 +84,7 @@ namespace Application.ApiHttpClient
 
             // Check if the request was successful
             if (response.IsSuccessStatusCode)
+
             {
                 // Return the response content as a string if successful
                 return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -92,7 +93,12 @@ namespace Application.ApiHttpClient
             {
                 // Handle failure (you could throw an exception or return the error message)
                 var errorContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                throw new Exception($"Request failed with status code {response.StatusCode}: {errorContent}");
+                var Responseapi = new ApiResponse()
+                {
+                    Message = errorContent
+                };
+                //throw new Exception($"{response.StatusCode}: {errorContent}");
+                return Responseapi.Message;
             }
         }
         public async Task<string> GetByIdAsync(string url, string id)
@@ -164,7 +170,12 @@ namespace Application.ApiHttpClient
             {
                 // Handle failure (you could throw an exception or return the error message)
                 var errorContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                throw new Exception($"Request failed with status code {response.StatusCode}: {errorContent}");
+                var Responseapi = new ApiResponse()
+                {
+                    Message = errorContent
+                };
+                //throw new Exception($"{response.StatusCode}: {errorContent}");
+                return Responseapi.Message;
             }
         }
 
@@ -174,7 +185,7 @@ namespace Application.ApiHttpClient
             var response = await _httpClient.GetAsync(url).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
-                return ($"Request failed with status code {response.StatusCode}");
+                return ($"{response.StatusCode}");
 
             var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
             var contentStream = await response.Content.ReadAsStreamAsync();

@@ -1,0 +1,179 @@
+﻿:root {
+    --bg: #0b0f0e;
+    --card: #0f1513;
+    --ink: #e8f6ef;
+    --muted: #9bb6aa;
+    --eco: #31c26b;
+    --ocean: #2aa6ff;
+    --accent: #6ef3c5;
+}
+
+.light {
+    --bg: #f6fbf8;
+    --card: #ffffff;
+    --ink: #0e1814;
+    --muted: #3b5a4a;
+    --eco: #1ea85a;
+    --ocean: #0d83eb;
+    --accent: #15d6a3;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 20px;
+}
+
+.wrap {
+    width: 100%;
+    display: grid;
+    gap: 18px;
+    align-items: center;
+    justify-items: center;
+}
+
+.card {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    padding: 28px;
+    margin-bottom: 0px;
+    
+}
+.stage{
+    height:170px;
+}
+
+.logo-grid {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 24px;
+    align-items: center;
+}
+
+.mark {
+    width: 140px;
+    height: 140px;
+}
+
+.wordmark {
+    line-height: 1;
+}
+
+.brand {
+    font-weight: 800;
+    font-size: clamp(28px, 6vw, 42px);
+    display: inline-flex;
+    gap: 10px;
+}
+
+    .brand .novel {
+        color: var(--eco);
+    }
+
+    .brand .wave {
+        color: var(--ocean);
+    }
+
+    .brand .tech {
+        color: var(--ink);
+        opacity: .9;
+    }
+
+.tag {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+button {
+    border: 1px solid rgba(255,255,255,.15);
+    background: rgba(255,255,255,.05);
+    color: var(--ink);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+/* Responsive Logo Section */
+.logo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+    .logo-grid .mark {
+        width: 120px;
+        height: auto;
+        max-width: 40vw; /* scale based on viewport width */
+    }
+
+    .logo-grid .wordmark {
+        flex: 1 1 200px;
+    }
+
+.wordmark .brand {
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    font-weight: bold;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.wordmark .tag {
+    font-size: clamp(0.75rem, 2.5vw, 1rem);
+    margin-top: 0.25rem;
+}
+
+/* Mobile tweaks */
+@media (max-width: 576px) {
+    .logo-grid {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+        .logo-grid .mark {
+            width: 80px;
+            max-width: 60vw;
+        }
+
+    .wordmark .brand {
+        font-size: 1.25rem;
+    }
+
+    .wordmark .tag {
+        font-size: 0.8rem;
+    }
+}
+
+.container {
+    margin-top: 0px; /* fixed top margin */
+}
+
+/* or make it responsive */
+/*.container {
+    margin-top: min(5vh, 50px);*/ /* scales with viewport */
+/*}*/
+
+

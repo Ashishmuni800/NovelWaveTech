@@ -8,8 +8,10 @@
 .card {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     border: none;
+
     border-radius: 15px;
     background: white;
+    margin-top:0px;
 }
 
 .login-header {

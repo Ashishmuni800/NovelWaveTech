@@ -35,7 +35,7 @@ namespace Application.Service
         {
             // find user with this username
             var user = await _userManager.FindByNameAsync(changePasswordDTO.UserName).ConfigureAwait(false);
-            //if (user?.Approved != true || user.IsActive == false) return false;
+            if (user ==null) return false;
             //change the password
             var changePasswordResult = await _userManager.ChangePasswordAsync(user, changePasswordDTO.Password, changePasswordDTO.NewPassword).ConfigureAwait(false);
             //set password status in user

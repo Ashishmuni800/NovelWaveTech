@@ -16,6 +16,15 @@
 //}
 
 // Toggle password visibility
+
+document.addEventListener("DOMContentLoaded", function () {
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    toastElList.forEach(function (toastEl) {
+        var toast = new bootstrap.Toast(toastEl)
+        toast.show()
+    })
+});
+
 document.querySelectorAll('.toggle-password').forEach(icon => {
     icon.addEventListener('click', function () {
         const targetInput = document.querySelector(this.dataset.toggle);
@@ -108,7 +117,8 @@ passwordForm.addEventListener('submit', async (e) => {
 
         if (!captchaResponse.ok) {
             const err = await captchaResponse.json();
-            statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Invalid CAPTCHA. Try again.'}</div>`;
+            //statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Invalid CAPTCHA. Try again.'}</div>`;
+            window.location.reload();
             loadCaptcha();
             resetFormUI();
             return;
@@ -131,17 +141,20 @@ passwordForm.addEventListener('submit', async (e) => {
 
         if (response.ok) {
             statusMessage.innerHTML = '<div class="alert alert-success">Password successfully changed!</div>';
+            window.location.reload();
             setTimeout(() => window.location.href = '/Home/Index', 1500);
         } else {
             const err = await response.json();
-            statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Password change failed.'}</div>`;
+            //statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Password change failed.'}</div>`;
+            window.location.reload();
             loadCaptcha();
             resetFormUI();
         }
 
     } catch (err) {
         console.error('Unexpected error:', err);
-        statusMessage.innerHTML = '<div class="alert alert-danger">An unexpected error occurred. Please try again.</div>';
+        //statusMessage.innerHTML = '<div class="alert alert-danger">An unexpected error occurred. Please try again.</div>';
+        window.location.reload();
         loadCaptcha();
         resetFormUI();
     }

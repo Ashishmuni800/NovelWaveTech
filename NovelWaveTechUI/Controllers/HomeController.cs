@@ -12,7 +12,9 @@ using System;
 using System.Buffers.Text;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace NovelWaveTechUI.Controllers
 {
@@ -27,18 +29,31 @@ namespace NovelWaveTechUI.Controllers
             _configuration = configuration;
             _httpClient=httpClient;
         }
-        public IActionResult Userlist()
+        public async Task<IActionResult> Userlist()
         {
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/GetRoles";
+
+            // Call API
+            var response = await _httpClient.GetAsync(fullUrl);
+            var tokenObj = JsonConvert.DeserializeObject<RolesResponse>(response);
+            var roles = tokenObj?.Roles ?? new List<string>();
+
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
             {
                 return RedirectToAction("Login");
             }
+            else if (roles.Contains("Admin"))
+            {
+                return View(); // default view for admin
+            }
             else
             {
-                return View();
+                return RedirectToAction("Index"); // fallback for non-admin
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> UserlistApi(int skip, int take)
         {
@@ -92,6 +107,32 @@ namespace NovelWaveTechUI.Controllers
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/Register";
             var response = await _httpClient.PostAsync(fullUrl, registerDTO).ConfigureAwait(false);
+            if (response == "Invalid registration details")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct details due the Input is invalid";
+                return BadRequest(response);
+            }
+            else if (response == "Please generate the captcha code and entered the correct captcha code")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct captcha code";
+                return BadRequest(response);
+            }
+            else if (response == "Please generate the captcha code and entered the correct captcha code due to the captcha code is expired!")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct captcha code due to the captcha code is expired";
+                return BadRequest(response);
+            }
+            else if (response == "Email already exists")
+            {
+                TempData["ErrorMessage"] = "Email already exists";
+                return BadRequest(response);
+            }
+            else if (response == "User creation failed")
+            {
+                TempData["ErrorMessage"] = "User creation failed";
+                return BadRequest(response);
+            }
+            TempData["SuccessMessage"] = "User created successfully";
             return Ok(response);
         }
         public IActionResult Login()
@@ -113,6 +154,26 @@ namespace NovelWaveTechUI.Controllers
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/Login";
             var response = await _httpClient.PostAsync(fullUrl, loginDTO).ConfigureAwait(false);
+            if(response== "Please generate the captcha code and entered the correct captcha code")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct captcha code";
+                return BadRequest(response);
+            }
+            else if(response== "Please generate the captcha code and entered the correct captcha code due to the captcha code is expired!")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct captcha code due to the captcha code is expired";
+                return BadRequest(response);
+            }
+            else if (response == "Invalid username")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct username due to the username is Invalid";
+                return BadRequest(response);
+            }
+            else if (response == "Invalid username or password")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct username or password due to the username or password is Invalid";
+                return BadRequest(response);
+            }
             var tokenObj = JsonConvert.DeserializeObject<TokenResponse>(response);
             var token = tokenObj?.Token;
 
@@ -171,6 +232,42 @@ namespace NovelWaveTechUI.Controllers
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/ChangePassword";
             var response = await _httpClient.PostAsync(fullUrl, changePasswordDTO,true).ConfigureAwait(false);
+            if (response == "Input is invalid")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct details due the Input is invalid";
+                return BadRequest(response);
+            }
+            else if (response == "Please generate the captcha code and entered the correct captcha code")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct captcha code";
+                return BadRequest(response);
+            }
+            else if (response == "Please generate the captcha code and entered the correct captcha code due to the captcha code is expired!")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct captcha code due to the captcha code is expired";
+                return BadRequest(response);
+            }
+            else if (response == "The password can not be same as any of the last 5 passwords.")
+            {
+                TempData["ErrorMessage"] = "The password can not be same as any of the last 5 passwords.";
+                return BadRequest(response);
+            }
+            else if (response == "Password does not channged.")
+            {
+                TempData["ErrorMessage"] = "Password does not channged.";
+                return BadRequest(response);
+            }
+            else if (response == "New Password and Confirm New Password does not matched")
+            {
+                TempData["ErrorMessage"] = "New Password and Confirm New Password does not matched";
+                return BadRequest(response);
+            }
+            else if (response == "New Password and Password is matched. Please try again with different password")
+            {
+                TempData["ErrorMessage"] = "New Password and Password is matched. Please try again with different password";
+                return BadRequest(response);
+            }
+            TempData["SuccessMessage"] = "Password is sucessfully channged.";
             return Ok(response);
         }
         public IActionResult Profile()
@@ -224,6 +321,10 @@ namespace NovelWaveTechUI.Controllers
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/GetCaptcha/{CaptchaCode}";
             var response = await _httpClient.GetAsync(fullUrl).ConfigureAwait(false);
+            if (response== "NotFound")
+            {
+                TempData["ErrorMessage"] = "Please entered the correct captcha code";
+            }
             return Ok(response);
         }
         [HttpGet]

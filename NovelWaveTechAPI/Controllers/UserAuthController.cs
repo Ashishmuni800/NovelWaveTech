@@ -154,7 +154,7 @@ namespace NovelWaveTechAPI.Controllers
                 || string.IsNullOrWhiteSpace(changePasswordDTO.Password)
                 || string.IsNullOrWhiteSpace(changePasswordDTO.CaptchaCode))
             {
-                return BadRequest("User Name not found");
+                return BadRequest("Input is invalid");
             }
             var captchaCode = await _userAuthService.AuthService.GetByGenerateCaptchaCodeAsync(changePasswordDTO.CaptchaCode);
             if (captchaCode != null)
@@ -207,12 +207,12 @@ namespace NovelWaveTechAPI.Controllers
                     var result = await _userAuthService.AuthService.FindByEmailUserAsync(loginDTO.Email).ConfigureAwait(false); ;
                     if (result == null)
                     {
-                        return Unauthorized(new { success = false, message = "Invalid username or password" });
+                        return Unauthorized("Invalid username");
                     }
                     var results = await _userAuthService.AuthService.CheckPasswordSignInAsync(result, loginDTO.Password);
                     if (results == null)
                     {
-                        return Unauthorized(new { success = false, message = "Invalid username or password" });
+                        return Unauthorized("Invalid username or password");
                     }
 
                     //var token = GeneratedJwtToken(result);
@@ -394,7 +394,7 @@ namespace NovelWaveTechAPI.Controllers
                 var result = await _userAuthService.AuthService.FindByEmailUserAsync(Email).ConfigureAwait(false); ;
                 if (result == null)
                 {
-                    return Unauthorized(new { success = false, message = "Invalid username or password" });
+                    return Unauthorized(new { success = false, message = "Invalid username" });
                 }
                 var results = await _userAuthService.AuthService.CheckPasswordSignInAsync(result, Password);
                 if (results == null)
@@ -619,12 +619,26 @@ namespace NovelWaveTechAPI.Controllers
 
             return Ok($"Role '{model.Role}' removed from user {user.UserName}");
         }
-
+        [Authorize]
         [HttpGet]
         public IActionResult GetAllRoles()
         {
             var roles = _roleManager.Roles.Select(r => r.Name).ToList();
             return Ok(roles);
+        }
+        [Authorize]
+        [HttpGet]
+        public IActionResult GetRoles()
+        {
+            var roles = User.Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+
+            return Ok(new
+            {
+                Roles = roles
+            });
         }
 
     }
