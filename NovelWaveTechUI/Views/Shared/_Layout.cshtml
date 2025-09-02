@@ -58,19 +58,20 @@
                 <a class="d-flex align-items-center justify-content-between collapsed px-2"
                    data-bs-toggle="collapse" href="#usersMenu"
                    role="button" aria-expanded="false" aria-controls="usersMenu" id="navProtected2" style="display:none;">
-                    <span><i class="fa fa-users"></i><span>Administration</span></span>
+                    <span><i class="nav-icon fa fa-cog"></i><span>Administration</span></span>
                     <!-- custom icon -->
-                    <i class="fa-regular fa-circle-plus toggle-icon"></i>
+                    @* <i class="fa-regular fa-circle-plus toggle-icon"></i> *@
+                    <i class="fas fa-angle-left right toggle-icon" style="font-size:20px;"></i>
                 </a>
                 <div class="collapse ps-4" id="usersMenu" data-bs-parent="#sidebarAccordion">
                     <a id="navProtected4" href="/Home/Userlist" style="display:none;">
-                        <i class="fa fa-list"></i><span> Users List</span>
+                        <i class="far fa-circle nav-icon"></i><span>Users List</span>
                     </a>
                     <a id="navProtected5" href="/Home/User" style="display:none;" class="d-block">
-                        <i class="fa fa-list"></i><span>Users</span>
+                        <i class="far fa-circle nav-icon"></i><span>Users</span>
                     </a>
                     <a id="navProtected" href="/Home/Proctected" style="display:none;">
-                        <i class="fa fa-lock"></i><span>Protected</span>
+                        <i class="far fa-circle nav-icon"></i><span>Weather Forecast</span>
                     </a>
 
                         <!-- Administration -->
@@ -79,16 +80,17 @@
                                 <a class="d-flex align-items-center justify-content-between collapsed px-2"
                                    data-bs-toggle="collapse" href="#adminMenu"
                                    role="button" aria-expanded="false" aria-controls="adminMenu" id="navAdminToggle" style="display:none;">
-                                    <span><i class="fa fa-user-shield"></i><span>Manage Roles</span></span>
+                                <span><i class="nav-icon far fa-circle"></i><span>Manage Roles</span></span>
                                     <!-- custom icon -->
-                                    <i class="fa-regular fa-circle-plus toggle-icon"></i>
+                                    @* <i class="fa-regular fa-circle-plus toggle-icon"></i> *@
+                                <i class="fas fa-angle-left right toggle-icon" style="font-size:20px;"></i>
                                 </a>
                                 <div class="collapse ps-4" id="adminMenu" data-bs-parent="#usersMenu">
                                     <a id="navProtected3" href="/Admin/Index" style="display:none;">
-                                    <i class="fa fa-user-cog"></i><span>Manage Roles</span>
+                                    <i class="far fa-circle nav-icon"></i><span>Manage Roles</span>
                                     </a>
                                     <a href="/Admin/Roles" style="display:none;" id="navRoles">
-                                        <i class="fa fa-user-tag"></i><span> Roles</span>
+                                    <i class="far fa-circle nav-icon"></i><span> Roles</span>
                                     </a>
                                 </div>
                             </div>
@@ -204,11 +206,11 @@
             document.getElementById('navRoles').style.display = 'block';
 
             // ✅ Auto-expand Users + Admin
-            const usersMenu = document.getElementById("usersMenu");
-            const adminMenu = document.getElementById("adminMenu");
+            // const usersMenu = document.getElementById("usersMenu");
+            // const adminMenu = document.getElementById("adminMenu");
 
-            new bootstrap.Collapse(usersMenu, { toggle: true });
-            new bootstrap.Collapse(adminMenu, { toggle: true });
+            // new bootstrap.Collapse(usersMenu, { toggle: true });
+            // new bootstrap.Collapse(adminMenu, { toggle: true });
         }
 
 
@@ -294,26 +296,27 @@
             if (!target || !icon) return;
 
             // Initialize icon state
-            if (target.classList.contains('show')) {
-                icon.classList.remove('fa-circle-plus');
-                icon.classList.add('fa-circle-minus', 'rotate-anim');
-            } else {
-                icon.classList.remove('fa-circle-minus', 'rotate-anim');
-                icon.classList.add('fa-circle-plus');
-            }
+                    // Initialize icon state
+        if (target.classList.contains('show')) {
+            icon.classList.remove('fa-angle-down');
+            icon.classList.add('fa-angle-left', 'rotate-anim');
+        } else {
+            icon.classList.remove('fa-angle-left', 'rotate-anim');
+            icon.classList.add('fa-angle-down');
+        }
 
-            // When expanded
-            target.addEventListener('shown.bs.collapse', () => {
-                icon.classList.remove('fa-circle-plus');
-                icon.classList.add('fa-circle-minus');
-                icon.classList.add('rotate-anim');
-            });
+        // When expanded
+        target.addEventListener('shown.bs.collapse', () => {
+            icon.classList.remove('fa-angle-down');
+            icon.classList.add('fa-angle-left', 'rotate-anim');
+        });
 
-            // When collapsed
-            target.addEventListener('hidden.bs.collapse', () => {
-                icon.classList.remove('fa-circle-minus', 'rotate-anim');
-                icon.classList.add('fa-circle-plus');
-            });
+        // When collapsed
+        target.addEventListener('hidden.bs.collapse', () => {
+            icon.classList.remove('fa-angle-left', 'rotate-anim');
+            icon.classList.add('fa-angle-down');
+        });
+
         });
 
 
