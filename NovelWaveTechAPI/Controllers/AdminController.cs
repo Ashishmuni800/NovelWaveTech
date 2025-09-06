@@ -151,7 +151,7 @@ namespace NovelWaveTechAPI.Controllers
         public async Task<IActionResult> UpdateUserPermissions([FromBody] UpdatePermissionsRequestDTO request)
         {
             if (request.UserId == null) return BadRequest("Invalid input");
-            if (request.Permissions.Count<=0) return BadRequest("Invalid input");
+            //if (request.Permissions.Count<=0) return BadRequest("Invalid input");
             var user = await _userManager.FindByIdAsync(request.UserId);
             if (user == null) return NotFound();
             var UpdatePermission = await _userAuthService.AuthService.UpdateUserPermissions(request);

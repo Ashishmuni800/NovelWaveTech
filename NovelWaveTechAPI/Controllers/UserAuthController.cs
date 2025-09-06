@@ -447,8 +447,16 @@ namespace NovelWaveTechAPI.Controllers
         }
         [HttpPost]
         [Authorize]
-        public IActionResult GenerateAndSaveQRCodeWithLogo([FromBody] QRRequest request)
+        public async Task<IActionResult> GenerateAndSaveQRCodeWithLogo([FromBody] QRRequest request)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // Find user by email
+            var requestUser = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (requestUser == null || requestUser.Id != userId)
+            {
+                return Unauthorized();
+            }
             var Email = CryptoHelperService.CryptoHelper.Encrypt(request.Email);
             var Password = CryptoHelperService.CryptoHelper.Encrypt(request.Password);
             DateTime CreatedDatenow = DateTime.Now;

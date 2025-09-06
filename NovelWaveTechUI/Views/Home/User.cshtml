@@ -8,195 +8,23 @@
     <title>Users Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
-    <style>
-        html {
-            font-size: 16px;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 1rem;
-            background-color: #f9f9f9;
-            font-size: clamp(0.9rem, 1vw + 0.5rem, 1.1rem); /* responsive font sizing */
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: auto;
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            overflow-x: auto;
-            margin-top: 25px;
-        }
-
-
-        h2 {
-            margin-top: 0;
-            text-align: center;
-        }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-            .controls input,
-            .controls select {
-                padding: 0.5rem;
-                font-size: 1rem;
-                border-radius: 4px;
-                border: 1px solid #ccc;
-                flex: 1 1 200px;
-            }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
-        }
-
-        thead {
-            background: #f1f1f1;
-        }
-
-        th, td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-            th.sortable:hover {
-                cursor: pointer;
-                background: #eee;
-            }
-
-        .actions {
-            text-align: center;
-        }
-
-        .action-btn {
-            cursor: pointer;
-            margin: 0 5px;
-            font-size: 1.1rem;
-        }
-
-        .edit-btn {
-            color: #007bff;
-        }
-
-            .edit-btn:hover {
-                color: #0056b3;
-            }
-
-        .delete-btn {
-            color: #dc3545;
-        }
-
-            .delete-btn:hover {
-                color: #a71d2a;
-            }
-
-        #loading {
-            text-align: center;
-            padding: 1rem;
-            color: #666;
-        }
-
-        #editModal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            justify-content: center;
-            align-items: center;
-        }
-
-        #editModalContent {
-            background: white;
-            padding: 1.5rem;
-            width: 90%;
-            max-width: 400px;
-            border-radius: 6px;
-        }
-
-            #editModalContent input {
-                width: 100%;
-                padding: 0.6rem;
-                margin: 0.5rem 0;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-            }
-
-            #editModalContent button {
-                padding: 0.5rem 1rem;
-                margin: 0.5rem 0.25rem 0 0;
-            }
-
-        .alert {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            background: #28a745;
-            color: white;
-            padding: 0.8rem 1rem;
-            border-radius: 5px;
-            display: none;
-            z-index: 1100;
-        }
-
-            .alert.error {
-                background: #dc3545;
-            }
-
-        @@media (max-width: 600px) {
-            .controls {
-                flex-direction: column;
-            }
-
-            .actions {
-                white-space: nowrap;
-            }
-
-            .action-btn {
-                display: inline-block;
-                vertical-align: middle;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/user.css" asp-append-version="true" />
 </head>
 <body>
     <div class="container mt-6">
         <h2>Users Management</h2>
-        <div class="controls">
-            <input type="text" id="searchInput" placeholder="Search by username or email" />
-            <select id="filterSelect">
-                <option value="">All</option>
-                <option value="gmail.com">Gmail</option>
-                <option value="yahoo.com">Yahoo</option>
-            </select>
-        </div>
-
         <table>
             <thead>
                 <tr>
-                    <th class="sortable" onclick="sortBy('Name')">Name</th>
-                    <th class="sortable" onclick="sortBy('userName')">Username</th>
-                    <th class="sortable" onclick="sortBy('email')">Email</th>
-                    <th class="sortable" onclick="sortBy('phoneNumber')">Phone Number</th>
+                    <th class="sortable">Name</th>
+                    <th class="sortable">Username</th>
+                    <th class="sortable">Email</th>
+                    <th class="sortable">Phone Number</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="list"></tbody>
         </table>
-
         <div id="loading">Loading more…</div>
     </div>
 
@@ -218,21 +46,14 @@
         const listEl = document.getElementById('list');
         const loadingEl = document.getElementById('loading');
         const alertBox = document.getElementById('alert');
-
         const editModal = document.getElementById('editModal');
         const editNameInput = document.getElementById('editName');
         const editUsernameInput = document.getElementById('editUsername');
         const editEmailInput = document.getElementById('editEmail');
         const editPhoneNumberInput = document.getElementById('editPhoneNumber');
 
-        const searchInput = document.getElementById('searchInput');
-        const filterSelect = document.getElementById('filterSelect');
-
-        let skip = 0, take = 50, hasMore = true, loading = false;
         let allUsers = [];
         let currentEditId = null;
-        let currentSortField = null;
-        let ascending = true;
 
         function showAlert(message, type = 'success') {
             alertBox.textContent = message;
@@ -247,89 +68,32 @@
                 const row = document.createElement('tr');
                 row.id = `row-${u.id}`;
                 row.innerHTML = `
-                    <td class="username">${u.name}</td>
-                    <td class="name">${u.userName}</td>
-                    <td class="email">${u.email}</td>
-                    <td class="phoneNumber">${u.phoneNumber}</td>
-                    <td class="actions">
+                    <td data-label="Name">${u.name}</td>
+                    <td data-label="Username">${u.userName}</td>
+                    <td data-label="Email">${u.email}</td>
+                    <td data-label="Phone">${u.phoneNumber}</td>
+                    <td data-label="Actions" class="actions">
                         <span class="action-btn edit-btn" title="Edit"
                             onclick="editUser('${u.id}', '${u.name}', '${u.userName}', '${u.email}', '${u.phoneNumber}')">
                             <i class="fas fa-edit"></i>
                         </span>
                     </td>
                 `;
-                // <span class="action-btn delete-btn" title="Delete"
-                //             onclick="deleteUser('${u.id}')">
-                //             <i class="fas fa-trash-alt"></i>
-                //         </span>
                 listEl.appendChild(row);
             });
         }
 
-        function applySearchFilterSort() {
-            let filtered = [...allUsers];
-            const q = searchInput.value.toLowerCase();
-            const domain = filterSelect.value;
-
-            if (q) {
-                filtered = filtered.filter(u =>
-                    u.userName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
-                );
-            }
-
-            if (domain) {
-                filtered = filtered.filter(u => u.email.includes(domain));
-            }
-
-            if (currentSortField) {
-                filtered.sort((a, b) => {
-                    let valA = a[currentSortField];
-                    let valB = b[currentSortField];
-                    if (typeof valA === 'string') valA = valA.toLowerCase();
-                    if (typeof valB === 'string') valB = valB.toLowerCase();
-                    return ascending ? valA > valB ? 1 : -1 : valA < valB ? 1 : -1;
-                });
-            }
-
-            renderUsers(filtered);
-        }
-
-        function sortBy(field) {
-            if (currentSortField === field) {
-                ascending = !ascending;
-            } else {
-                currentSortField = field;
-                ascending = true;
-            }
-            applySearchFilterSort();
-        }
-
         async function loadMore() {
-            if (!hasMore || loading) return;
-
-            loading = true;
-            loadingEl.style.display = 'block';
-
             try {
-                const resp = await fetch(`/Home/GetUsers`, {
-                    method: 'GET'
-                });
-
+                const resp = await fetch(`/Home/GetUsers`, { method: 'GET' });
                 if (!resp.ok) throw new Error('Failed to fetch');
-
                 const data = await resp.json();
                 allUsers = allUsers.concat(data);
-                applySearchFilterSort();
-
-                // skip += data.items.length;
-                // hasMore = data.hasMore;
-
-                //if (!hasMore) observer.disconnect();
+                renderUsers(allUsers);
             } catch (err) {
                 console.error(err);
                 showAlert('Error fetching users', 'error');
             } finally {
-                loading = false;
                 loadingEl.style.display = 'none';
             }
         }
@@ -361,9 +125,7 @@
             try {
                 const resp = await fetch(`/Home/UpdatePost/${currentEditId}`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: currentEditId, name, userName: username, email, phoneNumber })
                 });
 
@@ -374,7 +136,7 @@
                     allUsers[idx] = { ...allUsers[idx], name, userName: username, email, phoneNumber };
                 }
 
-                applySearchFilterSort();
+                renderUsers(allUsers);
                 closeModal();
                 showAlert('User updated successfully');
             } catch (err) {
@@ -383,50 +145,10 @@
             }
         }
 
-        // async function deleteUser(id) {
-        //     if (!confirm('Are you sure you want to delete this user?')) return;
-
-        //     try {
-        //         const resp = await fetch(`/Home/Delete/${id}`, {
-        //             method: 'GET'
-        //         });
-
-        //         if (!resp.ok) throw new Error('Failed to delete user');
-
-        //         allUsers = allUsers.filter(u => u.id !== id);
-        //         applySearchFilterSort();
-        //         showAlert('User deleted successfully');
-        //     } catch (err) {
-        //         console.error(err);
-        //         showAlert('Delete failed', 'error');
-        //     }
-        // }
-
-        // const observer = new IntersectionObserver(entries => {
-        //     if (entries[0].isIntersecting) loadMore();
-        // }, { rootMargin: '200px' });
-
-        // observer.observe(loadingEl);
-
-        // window.addEventListener('scroll', () => {
-        //     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
-        //         loadMore();
-        //     }
-        // });
-
-        searchInput.addEventListener('input', applySearchFilterSort);
-        filterSelect.addEventListener('change', applySearchFilterSort);
-
         window.addEventListener('load', () => {
-
-            fetch(`/Home/GetToken`, {
-                method: 'GET'
-            })
-            .then(r => {
-                if (!r.ok) window.location.href = "/Home/Login";
-            })
-            .catch(() => window.location.href = "/Home/Login");
-
+            fetch(`/Home/GetToken`, { method: 'GET' })
+                .then(r => { if (!r.ok) window.location.href = "/Home/Login"; })
+                .catch(() => window.location.href = "/Home/Login");
             loadMore();
         });
     </script>
