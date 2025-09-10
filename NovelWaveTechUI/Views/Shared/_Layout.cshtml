@@ -70,6 +70,9 @@
                     <a id="navProtected5" href="/Home/User" style="display:none;" class="d-block">
                         <i class="far fa-circle nav-icon"></i><span>Users</span>
                     </a>
+                            <a id="navProtected6" href="/ProductUI/Index" style="display:none;" class="d-block">
+                                <i class="far fa-circle nav-icon"></i><span>Add Product</span>
+                            </a>
                     <a id="navProtected" href="/Home/Proctected" style="display:none;">
                         <i class="far fa-circle nav-icon"></i><span>Weather Forecast</span>
                     </a>
@@ -197,6 +200,7 @@
             // }
 
             document.getElementById('navProtected5').style.display = 'block';
+            document.getElementById('navProtected6').style.display = 'block';
                                 if (data.roles.includes("Admin")) {
             document.getElementById('navProtected').style.display = 'block';
             document.getElementById('navAdminToggle').style.display = 'block';
@@ -222,21 +226,21 @@
             topbar.style.display = 'none';
         });
 
-        fetch(`/Home/getusername`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        })
-        .then(res => {
-            if (!res.ok) throw new Error('Invalid token');
-            return res.json();
-        })
-        .then(data => {
-            document.getElementById('userNameDisplay').innerText = `Welcome, ${data.username || 'User'}!`;
-            console.log(data.username);
-        })
-        .catch(() => {
-            console.log(data.Error);
-        });
+        // fetch(`/Home/getusername`, {
+        //     method: 'GET',
+        //     headers: { 'Content-Type': 'application/json' }
+        // })
+        // .then(res => {
+        //     if (!res.ok) throw new Error('Invalid token');
+        //     return res.json();
+        // })
+        // .then(data => {
+        //     document.getElementById('userNameDisplay').innerText = `Welcome, ${data.username || 'User'}!`;
+        //     console.log(data.username);
+        // })
+        // .catch(() => {
+        //     console.log(data.Error);
+        // });
 
         // Logout
         document.getElementById('dropdownLogout').addEventListener('click', () => {

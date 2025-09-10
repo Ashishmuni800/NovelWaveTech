@@ -9,5 +9,6 @@ namespace Domain.RepositoryInterface
     public interface IServiceInfraRepo
     {
         IUserAuthRepository AuthRepo { get; set; }
+        IProductRepository ProductRepo { get; set; }
     }
 }

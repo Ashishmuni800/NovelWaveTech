@@ -9,6 +9,7 @@ namespace Application.ServiceInterface
     public interface IServiceInfra
     {
         IUserAuthService AuthService { get; set; }
+        IProductServices ProductService { get; set; }
         IGenerateRandomCaptchaCode GenerateRandomCaptchaCode { get; set; }
     }
 }

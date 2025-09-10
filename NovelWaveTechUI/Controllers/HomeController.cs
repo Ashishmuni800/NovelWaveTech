@@ -181,14 +181,15 @@ namespace NovelWaveTechUI.Controllers
             {
                 return BadRequest("Invalid token received.");
             }
-            var copkiesOtions = new CookieOptions
+            var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
+                Secure = false, // ?? keep false for localhost, true in prod
+                SameSite = SameSiteMode.Lax,
                 Expires = DateTime.Now.AddMinutes(15)
             };
-            Response.Cookies.Append("AuthToken", token, copkiesOtions);
+
+            Response.Cookies.Append("AuthToken", token, cookieOptions);
             return Ok(response);
         }
 

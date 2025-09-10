@@ -1,0 +1,98 @@
+﻿using Application.DTO;
+using Application.ServiceInterface;
+using Application.ViewModel;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.SqlServer.Server;
+using System.Security.Claims;
+
+namespace NovelWaveTechAPI.Controllers
+{
+    [Route("api/[controller]/[action]")]
+    [ApiController]
+    public class ProductsController : ControllerBase
+    {
+        private readonly IServiceInfra _ProductService;
+        public ProductsController(IServiceInfra ProductService)
+        {
+            _ProductService = ProductService;
+        }
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetProducts() 
+        {
+            var products = await _ProductService.ProductService.GetAsync().ConfigureAwait(false);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            List<ProductViewModelData> setdata = products.Select(item => new ProductViewModelData
+            {
+                Id = item.Id,
+                Price = item.Price,
+                Descriptions = item.Descriptions,
+                IsActive = item.IsActive,
+                UserId = item.UserId,
+                IsOwner = (item.UserId == userId) // mark if current user is owner
+            }).ToList();
+
+            return Ok(setdata);
+
+        }
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetProductByUserId()
+        {
+            var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var product = await _ProductService.ProductService.GetByUserIdAsync(UserId).ConfigureAwait(false);
+            return Ok(product);
+        }
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetProductById(int Id)
+        {
+            var product = await _ProductService.ProductService.GetProductById(Id).ConfigureAwait(false);
+            return Ok(product);
+        }
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> DeleteProductById(int Id)
+        {
+            var product = await _ProductService.ProductService.DeleteByIdAsync(Id).ConfigureAwait(false);
+            return Ok(product);
+        }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> CreateProduct([FromBody] Product2DTO productDTO)
+        {
+            var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var product = new ProductDTO()
+            {
+                Price = productDTO.Price,
+                Descriptions = productDTO.Descriptions,
+                UserId=UserId,
+                IsActive=true,
+                CreatedDate= DateTime.Now
+            };
+            var products = await _ProductService.ProductService.CreateByProductAsync(product).ConfigureAwait(false);
+            return Ok(products);
+        }
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> EditProduct([FromBody] Product2DTO productDTO)
+        {
+            var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var product = new ProductDTO()
+            {
+                Id = productDTO.Id,
+                Price = productDTO.Price,
+                Descriptions = productDTO.Descriptions,
+                IsActive = productDTO.IsActive,
+                CreatedDate = productDTO.CreatedDate,
+                ModifiedDate = DateTime.Now,
+                UserId= UserId
+            };
+            var products = await _ProductService.ProductService.EditByProductAsync(product, product.Id).ConfigureAwait(false);
+            return Ok(products);
+        }
+    }
+}

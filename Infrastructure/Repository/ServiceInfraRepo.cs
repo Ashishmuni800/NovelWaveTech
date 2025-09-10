@@ -28,11 +28,13 @@ namespace Infrastructure.Repository
             _signInManager = signInManager;
             _userManager = userManager;
             AuthRepo = new UserAuthRepository(_userManager, _signInManager, configuration,_dbContext);
+            ProductRepo = new ProductRepository(_dbContext);
             _jwtKey = configuration["Jwt:Key"];
             _jwtIssuer = configuration["Jwt:Issuer"];
             _jwtAudience = configuration["Jwt:Audience"];
             _JwtExpiry = int.Parse(configuration["Jwt:ExpiryMinutes"]);
         }
         public IUserAuthRepository AuthRepo { get; set; }
+        public IProductRepository ProductRepo { get; set; }
     }
 }

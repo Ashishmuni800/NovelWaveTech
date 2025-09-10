@@ -25,9 +25,11 @@ namespace Application.Service
             _signInManager=signInManager;
             _userManager=userManager;
             AuthService = new UserAuthService(_infra, Mapp,_signInManager,_userManager);
+            ProductService = new ProductServices(_infra, Mapp);
             GenerateRandomCaptchaCode= new GenerateRandomCaptchaCode();
         }
         public IUserAuthService AuthService { get; set; }
+        public IProductServices ProductService { get; set; }
         public IGenerateRandomCaptchaCode GenerateRandomCaptchaCode { get; set; }
     }
 }

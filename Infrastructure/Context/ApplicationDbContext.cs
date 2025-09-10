@@ -12,6 +12,7 @@ namespace Infrastructure.Context
         public DbSet<GenerateCaptchaCode> GenerateCaptchaCode { get; set; }
         public DbSet<AuthorizationData> AuthorizationData { get; set; }
         public DbSet<UserPermission> UserPermissions { get; set; }
+        public DbSet<Product> Products { get; set; }
 
     }
 }

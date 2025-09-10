@@ -95,6 +95,7 @@
                                         <p>Don't have an account? <a href="/Home/Register">Sign Up here</a></p>
                                     </div>
                                 </div>
+                                <div id="statusMessageDisplay" class="text-center mt-3"></div>
                             </form>
                         </div>
                     </div>
@@ -164,7 +165,7 @@
 
 
         const loginForm = document.getElementById('loginForm');
-        const statusMessage = document.getElementById('statusMessage');
+        const statusMessage = document.getElementById('statusMessageDisplay');
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -190,23 +191,24 @@
                     if (loginResponse.ok) {
                         const data = await loginResponse.json();
                         statusMessage.innerHTML = '<div class="alert alert-success">Login successful! Redirecting...</div>';
-                        setTimeout(() => window.location.href = '/Home/Index', 1000);
+                        //setTimeout(() => window.location.href = '/Home/Index', 1000);
+                        window.location.href = '/Home/Index'
                     } else {
                         const err = await loginResponse.json();
                         window.location.reload();
-                       // statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Invalid credentials. Please try again.'}</div>`;
+                        statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Invalid credentials. Please try again.'}</div>`;
                         loadCaptcha();
                     }
                 } else {
                     const err = await captchaResponse.json();
                     window.location.reload();
-                    //statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Please enter the correct Captcha.'}</div>`;
+                    statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Please enter the correct Captcha.'}</div>`;
                     loadCaptcha();
                 }
             } catch (err) {
                 console.error(err);
                 window.location.reload();
-                //statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred. Please try again.</div>';
+                statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred. Please try again.</div>';
             }
         });
 

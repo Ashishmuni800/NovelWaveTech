@@ -38,6 +38,10 @@ namespace Application.AppMapper
             CreateMap<UpdatePermissionsRequest, PermissionMatrixViewModel>();
             CreateMap<UpdatePermissionsRequest, UpdatePermissionsRequestDTO>();
             CreateMap<UpdatePermissionsRequestDTO, UpdatePermissionsRequest>();
+
+            CreateMap<Product, ProductViewModel>();
+            CreateMap<Product, ProductDTO>();
+            CreateMap<ProductDTO, Product>();
         }
     }
 }
