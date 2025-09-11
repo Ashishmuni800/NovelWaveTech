@@ -226,21 +226,21 @@
             topbar.style.display = 'none';
         });
 
-        // fetch(`/Home/getusername`, {
-        //     method: 'GET',
-        //     headers: { 'Content-Type': 'application/json' }
-        // })
-        // .then(res => {
-        //     if (!res.ok) throw new Error('Invalid token');
-        //     return res.json();
-        // })
-        // .then(data => {
-        //     document.getElementById('userNameDisplay').innerText = `Welcome, ${data.username || 'User'}!`;
-        //     console.log(data.username);
-        // })
-        // .catch(() => {
-        //     console.log(data.Error);
-        // });
+        fetch(`/Home/getusername`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Invalid token');
+            return res.json();
+        })
+        .then(data => {
+            document.getElementById('userNameDisplay').innerText = `Welcome, ${data.username || 'User'}!`;
+            console.log(data.username);
+        })
+        .catch(() => {
+            console.log(data.Error);
+        });
 
         // Logout
         document.getElementById('dropdownLogout').addEventListener('click', () => {

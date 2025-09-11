@@ -1,8 +1,10 @@
 ﻿using Application.DTO;
 using Application.ServiceInterface;
 using Application.ViewModel;
+using Infrastructure.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SqlServer.Server;
 using System.Security.Claims;
@@ -14,30 +16,65 @@ namespace NovelWaveTechAPI.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IServiceInfra _ProductService;
-        public ProductsController(IServiceInfra ProductService)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ProductsController(IServiceInfra ProductService, UserManager<ApplicationUser> userManager)
         {
             _ProductService = ProductService;
+            _userManager = userManager;
         }
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetProducts() 
+        public async Task<IActionResult> GetProducts()
         {
             var products = await _ProductService.ProductService.GetAsync().ConfigureAwait(false);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var roles = User.Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
 
-            List<ProductViewModelData> setdata = products.Select(item => new ProductViewModelData
+            var setdata = new List<ProductViewModelData>();
+
+            foreach (var item in products)
             {
-                Id = item.Id,
-                Price = item.Price,
-                Descriptions = item.Descriptions,
-                IsActive = item.IsActive,
-                UserId = item.UserId,
-                IsOwner = (item.UserId == userId) // mark if current user is owner
-            }).ToList();
+                var productUser = await _userManager.FindByIdAsync(item.UserId);
+
+                if (roles.Contains("Admin"))
+                {
+                    setdata.Add(new ProductViewModelData
+                    {
+                        Id = item.Id,
+                        Price = item.Price,
+                        Descriptions = item.Descriptions,
+                        CreatedDate = item.CreatedDate.ToString("dd-MM-yyyy"),
+                        Name = productUser?.Name,  // show the product owner’s name
+                        IsActive = item.IsActive,
+                        EditMinutes = true,            // Admins can always edit
+                        UserId = item.UserId,
+                        IsOwner = true                 // Admin acts as owner
+                    });
+                }
+                else
+                {
+                    setdata.Add(new ProductViewModelData
+                    {
+                        Id = item.Id,
+                        Price = item.Price,
+                        Descriptions = item.Descriptions,
+                        CreatedDate = item.CreatedDate.ToString("dd-MM-yyyy"),
+                        Name = productUser?.Name,  // correct owner name per product
+                        IsActive = item.IsActive,
+                        EditMinutes = (DateTime.Now - item.CreatedDate) < TimeSpan.FromMinutes(5),
+                        UserId = item.UserId,
+                        IsOwner = (item.UserId == userId) // only true if current user owns it
+                    });
+                }
+            }
 
             return Ok(setdata);
-
         }
+
+
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetProductByUserId()

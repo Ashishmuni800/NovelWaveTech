@@ -22,7 +22,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login","Home");
             }
             else
             {
@@ -39,7 +39,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Home");
             }
             else
             {
@@ -56,7 +56,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Home");
             }
             else
             {
@@ -74,7 +74,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Home");
             }
             else
             {
@@ -92,7 +92,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Home");
             }
             else
             {
@@ -110,7 +110,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Login");
+                return RedirectToAction("Login", "Home");
             }
             else
             {
