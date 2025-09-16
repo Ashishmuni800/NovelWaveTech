@@ -184,8 +184,8 @@ namespace NovelWaveTechUI.Controllers
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false, // ?? keep false for localhost, true in prod
-                SameSite = SameSiteMode.Lax,
+                Secure = true, // ?? keep false for localhost, true in prod
+                SameSite = SameSiteMode.Strict,
                 Expires = DateTime.Now.AddMinutes(15)
             };
 

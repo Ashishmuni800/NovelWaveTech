@@ -1,9 +1,35 @@
 ﻿@model IEnumerable<Application.ViewModel.ProductViewModelData>
 
-<!-- Button to open modal -->
-<button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
-    Add Product
-</button>
+<!-- Header with buttons -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Left side -->
+    <div>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="fa fa-plus"></i> Add Product
+        </button>
+    </div>
+
+    <!-- Right side (Export dropdown) -->
+    <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportMenu" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fa fa-download"></i> Export
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportMenu">
+            <li>
+                <a class="dropdown-item text-danger" asp-action="ExportPdf" asp-controller="ProductUI">
+                    <i class="fa fa-file-pdf"></i> PDF
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item text-success" asp-action="ExportExcel" asp-controller="ProductUI">
+                    <i class="fa fa-file-excel"></i> Excel
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
 <!-- Table -->
 
 <table class="table table-bordered" id="productsTable">

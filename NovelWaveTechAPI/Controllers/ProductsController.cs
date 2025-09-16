@@ -42,6 +42,7 @@ namespace NovelWaveTechAPI.Controllers
                 if (roles.Contains("Admin"))
                 {
                     setdata.Add(new ProductViewModelData
+
                     {
                         Id = item.Id,
                         Price = item.Price,

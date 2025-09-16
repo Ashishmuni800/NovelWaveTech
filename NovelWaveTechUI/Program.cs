@@ -1,9 +1,10 @@
 using Application.ApiHttpClient;
 using NovelWaveTechUI.BaseURL;
 using NovelWaveTechUI.Chat;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
-
+QuestPDF.Settings.License = LicenseType.Community;
 builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
