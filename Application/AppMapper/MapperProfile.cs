@@ -42,6 +42,10 @@ namespace Application.AppMapper
             CreateMap<Product, ProductViewModel>();
             CreateMap<Product, ProductDTO>();
             CreateMap<ProductDTO, Product>();
+
+            CreateMap<ProductSummary, ProductSummaryDTO>();
+            //CreateMap<ProductSummary, ProductSummaryDTO>();
+            //CreateMap<ProductSummaryDTO, ProductSummary>();
         }
     }
 }

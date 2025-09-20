@@ -112,5 +112,25 @@ namespace Application.Service
 
             return null;
         }
+
+        public async Task<decimal> GetSumAsync()
+        {
+            return await _ProductRepository.ProductRepo.GetSumAsync().ConfigureAwait(false);
+
+            
+        }
+
+        public async Task<List<ProductSummaryDTO>> GetSumByUserIdAsync()
+        {
+            var result = await _ProductRepository.ProductRepo.GetSumByUserIdAsync().ConfigureAwait(false);
+
+            if (result != null)
+            {
+                var dtoList = _Mapp.Map<List<ProductSummaryDTO>>(result);
+                return dtoList;
+            }
+
+            return null;
+        }
     }
 }

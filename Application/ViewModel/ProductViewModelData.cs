@@ -11,6 +11,8 @@ namespace Application.ViewModel
         public int Id { get; set; }
         public bool EditMinutes { get; set; }
         public decimal Price { get; set; }
+        public decimal SumOfPrice { get; set; }
+        public decimal SumOfPriceBycreater { get; set; }
         public string Descriptions { get; set; }
         public string UserId { get; set; }
         public string Name { get; set; }

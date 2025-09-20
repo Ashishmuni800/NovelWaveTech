@@ -31,7 +31,11 @@
 
 
 <!-- Table -->
-
+<p><b>Total Amount:</b> @Model.First().SumOfPrice.ToString("C")</p>
+<p>
+    @Html.Raw(string.Join(", ", ((IEnumerable<dynamic>)ViewBag.data)
+        .Select(op => $"<b>Username:</b> {op.Name}, <b>Total:</b> {((decimal)op.TotalPrice).ToString("C")}")))
+</p>
 <table class="table table-bordered" id="productsTable">
     <thead>
         <tr>
@@ -56,10 +60,10 @@
                     @if (item.IsOwner && item.EditMinutes)
                     {
                         <button class="btn btn-sm btn-primary edit-btn" data-id="@item.Id">
-                            <i class="bi bi-pencil"></i> Edit
+                            <i class="fa fa-pencil"></i>
                         </button>
                         <button class="btn btn-sm btn-danger delete-btn" data-id="@item.Id">
-                            <i class="bi bi-trash"></i> Delete
+                            <i class="fa fa-trash"></i>
                         </button>
                     }
                     else

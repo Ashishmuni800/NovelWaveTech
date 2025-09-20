@@ -11,6 +11,8 @@ namespace Domain.RepositoryInterface
     {
         Task<bool> DeleteByIdAsync(int Id);
         Task<List<Product>> GetByUserIdAsync(string UserId);
+        Task<List<ProductSummary>> GetSumByUserIdAsync();
+        Task<decimal> GetSumAsync();
         Task<Product> GetProductById(int Id);
         Task<List<Product>> GetAsync();
         Task<Product> CreateByProductAsync(Product product);

@@ -1,6 +1,7 @@
 ﻿using Application.DTO;
 using Application.ServiceInterface;
 using Application.ViewModel;
+using Domain.Model;
 using Infrastructure.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,9 +25,30 @@ namespace NovelWaveTechAPI.Controllers
         }
         [Authorize]
         [HttpGet]
+        public async Task<IActionResult> GetProductsSumByUserId()
+        {
+            var products3 = await _ProductService.ProductService.GetSumByUserIdAsync().ConfigureAwait(false);
+            var setdata = new List<ProductSummaryDTO2>();
+            foreach (var item in products3)
+            {
+                var productUser = await _userManager.FindByIdAsync(item.UserId);
+                setdata.Add(new ProductSummaryDTO2
+
+                {
+                    UserId = item.UserId,
+                    Name = productUser?.Name,
+                    Products = item.Products,
+                    TotalPrice=item.TotalPrice
+                });
+            }
+            return Ok(setdata);
+        }
+        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
             var products = await _ProductService.ProductService.GetAsync().ConfigureAwait(false);
+            var products2 = await _ProductService.ProductService.GetSumAsync().ConfigureAwait(false);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var roles = User.Claims
                 .Where(c => c.Type == ClaimTypes.Role)
@@ -52,7 +74,8 @@ namespace NovelWaveTechAPI.Controllers
                         IsActive = item.IsActive,
                         EditMinutes = true,            // Admins can always edit
                         UserId = item.UserId,
-                        IsOwner = true                 // Admin acts as owner
+                        IsOwner = true,                 // Admin acts as owner
+                        SumOfPrice= products2
                     });
                 }
                 else
@@ -67,7 +90,8 @@ namespace NovelWaveTechAPI.Controllers
                         IsActive = item.IsActive,
                         EditMinutes = (DateTime.Now - item.CreatedDate) < TimeSpan.FromMinutes(5),
                         UserId = item.UserId,
-                        IsOwner = (item.UserId == userId) // only true if current user owns it
+                        IsOwner = (item.UserId == userId), // only true if current user owns it
+                        SumOfPrice = products2
                     });
                 }
             }

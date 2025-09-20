@@ -76,5 +76,27 @@ namespace Infrastructure.Repository
         {
             return await _dbContext.Products.Where(op => op.Id == Id).FirstOrDefaultAsync();
         }
+
+        public async Task<decimal> GetSumAsync()
+        {
+            return await _dbContext.Products.Where(op=>op.IsActive==true).SumAsync(op=>op.Price);
+        }
+
+        public async Task<List<ProductSummary>> GetSumByUserIdAsync()
+        {
+            var grouped = await _dbContext.Products
+                .Where(op => op.IsActive)
+                .GroupBy(op => op.UserId)
+                .Select(g => new ProductSummary
+                {
+                    UserId = g.Key,
+                    Products = g.ToList(), // Materialize products for this user
+                    TotalPrice = g.Sum(p => p.Price)
+                })
+                .ToListAsync();
+
+            return grouped;
+        }
+
     }
 }

@@ -33,7 +33,11 @@ namespace NovelWaveTechUI.Controllers
                 string fullUrl = $"{baseUrl}/api/Products/GetProducts";
                 var response = await _httpClient.GetAsync(fullUrl, true);
                 var product = JsonConvert.DeserializeObject<List<ProductViewModelData>>(response);
-                //ViewBag.data = product;
+
+                string fullUrls = $"{baseUrl}/api/Products/GetProductsSumByUserId";
+                var response2 = await _httpClient.GetAsync(fullUrls, true);
+                var product2 = JsonConvert.DeserializeObject<List<ProductSummaryDTO2>>(response2);
+                ViewBag.data = product2;
                 return View(product);
             }
         }
