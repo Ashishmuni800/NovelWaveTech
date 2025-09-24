@@ -29,6 +29,10 @@ namespace Infrastructure.Repository
             _userManager = userManager;
             AuthRepo = new UserAuthRepository(_userManager, _signInManager, configuration,_dbContext);
             ProductRepo = new ProductRepository(_dbContext);
+            TransactionsRepo = new TransactionsRepository(_dbContext);
+            RemindersRepo = new RemindersRepository(_dbContext);
+            CustomerRepo = new CustomerRepository(_dbContext);
+            AccountNumberGeneratorRepo = new AccountNumberGeneratorRepository(_dbContext);
             _jwtKey = configuration["Jwt:Key"];
             _jwtIssuer = configuration["Jwt:Issuer"];
             _jwtAudience = configuration["Jwt:Audience"];
@@ -36,5 +40,9 @@ namespace Infrastructure.Repository
         }
         public IUserAuthRepository AuthRepo { get; set; }
         public IProductRepository ProductRepo { get; set; }
+        public ITransactionsRepository TransactionsRepo { get; set; }
+        public IRemindersRepository RemindersRepo { get; set; }
+        public ICustomerRepository CustomerRepo { get; set; }
+        public IAccountNumberGeneratorRepository AccountNumberGeneratorRepo { get; set; }
     }
 }

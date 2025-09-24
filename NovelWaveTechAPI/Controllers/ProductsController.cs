@@ -64,17 +64,16 @@ namespace NovelWaveTechAPI.Controllers
                 if (roles.Contains("Admin"))
                 {
                     setdata.Add(new ProductViewModelData
-
                     {
                         Id = item.Id,
                         Price = item.Price,
                         Descriptions = item.Descriptions,
                         CreatedDate = item.CreatedDate.ToString("dd-MM-yyyy"),
-                        Name = productUser?.Name,  // show the product owner’s name
+                        Name = productUser?.Name,
                         IsActive = item.IsActive,
-                        EditMinutes = true,            // Admins can always edit
+                        EditMinutes = true,
                         UserId = item.UserId,
-                        IsOwner = true,                 // Admin acts as owner
+                        IsOwner = true,
                         SumOfPrice= products2
                     });
                 }
@@ -86,20 +85,17 @@ namespace NovelWaveTechAPI.Controllers
                         Price = item.Price,
                         Descriptions = item.Descriptions,
                         CreatedDate = item.CreatedDate.ToString("dd-MM-yyyy"),
-                        Name = productUser?.Name,  // correct owner name per product
+                        Name = productUser?.Name,
                         IsActive = item.IsActive,
                         EditMinutes = (DateTime.Now - item.CreatedDate) < TimeSpan.FromMinutes(5),
                         UserId = item.UserId,
-                        IsOwner = (item.UserId == userId), // only true if current user owns it
+                        IsOwner = (item.UserId == userId),
                         SumOfPrice = products2
                     });
                 }
             }
-
             return Ok(setdata);
         }
-
-
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetProductByUserId()
@@ -119,7 +115,9 @@ namespace NovelWaveTechAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteProductById(int Id)
         {
+            if(Id == 0) return BadRequest("Invalid input");
             var product = await _ProductService.ProductService.DeleteByIdAsync(Id).ConfigureAwait(false);
+            if (product == null) return BadRequest("Delete failed");
             return Ok(product);
         }
         [Authorize]
@@ -136,6 +134,7 @@ namespace NovelWaveTechAPI.Controllers
                 CreatedDate= DateTime.Now
             };
             var products = await _ProductService.ProductService.CreateByProductAsync(product).ConfigureAwait(false);
+            if (products == null) return BadRequest("Create failed");
             return Ok(products);
         }
         [Authorize]
@@ -154,6 +153,7 @@ namespace NovelWaveTechAPI.Controllers
                 UserId= UserId
             };
             var products = await _ProductService.ProductService.EditByProductAsync(product, product.Id).ConfigureAwait(false);
+            if (products == null) return BadRequest("Edit failed");
             return Ok(products);
         }
     }

@@ -26,10 +26,18 @@ namespace Application.Service
             _userManager=userManager;
             AuthService = new UserAuthService(_infra, Mapp,_signInManager,_userManager);
             ProductService = new ProductServices(_infra, Mapp);
+            RemindersService = new RemindersService(_infra, Mapp);
+            TransactionsService = new TransactionsService(_infra, Mapp);
+            CustomerService = new CustomerService(_infra, Mapp);
+            AccountNumberGenerator = new AccountNumberGenerator(_infra, Mapp);
             GenerateRandomCaptchaCode= new GenerateRandomCaptchaCode();
         }
         public IUserAuthService AuthService { get; set; }
         public IProductServices ProductService { get; set; }
+        public IRemindersService RemindersService { get; set; }
+        public ITransactionsService TransactionsService { get; set; }
+        public ICustomerService CustomerService { get; set; }
+        public IAccountNumberGenerator AccountNumberGenerator { get; set; }
         public IGenerateRandomCaptchaCode GenerateRandomCaptchaCode { get; set; }
     }
 }

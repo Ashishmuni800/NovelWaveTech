@@ -29,53 +29,72 @@
     </div>
 </div>
 
+@if (Model != null && Model.Any())
+{
+    <p><b>Total Amount:</b> @Model.Sum(x => x.Price).ToString("C")</p>
 
-<!-- Table -->
-<p><b>Total Amount:</b> @Model.First().SumOfPrice.ToString("C")</p>
+    @if (ViewBag.data != null)
+    {
 <p>
     @Html.Raw(string.Join(", ", ((IEnumerable<dynamic>)ViewBag.data)
         .Select(op => $"<b>Username:</b> {op.Name}, <b>Total:</b> {((decimal)op.TotalPrice).ToString("C")}")))
 </p>
-<table class="table table-bordered" id="productsTable">
-    <thead>
-        <tr>
-            <th>Price</th>
-            <th>Description</th>
-            <th>Created Date</th>
-            <th>Creater Name</th>
-            <th>IsActive</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.Price</td>
-            <td>@item.Descriptions</td>
-            <td>@item.CreatedDate</td>
-            <td>@item.Name</td>
-            <td>@item.IsActive</td>
-                <td>
-                    @if (item.IsOwner && item.EditMinutes)
-                    {
-                        <button class="btn btn-sm btn-primary edit-btn" data-id="@item.Id">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger delete-btn" data-id="@item.Id">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    }
-                    else
-                    {
-                        <span class="text-muted">Not Allowed</span>
-                    }
-                </td>
-
-        </tr>
     }
-    </tbody>
-</table>
+
+    <table class="table table-bordered" id="productsTable">
+        <thead>
+            <tr>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Created Date</th>
+                <th>Creater Name</th>
+                <th>IsActive</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>@item.Descriptions</td>
+                    <td>@item.CreatedDate</td>
+                    <td>@item.Name</td>
+                    <td>
+                        @if (item.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.IsOwner && item.EditMinutes)
+                        {
+                            <button class="btn btn-sm btn-primary edit-btn" data-id="@item.Id">
+                                <i class="fa fa-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-id="@item.Id">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not Allowed</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No product</p>
+}
+
 
 
 <!-- Modal -->
@@ -244,6 +263,7 @@
             });
 
         });
+
     </script>
 }
 

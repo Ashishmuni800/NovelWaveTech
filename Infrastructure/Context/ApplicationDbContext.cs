@@ -13,6 +13,9 @@ namespace Infrastructure.Context
         public DbSet<AuthorizationData> AuthorizationData { get; set; }
         public DbSet<UserPermission> UserPermissions { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Transactions> Transactions { get; set; }
+        public DbSet<Reminder> Reminders { get; set; }
 
     }
 }

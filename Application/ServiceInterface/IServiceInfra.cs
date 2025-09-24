@@ -10,6 +10,10 @@ namespace Application.ServiceInterface
     {
         IUserAuthService AuthService { get; set; }
         IProductServices ProductService { get; set; }
+        ICustomerService CustomerService { get; set; }
+        ITransactionsService TransactionsService { get; set; }
+        IRemindersService RemindersService { get; set; }
+        IAccountNumberGenerator AccountNumberGenerator { get; set; }
         IGenerateRandomCaptchaCode GenerateRandomCaptchaCode { get; set; }
     }
 }

@@ -10,5 +10,9 @@ namespace Domain.RepositoryInterface
     {
         IUserAuthRepository AuthRepo { get; set; }
         IProductRepository ProductRepo { get; set; }
+        ITransactionsRepository TransactionsRepo { get; set; }
+        IRemindersRepository RemindersRepo { get; set; }
+        ICustomerRepository CustomerRepo { get; set; }
+        IAccountNumberGeneratorRepository AccountNumberGeneratorRepo { get; set; }
     }
 }
