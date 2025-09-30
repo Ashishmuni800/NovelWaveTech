@@ -1,5 +1,6 @@
 ﻿using Application.DTO;
 using Application.ServiceInterface;
+using Application.ViewModel;
 using AutoMapper;
 using Domain.Model;
 using Domain.RepositoryInterface;
@@ -36,22 +37,28 @@ namespace Application.Service
             return await _transactionsRepository.TransactionsRepo.DeleteTransactionsAsync(customerId, id);
         }
 
-        public async Task<IEnumerable<TransactionDTO>> GetAllTransactionAsync()
+        public async Task<IEnumerable<TransactionViewModel>> GetAllTransactionAsync()
         {
             var entities = await _transactionsRepository.TransactionsRepo.GetAllTransactionsAsync();
-            return _mapper.Map<IEnumerable<TransactionDTO>>(entities);
+            return _mapper.Map<IEnumerable<TransactionViewModel>>(entities);
         }
 
-        public async Task<TransactionDTO> GetTransactionBycustomerIdAsync(Guid customerId)
+        public async Task<CustomerBalanceDTO> GetBalanceBycustomerIdAsync(Guid customerId)
+        {
+            var entity = await _transactionsRepository.TransactionsRepo.GetBalanceBycustomerIdAsync(customerId);
+            return _mapper.Map<CustomerBalanceDTO>(entity);
+        }
+
+        public async Task<List<TransactionViewModel>> GetTransactionBycustomerIdAsync(Guid customerId)
         {
             var entity = await _transactionsRepository.TransactionsRepo.GetTransactionsBycustomerIdAsync(customerId);
-            return _mapper.Map<TransactionDTO>(entity);
+            return _mapper.Map<List<TransactionViewModel>>(entity);
         }
 
-        public async Task<TransactionDTO> GetTransactionByIdAsync(Guid id)
+        public async Task<TransactionViewModel> GetTransactionByIdAsync(Guid id)
         {
             var entity = await _transactionsRepository.TransactionsRepo.GetTransactionsByIdAsync(id);
-            return _mapper.Map<TransactionDTO>(entity);
+            return _mapper.Map<TransactionViewModel>(entity);
         }
 
         public async Task<TransactionDTO> UpdateTransactionAsync(TransactionDTO transactionDTO, Guid customerId, Guid id)

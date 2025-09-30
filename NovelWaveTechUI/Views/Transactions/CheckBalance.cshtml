@@ -1,0 +1,88 @@
+﻿@model Application.DTO.CustomerBalanceDTO
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowing Animated Search Bar</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="~/css/search.css" rel="stylesheet" />
+</head>
+<body>
+
+    <form method="get">
+        <div class="col-form-label-lg">
+            <label>Check Balance</label>
+        </div>
+        <div class="search-box">
+            <input type="text" name="accountNumber" placeholder="Search..." value="@Context.Request.Query["accountNumber"]">
+            <!-- Search Button -->
+            <button class="icon search-btn"><i class="fas fa-search"></i></button>
+            <!-- Filter Button -->
+            <button class="icon filter-btn"><i class="fas fa-filter"></i></button>
+        </div>
+        @* <input type="text" name="accountNumber" value="@Context.Request.Query["accountNumber"]" />
+        <input type="submit" value="Search" />
+        <button type="button" onclick="resetSearch()">Reset</button> *@
+    </form>
+    @if (Model != null)
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Total Debit</th>
+                        <th>TotalCredit</th>
+                        <th>Available Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@Model.TotalDebit.ToString("C")</td>
+                        <td>@Model.TotalCredit.ToString("C")</td>
+                        <td>@Model.Balance.ToString("C")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p>Details not found</p>
+    }
+    <script>
+        // Add ripple effect to all icon buttons
+        document.querySelectorAll('.icon').forEach(button => {
+          button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            this.appendChild(ripple);
+
+            const rect = this.getBoundingClientRect();
+            ripple.style.left = (e.clientX - rect.left - ripple.offsetWidth / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - ripple.offsetHeight / 2) + 'px';
+
+            setTimeout(() => {
+              ripple.remove();
+            }, 600);
+          });
+        });
+    </script>
+</body>
+</html>
+
+@section Scripts {
+    <script>
+        function resetSearch() {
+            // Clear the input
+            document.querySelector('input[name="accountNumber"]').value = "";
+
+            // Optionally submit the form to refresh the list
+            document.forms[0].submit();
+        }
+    </script>
+}

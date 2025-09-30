@@ -1,0 +1,35 @@
+﻿@model IEnumerable<Application.ViewModel.CustomerDataViewModel>
+
+<div class="col-form-label-lg">
+    <label>Customer Details</label>
+</div>
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mt-3">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Phone Number</th>
+                    <th>Account Number</th>
+                    <th>Created Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.PhoneNumber</td>
+                        <td>@item.AccountNumber</td>
+                        <td>@item.CreatedAt</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p>Customer details not found</p>
+}

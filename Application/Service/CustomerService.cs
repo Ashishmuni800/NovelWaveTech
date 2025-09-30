@@ -44,6 +44,15 @@ namespace Application.Service
             return _mapper.Map<IEnumerable<CustomerViewModel>>(customers);
         }
 
+        public async Task<CustomerViewModel> GetCustomerByAccountNumberAsync(string accountNumber)
+        {
+            var customer = await _customerRepository.CustomerRepo.GetCustomerByAccountNumberAsync(accountNumber);
+            if (customer == null)
+                return null;
+
+            return _mapper.Map<CustomerViewModel>(customer);
+        }
+
         public async Task<CustomerViewModel> GetCustomerByIdAsync(Guid id)
         {
             var customer = await _customerRepository.CustomerRepo.GetCustomerByIdAsync(id);

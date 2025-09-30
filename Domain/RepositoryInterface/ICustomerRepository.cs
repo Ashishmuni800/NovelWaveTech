@@ -11,6 +11,7 @@ namespace Domain.RepositoryInterface
     {
         Task<Customer> CreateCustomerAsync(Customer customer);
         Task<Customer> GetCustomerByIdAsync(Guid Id);
+        Task<Customer> GetCustomerByAccountNumberAsync(string accountNumber);
         Task<IEnumerable<Customer>> GetAllCustomersAsync();
         Task<Customer> UpdateCustomerAsync(Customer customer, Guid Id);
         Task<bool> DeleteCustomerAsync(Guid Id);

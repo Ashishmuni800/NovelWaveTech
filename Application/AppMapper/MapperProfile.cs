@@ -51,6 +51,9 @@ namespace Application.AppMapper
             CreateMap<Transactions, TransactionDTO>();
             CreateMap<TransactionDTO, Transactions>();
 
+            CreateMap<CustomerBalance, CustomerBalanceDTO>();
+            CreateMap<CustomerBalanceDTO, CustomerBalance>();
+
             CreateMap<Customer, CustomerViewModel>();
             CreateMap<Customer, CustomerDTO>();
             CreateMap<CustomerDTO, Customer>();

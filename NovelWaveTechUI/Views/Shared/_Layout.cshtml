@@ -35,9 +35,11 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <nav id="sidebar" class="sidebar" aria-label="Main Navigation" style="display: none;">
-        <div class="m-lg-4 mt-0 mrl">
-            <img src="/images/logo.png" alt="Novel Wave Tech" />
+    <nav id="sidebar" class="sidebar" aria-label="Main Navigation" style="display: none;background: #0f0f1a;">
+        <div class="sidebar-header text-center py-4">
+            <img src="/images/logo.png" alt="User" class="rounded-circle mb-2" width="60">
+            <h6 class="mb-0" id="userNameDisplay2"></h6>
+            @* <small class="text-muted">Financial Advisor</small> *@
         </div>
         <a href="javascript:void(0);" id="toggleSidebar" class="mb-3">
             <i class="fa fa-bars me-2"></i><span>Menu</span>
@@ -73,6 +75,18 @@
                             <a id="navProtected6" href="/ProductUI/Index" style="display:none;" class="d-block">
                                 <i class="far fa-circle nav-icon"></i><span>Add Product</span>
                             </a>
+                    <a id="navProtected7" href="/Transactions/Index" style="display:none;" class="d-block">
+                        <i class="far fa-circle nav-icon"></i><span>Add Transaction</span>
+                    </a>
+                    <a id="navProtected8" href="/Transactions/CheckBalance" style="display:none;" class="d-block">
+                        <i class="far fa-circle nav-icon"></i><span>Check Balance</span>
+                    </a>
+                    <a id="navProtected9" href="/Transactions/AccountStatement" style="display:none;" class="d-block">
+                        <i class="far fa-circle nav-icon"></i><span>Account Statement</span>
+                    </a>
+                    <a id="navProtected10" href="/Customers/Index" style="display:none;" class="d-block">
+                        <i class="far fa-circle nav-icon"></i><span>Customer Details</span>
+                    </a>
                     <a id="navProtected" href="/Home/Proctected" style="display:none;">
                         <i class="far fa-circle nav-icon"></i><span>Weather Forecast</span>
                     </a>
@@ -137,7 +151,8 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white" href="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-user-circle me-1"></i>
+                            @* <i class="fa fa-user-circle me-1"></i> *@
+                            <img src="/images/logo.png" alt="User" class="rounded-circle" width="30">
                             <span id="userNameDisplay">User</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -201,6 +216,10 @@
 
             document.getElementById('navProtected5').style.display = 'block';
             document.getElementById('navProtected6').style.display = 'block';
+            document.getElementById('navProtected7').style.display = 'block';
+            document.getElementById('navProtected8').style.display = 'block';
+            document.getElementById('navProtected9').style.display = 'block';
+            document.getElementById('navProtected10').style.display = 'block';
                                 if (data.roles.includes("Admin")) {
             document.getElementById('navProtected').style.display = 'block';
             document.getElementById('navAdminToggle').style.display = 'block';
@@ -236,6 +255,7 @@
         })
         .then(data => {
             document.getElementById('userNameDisplay').innerText = `Welcome, ${data.username || 'User'}!`;
+            document.getElementById('userNameDisplay2').innerText = `Welcome, ${data.username || 'User'}!`;
             console.log(data.username);
         })
         .catch(() => {

@@ -1,0 +1,87 @@
+﻿@model IEnumerable<Application.ViewModel.TransactionViewModelDataTable>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowing Animated Search Bar</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="~/css/search.css" rel="stylesheet" />
+</head>
+<body>
+    
+    <form method="get">
+        <div class="col-form-label-lg">
+            <label>Account Statement</label>
+        </div>
+        <div class="search-box">
+            <input type="text" name="accountNumber" placeholder="Search..." value="@Context.Request.Query["accountNumber"]">
+            <!-- Search Button -->
+            <button class="icon search-btn"><i class="fas fa-search"></i></button>
+            <!-- Filter Button -->
+            <button class="icon filter-btn"><i class="fas fa-filter"></i></button>
+        </div>
+        @* <input type="text" name="accountNumber" value="@Context.Request.Query["accountNumber"]" />
+        <input type="submit" value="Search" />
+        <button type="button" onclick="resetSearch()">Reset</button> *@
+    </form>
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.TransactionDate</td>
+                            <td>@item.Amount.ToString("C")</td>
+                            @if (item.Type == "Debit")
+                            {
+                                <td style="color: red !important;font-weight: bold;">@item.Type</td>
+                            }
+                            else
+                            {
+                                <td style="color: green !important;font-weight: bold;">@item.Type</td>
+                            }
+                            <td>@item.Notes</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p>Account statement not found</p>
+    }
+    <script>
+        // Add ripple effect to all icon buttons
+        document.querySelectorAll('.icon').forEach(button => {
+          button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            this.appendChild(ripple);
+
+            const rect = this.getBoundingClientRect();
+            ripple.style.left = (e.clientX - rect.left - ripple.offsetWidth / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - ripple.offsetHeight / 2) + 'px';
+
+            setTimeout(() => {
+              ripple.remove();
+            }, 600);
+          });
+        });
+    </script>
+</body>
+</html>

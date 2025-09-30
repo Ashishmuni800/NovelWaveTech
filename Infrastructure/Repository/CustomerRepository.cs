@@ -54,6 +54,11 @@ namespace Infrastructure.Repository
             return await _dbContext.Customers.Where(op => op.Id == id).FirstOrDefaultAsync();
         }
 
+        public async Task<Customer> GetCustomerByAccountNumberAsync(string accountNumber)
+        {
+            return await _dbContext.Customers.Where(op => op.AccountNumber == accountNumber).FirstOrDefaultAsync();
+        }
+
         public async Task<Customer> UpdateCustomerAsync(Customer updatedCustomer, Guid id)
         {
             var existingCustomer = await _dbContext.Customers.FindAsync(id);

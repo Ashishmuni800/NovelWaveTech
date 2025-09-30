@@ -10,7 +10,8 @@ namespace Domain.RepositoryInterface
     public interface ITransactionsRepository
     {
         Task<Transactions> CreateTransactionsAsync(Transactions Transactions);
-        Task<Transactions> GetTransactionsBycustomerIdAsync(Guid customerId);
+        Task<List<Transactions>> GetTransactionsBycustomerIdAsync(Guid customerId);
+        Task<CustomerBalance> GetBalanceBycustomerIdAsync(Guid customerId);
         Task<Transactions> GetTransactionsByIdAsync(Guid Id);
         Task<IEnumerable<Transactions>> GetAllTransactionsAsync();
         Task<Transactions> UpdateTransactionsAsync(Transactions Transactions, Guid customerId, Guid Id);

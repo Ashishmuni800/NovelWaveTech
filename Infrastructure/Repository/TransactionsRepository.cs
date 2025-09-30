@@ -46,11 +46,30 @@ namespace Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<Transactions> GetTransactionsBycustomerIdAsync(Guid customerId)
+        public async Task<CustomerBalance> GetBalanceBycustomerIdAsync(Guid customerId)
         {
-            return await _dbContext.Transactions
-                .Include(t => t.Customer)
-                .FirstOrDefaultAsync(t => t.CustomerId == customerId);
+            var transactions = await _dbContext.Transactions
+                .Where(t => t.CustomerId == customerId)
+                .ToListAsync();
+
+            var totalCredit = transactions
+                .Where(t => t.Type == TransactionType.Credit)
+                .Sum(t => t.Amount);
+
+            var totalDebit = transactions
+                .Where(t => t.Type == TransactionType.Debit)
+                .Sum(t => t.Amount);
+
+            return new CustomerBalance
+            {
+                TotalCredit = totalCredit,
+                TotalDebit = totalDebit
+            };
+        }
+
+        public async Task<List<Transactions>> GetTransactionsBycustomerIdAsync(Guid customerId)
+        {
+            return await _dbContext.Transactions.Where(op => op.CustomerId == customerId).ToListAsync();
         }
 
         public async Task<Transactions> GetTransactionsByIdAsync(Guid id)

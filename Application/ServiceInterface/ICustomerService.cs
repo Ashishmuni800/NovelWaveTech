@@ -13,6 +13,7 @@ namespace Application.ServiceInterface
     {
         Task<CustomerDTO> CreateCustomerAsync(CustomerDTO customerDTO);
         Task<CustomerViewModel> GetCustomerByIdAsync(Guid Id);
+        Task<CustomerViewModel> GetCustomerByAccountNumberAsync(string accountNumber);
         Task<IEnumerable<CustomerViewModel>> GetAllCustomersAsync();
         Task<CustomerDTO> UpdateCustomerAsync(CustomerDTO customerDTO, Guid Id);
         Task<bool> DeleteCustomerAsync(Guid Id);

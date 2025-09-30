@@ -1,0 +1,9 @@
+﻿.amount-credit {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.amount-debit {
+    color: #dc3545;
+    font-weight: bold;
+}

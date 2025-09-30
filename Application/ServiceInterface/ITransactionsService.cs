@@ -1,4 +1,5 @@
 ﻿using Application.DTO;
+using Application.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,10 @@ namespace Application.ServiceInterface
     public interface ITransactionsService
     {
         Task<TransactionDTO> CreateTransactionAsync(TransactionDTO transactionDTO);
-        Task<TransactionDTO> GetTransactionBycustomerIdAsync(Guid customerId);
-        Task<TransactionDTO> GetTransactionByIdAsync(Guid Id);
-        Task<IEnumerable<TransactionDTO>> GetAllTransactionAsync();
+        Task<List<TransactionViewModel>> GetTransactionBycustomerIdAsync(Guid customerId);
+        Task<CustomerBalanceDTO> GetBalanceBycustomerIdAsync(Guid customerId);
+        Task<TransactionViewModel> GetTransactionByIdAsync(Guid Id);
+        Task<IEnumerable<TransactionViewModel>> GetAllTransactionAsync();
         Task<TransactionDTO> UpdateTransactionAsync(TransactionDTO transactionDTO, Guid customerId, Guid Id);
         Task<bool> DeleteTransactionAsync(Guid customerId, Guid Id);
     }
