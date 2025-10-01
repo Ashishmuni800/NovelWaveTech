@@ -43,6 +43,7 @@ namespace NovelWaveTechUI.Controllers
                     string fullUrl = $"{baseUrl}/api/customers/{accountNumber}";
                     var response = await _httpClient.GetAsync(fullUrl, true);
                     var customer = JsonConvert.DeserializeObject<CustomerViewModel>(response);
+                    if (customer == null) return View();
                     if (!string.IsNullOrEmpty(customer.AccountNumber))
                     {
                         string fullUrls = $"{baseUrl}/api/customers/Transactions/GetBalanceBycustomerId/{customer.Id}";

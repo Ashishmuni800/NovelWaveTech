@@ -74,6 +74,7 @@
     }
 
 .search-btn {
+    /*left: 5px;*/ /* Search icon position */
     right: 45px; /* Search icon position */
 }
 

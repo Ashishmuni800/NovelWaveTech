@@ -18,9 +18,10 @@
             <label>Account Statement</label>
         </div>
         <div class="search-box">
-            <input type="text" name="accountNumber" placeholder="Search..." value="@Context.Request.Query["accountNumber"]">
+            <input type="text" name="accountNumber" id="accountInput" maxlength="11" placeholder="Search..." 
+            value="@Context.Request.Query["accountNumber"]">
             <!-- Search Button -->
-            <button class="icon search-btn"><i class="fas fa-search"></i></button>
+            <button class="icon search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
             <!-- Filter Button -->
             <button class="icon filter-btn"><i class="fas fa-filter"></i></button>
         </div>
@@ -45,7 +46,7 @@
                     {
                         <tr>
                             <td>@item.TransactionDate</td>
-                            <td>@item.Amount.ToString("C")</td>
+                            <td>@item.Amount.ToString("C", new System.Globalization.CultureInfo("en-IN"))</td>
                             @if (item.Type == "Debit")
                             {
                                 <td style="color: red !important;font-weight: bold;">@item.Type</td>
@@ -81,6 +82,12 @@
               ripple.remove();
             }, 600);
           });
+        });
+
+              document.getElementById("accountInput").addEventListener("input", function () {
+          if (this.value.length === 11) {
+            document.getElementById("searchBtn").click();
+          }
         });
     </script>
 </body>

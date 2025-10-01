@@ -31,13 +31,13 @@
 
 @if (Model != null && Model.Any())
 {
-    <p><b>Total Amount:</b> @Model.Sum(x => x.Price).ToString("C")</p>
+    <p><b>Total Amount:</b> @Model.Sum(x => x.Price).ToString("C", new System.Globalization.CultureInfo("en-IN"))</p>
 
     @if (ViewBag.data != null)
     {
 <p>
     @Html.Raw(string.Join(", ", ((IEnumerable<dynamic>)ViewBag.data)
-        .Select(op => $"<b>Username:</b> {op.Name}, <b>Total:</b> {((decimal)op.TotalPrice).ToString("C")}")))
+        .Select(op => $"<b>Username:</b> {op.Name}, <b>Total:</b> {((decimal)op.TotalPrice).ToString("C", new System.Globalization.CultureInfo("en-IN"))}")))
 </p>
     }
 
@@ -56,7 +56,7 @@
             @foreach (var item in Model)
             {
                 <tr>
-                    <td>@item.Price.ToString("C")</td>
+                    <td>@item.Price.ToString("C", new System.Globalization.CultureInfo("en-IN"))</td>
                     <td>@item.Descriptions</td>
                     <td>@item.CreatedDate</td>
                     <td>@item.Name</td>
