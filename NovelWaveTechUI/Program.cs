@@ -34,7 +34,7 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
-        pattern: "{controller=Home}/{action=Login}/{id?}");
+        pattern: "{controller=Admin}/{action=Index2}/{id?}");
 
     // Map SignalR hub
     endpoints.MapHub<ChatHub>("/chathub");

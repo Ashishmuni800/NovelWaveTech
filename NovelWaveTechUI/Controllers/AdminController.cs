@@ -281,5 +281,70 @@ namespace NovelWaveTechUI.Controllers
             if (string.IsNullOrEmpty(response)) return Unauthorized();
             return Ok(response);
         }
+
+        public IActionResult Index2()
+        {
+            var token = Request.Cookies["AuthToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return View();
+            }
+        }
+        public IActionResult NotFounds()
+        {
+            return View();
+        }
+        public IActionResult blogGrid()
+        {
+            var token = Request.Cookies["AuthToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return View();
+            }
+        }
+        public IActionResult signin()
+        {
+            var token = Request.Cookies["AuthToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Index","Home");
+            }
+            else
+            {
+                return View();
+            }
+        }
+        public IActionResult signup()
+        {
+            var token = Request.Cookies["AuthToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return View();
+            }
+        }
+        public IActionResult blogSingle()
+        {
+            var token = Request.Cookies["AuthToken"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Index","Home");
+            }
+            else
+            {
+                return View();
+            }
+        }
     }
 }

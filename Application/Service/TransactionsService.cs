@@ -48,6 +48,11 @@ namespace Application.Service
             var entity = await _transactionsRepository.TransactionsRepo.GetBalanceBycustomerIdAsync(customerId);
             return _mapper.Map<CustomerBalanceDTO>(entity);
         }
+        public async Task<CustomerBalanceDTO> GetBalanceAsync()
+        {
+            var entity = await _transactionsRepository.TransactionsRepo.GetBalanceAsync();
+            return _mapper.Map<CustomerBalanceDTO>(entity);
+        }
 
         public async Task<List<TransactionViewModel>> GetTransactionBycustomerIdAsync(Guid customerId)
         {

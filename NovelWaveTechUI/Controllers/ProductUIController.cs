@@ -1,6 +1,7 @@
 ﻿using Application.ApiHttpClient;
 using Application.DTO;
 using Application.ViewModel;
+using iText.Kernel.Pdf;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -194,14 +195,14 @@ namespace NovelWaveTechUI.Controllers
             var response = await _httpClient.GetAsync(fullUrl, true);
             var products = JsonConvert.DeserializeObject<List<ProductViewModelData>>(response);
 
-            var doc = QuestPDF.Fluent.Document.Create(container =>
+            var pdfDoc = QuestPDF.Fluent.Document.Create(container =>
             {
                 container.Page(page =>
                 {
                     page.Margin(30);
 
                     // Header
-                    page.Header()
+                    page.Header().PaddingBottom(15)
                         .AlignCenter()
                         .Text("Product List")
                         .FontSize(18)
@@ -260,8 +261,32 @@ namespace NovelWaveTechUI.Controllers
                 });
             });
 
-            var pdf = doc.GeneratePdf();
-            return File(pdf, "application/pdf", "Products.pdf");
+            //var pdf = doc.GeneratePdf();
+            //return File(pdf, "application/pdf", "Products.pdf");
+
+            var pdfBytes = pdfDoc.GeneratePdf();
+
+            using var input = new MemoryStream(pdfBytes);
+            using var output = new MemoryStream();
+
+            var ownerPassword = "MySecureAdminPassword";
+
+            using (var reader = new PdfReader(input))
+            {
+                var writerProps = new WriterProperties()
+                    .SetStandardEncryption(
+                        Encoding.UTF8.GetBytes(products[0].Name),
+                        Encoding.UTF8.GetBytes(ownerPassword),
+                        EncryptionConstants.ALLOW_PRINTING,
+                        EncryptionConstants.ENCRYPTION_AES_256
+                    );
+
+                using var writer = new PdfWriter(output, writerProps);
+                using var doc = new PdfDocument(reader, writer);
+                doc.Close();
+            }
+
+            return File(output.ToArray(), "application/pdf", "Products.pdf");
         }
 
         public async Task<IActionResult> ExportCsv()

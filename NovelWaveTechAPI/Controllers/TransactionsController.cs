@@ -116,6 +116,16 @@ namespace NovelWaveTechAPI.Controllers
             return Ok(transaction);
         }
         [Authorize]
+        [HttpGet("GetBalance")]
+        public async Task<IActionResult> GetBalance()
+        {
+            var transaction = await _TransactionsService.TransactionsService.GetBalanceAsync();
+            if (transaction == null)
+                return NotFound();
+
+            return Ok(transaction);
+        }
+        [Authorize]
         [HttpPost("{AccountNumber}")]
         public async Task<IActionResult> Create(string AccountNumber, [FromBody] TransactionRequestDTO dto)
         {

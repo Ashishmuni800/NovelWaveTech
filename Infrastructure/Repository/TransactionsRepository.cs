@@ -67,6 +67,26 @@ namespace Infrastructure.Repository
             };
         }
 
+        public async Task<CustomerBalance> GetBalanceAsync()
+        {
+            var transactions = await _dbContext.Transactions
+                .ToListAsync();
+
+            var totalCredit = transactions
+                .Where(t => t.Type == TransactionType.Credit)
+                .Sum(t => t.Amount);
+
+            var totalDebit = transactions
+                .Where(t => t.Type == TransactionType.Debit)
+                .Sum(t => t.Amount);
+
+            return new CustomerBalance
+            {
+                TotalCredit = totalCredit,
+                TotalDebit = totalDebit
+            };
+        }
+
         public async Task<List<Transactions>> GetTransactionsBycustomerIdAsync(Guid customerId)
         {
             return await _dbContext.Transactions.Where(op => op.CustomerId == customerId).ToListAsync();
