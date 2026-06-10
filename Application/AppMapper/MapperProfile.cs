@@ -61,6 +61,8 @@ namespace Application.AppMapper
             CreateMap<Reminder, ReminderViewModel>();
             CreateMap<Reminder, ReminderDTO>();
             CreateMap<ReminderDTO, Reminder>();
+
+            CreateMap<OtpRecordsDTO, OtpRecords>().ReverseMap();
         }
     }
 }

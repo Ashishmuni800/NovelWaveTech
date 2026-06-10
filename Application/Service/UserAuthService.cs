@@ -7,13 +7,6 @@ using Domain.RepositoryInterface;
 using Infrastructure.Context;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Service
 {
@@ -300,6 +293,47 @@ namespace Application.Service
             }
 
             return null;
+        }
+
+        public async Task<OtpRecordsDTO> FindByOtpAsync(string Otp)
+        {
+            var result = await _userAuthRepository.AuthRepo.FindByOtpAsync(Otp).ConfigureAwait(false);
+            if (result != null)
+            {
+                var dtoList = _Mapp.Map<OtpRecordsDTO>(result);
+                return dtoList;
+            }
+
+            return null;
+        }
+
+        public async Task<OtpRecordsDTO> CreateOtpAsync(OtpRecordsDTO otpRecords)
+        {
+            if (otpRecords == null)
+                throw new ArgumentNullException(nameof(otpRecords));
+
+            if (_Mapp == null)
+                throw new InvalidOperationException("_Mapp is not initialized.");
+
+            if (_userAuthRepository?.AuthRepo == null)
+                throw new InvalidOperationException("_userAuthRepository.AuthRepo is not initialized.");
+
+            var model = _Mapp.Map<OtpRecords>(otpRecords);
+
+            var result = await _userAuthRepository.AuthRepo
+                .CreateOtpAsync(model)
+                .ConfigureAwait(false);
+
+            var dto = _Mapp.Map<OtpRecordsDTO>(result);
+            return dto;
+        }
+
+        public async Task<OtpRecordsDTO> UpdateOtpAsync(OtpRecordsDTO otpRecords)
+        {
+            var model = _Mapp.Map<OtpRecords>(otpRecords);
+            await _userAuthRepository.AuthRepo.UpdateOtpAsync(model).ConfigureAwait(false);
+            var dto = _Mapp.Map<OtpRecordsDTO>(model);
+            return dto;
         }
     }
 }

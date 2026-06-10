@@ -13,6 +13,9 @@ namespace Domain.RepositoryInterface
         Task<UpdatePermissionsRequest> UpdateUserPermissions(UpdatePermissionsRequest request);
         //Task<LoginModel> LoginAsync(LoginModel user);
         Task<RegisterModel> FindByEmailAsync(string Email);
+        Task<OtpRecords> FindByOtpAsync(string Otp);
+        Task<OtpRecords> CreateOtpAsync(OtpRecords otpRecords);
+        Task<OtpRecords> UpdateOtpAsync(OtpRecords otpRecords);
         Task<List<UserPermission>> GetUserPermissions(string UserId);
         Task<RegisterModel> FindByUserNameAsync(string Name);
         Task<IEnumerable<PasswordChangeHistory>> GetByPasswordChangeHistoryAsync(string UserPassword);

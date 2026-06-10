@@ -1,34 +1,44 @@
-﻿using Application.ServiceInterface;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Application.AppSettings;
+using Application.ServiceInterface;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Service
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _config;
-        public EmailService(IConfiguration config)
+        private readonly EmailSettings _settings;
+
+        public EmailService(IOptions<EmailSettings> settings)
         {
-            _config = config;
+            _settings = settings.Value;
         }
 
         public async Task SendEmailAsync(string to, string subject, string body)
         {
-            var smtp = new SmtpClient(_config["Smtp:Host"])
+            using var smtp = new SmtpClient(_settings.Host)
             {
-                Port = int.Parse(_config["Smtp:Port"]),
-                Credentials = new NetworkCredential(_config["Smtp:User"], _config["Smtp:Pass"]),
-                EnableSsl = true
+                Port = _settings.Port,
+                Credentials = new NetworkCredential(
+                    _settings.UserName,
+                    _settings.Password),
+                EnableSsl = _settings.EnableSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false
             };
 
-            var mail = new MailMessage(_config["Smtp:From"], to, subject, body);
-            mail.IsBodyHtml = true;
+            using var mail = new MailMessage
+            {
+                From = new MailAddress(
+                    _settings.FromAddress,
+                    _settings.DisplayName),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            };
+
+            mail.To.Add(to);
 
             await smtp.SendMailAsync(mail);
         }

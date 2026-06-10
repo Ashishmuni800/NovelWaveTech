@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -185,8 +186,16 @@ namespace Application.ApiHttpClient
             var response = await _httpClient.GetAsync(url).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
-                return ($"{response.StatusCode}");
-
+            //return ($"{response.StatusCode}");
+            {
+                var errorContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var Responseapi = new ApiResponse()
+                {
+                    Message = errorContent
+                };
+                //throw new Exception($"{response.StatusCode}: {errorContent}");
+                return Responseapi.Message;
+            }
             var contentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
             var contentStream = await response.Content.ReadAsStreamAsync();
 

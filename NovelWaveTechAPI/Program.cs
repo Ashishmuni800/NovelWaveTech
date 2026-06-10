@@ -1,5 +1,6 @@
 using Application.ApiHttpClient;
 using Application.AppMapper;
+using Application.AppSettings;
 using Application.Permissions;
 using Application.Service;
 using Application.ServiceInterface;
@@ -26,7 +27,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
-
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
 // CORS Policy
 builder.Services.AddCors(options =>
 {

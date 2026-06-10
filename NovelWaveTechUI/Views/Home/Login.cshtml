@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = "_LoginLayout";
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -15,7 +18,7 @@
 <body class="light">
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="toast position-fixed bottom-0 end-0 m-4" role="alert"
+        <div class="toast position-fixed top-0 end-0 m-4" role="alert"
              aria-live="assertive" aria-atomic="true"
              data-bs-delay="5000" data-bs-autohide="true" style="z-index: 1055;">
             <div class="toast-header bg-success text-white">
@@ -28,7 +31,7 @@
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="toast position-fixed bottom-0 end-0 m-4" role="alert"
+        <div class="toast position-fixed top-0 end-0 m-4" role="alert"
              aria-live="assertive" aria-atomic="true"
              data-bs-delay="5000" data-bs-autohide="true" style="z-index: 1055;">
             <div class="toast-header bg-danger text-white">
@@ -38,7 +41,7 @@
             <div class="toast-body">@TempData["ErrorMessage"]</div>
         </div>
     }
-    <div class="container">
+    <div class="container mb-3">
         <div class="row justify-content-center">
             <div class="col-12 col-sm-10 col-md-6 col-lg-6">
                 <div class="wrap">
@@ -190,25 +193,25 @@
 
                     if (loginResponse.ok) {
                         const data = await loginResponse.json();
-                        statusMessage.innerHTML = '<div class="alert alert-success">Login successful! Redirecting...</div>';
+                        //statusMessage.innerHTML = '<div class="alert alert-success">Login successful! Redirecting...</div>';
                         //setTimeout(() => window.location.href = '/Home/Index', 1000);
-                        window.location.href = '/Home/Index'
+                        window.location.href = '/Home/OTPLogin'
                     } else {
                         const err = await loginResponse.json();
                         window.location.reload();
-                        statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Invalid credentials. Please try again.'}</div>`;
+                        //statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Invalid credentials. Please try again.'}</div>`;
                         loadCaptcha();
                     }
                 } else {
                     const err = await captchaResponse.json();
                     window.location.reload();
-                    statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Please enter the correct Captcha.'}</div>`;
+                    //statusMessage.innerHTML = `<div class="alert alert-danger">${err.message || 'Please enter the correct Captcha.'}</div>`;
                     loadCaptcha();
                 }
             } catch (err) {
                 console.error(err);
                 window.location.reload();
-                statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred. Please try again.</div>';
+                //statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred. Please try again.</div>';
             }
         });
 

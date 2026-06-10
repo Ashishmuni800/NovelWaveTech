@@ -1,33 +1,20 @@
 ﻿using Application.DTO;
-using Application.Permissions;
+using Application.Extensions;
 using Application.Service;
 using Application.ServiceInterface;
 using Application.ViewModel;
-using Azure.Core;
-using CaptchaGen;
-using CaptchaGen.NetCore;
 using Infrastructure.Context;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Webp;
 using SixLaborsCaptcha.Core;
-using System;
-using System.CodeDom.Compiler;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
+using static QRCoder.PayloadGenerator;
 namespace NovelWaveTechAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
@@ -47,9 +34,10 @@ namespace NovelWaveTechAPI.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly IConfiguration _configuration;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IEmailService _emailService;
         public UserAuthController(IServiceInfra userAuthService, UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration, IWebHostEnvironment env, IConfiguration configuration1, RoleManager<IdentityRole> roleManager)
+            IConfiguration configuration, IWebHostEnvironment env, IConfiguration configuration1, RoleManager<IdentityRole> roleManager, IEmailService emailService)
         {
             _userAuthService = userAuthService;
             _signInManager = signInManager;
@@ -63,6 +51,7 @@ namespace NovelWaveTechAPI.Controllers
             _env = env;
             _configuration = configuration1;
             _roleManager = roleManager;
+            _emailService = emailService;
         }
         [HttpGet]
         [Authorize]
@@ -214,20 +203,160 @@ namespace NovelWaveTechAPI.Controllers
                     {
                         return Unauthorized("Invalid username or password");
                     }
+                    var otp = Generate.GenerateOtp();
 
+                    var model = new OtpRecordsDTO
+                    {
+                        Email = loginDTO.Email,
+                        Otp = otp,
+                        CreatedAt = DateTime.UtcNow,
+                        ExpiryAt = DateTime.UtcNow.AddMinutes(3),
+                        OtpUsed= true
+                    };
+                    var AddOtp = await _userAuthService.AuthService.CreateOtpAsync(model).ConfigureAwait(false);
+                    if(AddOtp == null)
+                    {
+                        return BadRequest("OTP is not generated");
+                    }
+                    string Body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>OTP Verification</title>
+</head>
+<body style='margin:0;padding:0;background-color:#f4f6f9;font-family:Arial,Helvetica,sans-serif;'>
+
+    <table width='100%' cellpadding='0' cellspacing='0' style='background-color:#f4f6f9;padding:30px 0;'>
+        <tr>
+            <td align='center'>
+
+                <table width='600' cellpadding='0' cellspacing='0' style='background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);'>
+
+                    <!-- Header -->
+                    <tr>
+                        <td align='center' style='background:#0d6efd;padding:25px;'>
+                            <h1 style='color:#ffffff;margin:0;font-size:28px;'>
+                                NovelWaveTech
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style='padding:40px 30px;'>
+
+                            <h2 style='color:#333333;margin-top:0;text-align:center;'>
+                                OTP Verification
+                            </h2>
+
+                            <p style='font-size:16px;color:#555555;line-height:1.6;'>
+                                Hello,
+                            </p>
+
+                            <p style='font-size:16px;color:#555555;line-height:1.6;'>
+                                Use the following One-Time Password (OTP) to complete your login process.
+                            </p>
+
+                            <div style='text-align:center;margin:35px 0;'>
+                                <span style='display:inline-block;
+                                             background:#f8f9fa;
+                                             border:2px dashed #0d6efd;
+                                             color:#0d6efd;
+                                             font-size:32px;
+                                             font-weight:bold;
+                                             letter-spacing:8px;
+                                             padding:15px 30px;
+                                             border-radius:10px;'>
+                                    {otp}
+                                </span>
+                            </div>
+
+                            <p style='font-size:16px;color:#555555;text-align:center;'>
+                                ⏳ This OTP is valid for <strong>3 minutes</strong>.
+                            </p>
+
+                            <p style='font-size:14px;color:#888888;line-height:1.6;margin-top:30px;'>
+                                If you did not request this OTP, please ignore this email.
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align='center' style='background:#f8f9fa;padding:20px;border-top:1px solid #eeeeee;'>
+
+                            <p style='margin:0;font-size:13px;color:#777777;'>
+                                © {DateTime.Now.Year} NovelWaveTech. All Rights Reserved.
+                            </p>
+
+                            <p style='margin:8px 0 0 0;font-size:12px;color:#999999;'>
+                                This is an automated email. Please do not reply.
+                            </p>
+
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>";
+                    string Subject = "OTP Verification";
+                    //await _emailService.SendEmailAsync(loginDTO.Email, Subject, Body);
+
+                    return Ok(new { message = "OTP sent successfully" });
                     //var token = GeneratedJwtToken(result);
-                    var token = await GenerateJwtToken(result, _userManager, _configuration);
-                    AuthorizationDataDTO authorizationDataDTO = new AuthorizationDataDTO();
-                    authorizationDataDTO.token = token;
-                    authorizationDataDTO.CreatedDatetime = CreatedDate;
-                    await _userAuthService.AuthService.CreateByAuthorizationDataAsync(authorizationDataDTO);
-                    return Ok(new { success = true, token });
+                    //var token = await GenerateJwtToken(result, _userManager, _configuration);
+                    //AuthorizationDataDTO authorizationDataDTO = new AuthorizationDataDTO();
+                    //authorizationDataDTO.token = token;
+                    //authorizationDataDTO.CreatedDatetime = CreatedDate;
+                    //await _userAuthService.AuthService.CreateByAuthorizationDataAsync(authorizationDataDTO);
+                    //return Ok(new { success = true, token });
                 }
                 return BadRequest("Please generate the captcha code and entered the correct captcha code due to the captcha code is expired!");
             }
             return BadRequest("Please generate the captcha code and entered the correct captcha code");
         }
+        [HttpGet("{otp}")]
+        public async Task<IActionResult> VerifyOtp([FromRoute] string otp)
+        {
+            var record = await _userAuthService.AuthService.FindByOtpAsync(otp).ConfigureAwait(false);
 
+            if (record == null)
+                return BadRequest(new { success = false, token="" ,Massage= "Invalid OTP" } );
+
+            if (record.ExpiryAt < DateTime.UtcNow)
+                return BadRequest(new { success = false, token = "", Massage = "OTP expired" });
+            var result = await _userAuthService.AuthService.FindByEmailUserAsync(record.Email).ConfigureAwait(false); ;
+            if (result == null)
+            {
+                return Unauthorized(new { success = false, token = "", Massage = "Invalid username" });
+            }
+            var model = new OtpRecordsDTO
+            {
+                OtpUsed = false,
+                Id = record.Id,
+            };
+            var AddOtp = await _userAuthService.AuthService.UpdateOtpAsync(model).ConfigureAwait(false);
+            if (AddOtp == null)
+            {
+                return BadRequest("OTP is not generated");
+            }
+            //var token = GeneratedJwtToken(result);
+            var token = await GenerateJwtToken(result, _userManager, _configuration);
+            DateTime CreatedDate = DateTime.Now;
+            AuthorizationDataDTO authorizationDataDTO = new AuthorizationDataDTO();
+            authorizationDataDTO.token = token;
+            authorizationDataDTO.CreatedDatetime = CreatedDate;
+            await _userAuthService.AuthService.CreateByAuthorizationDataAsync(authorizationDataDTO);
+            return Ok(new { success = true, token });
+            //return Ok("OTP verified successfully");
+        }
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> Logout()
@@ -416,8 +545,6 @@ namespace NovelWaveTechAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-        // POST: api/qr/generate-and-save
         [HttpPost]
         [Authorize]
         public IActionResult GenerateAndSaveQRCode([FromBody] QRRequest request)
@@ -537,10 +664,7 @@ namespace NovelWaveTechAPI.Controllers
             var username = User.FindFirst(ClaimTypes.Name)?.Value;
             return Ok(new { username });
         }
-        public async Task<string> GenerateJwtToken(
-    ApplicationUser user,
-    UserManager<ApplicationUser> userManager,
-    IConfiguration configuration)
+        public async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             var userRoles = await userManager.GetRolesAsync(user);
             var assignedPermissions = await _userAuthService.AuthService.GetUserPermissions(user.Id);
@@ -572,7 +696,6 @@ namespace NovelWaveTechAPI.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {

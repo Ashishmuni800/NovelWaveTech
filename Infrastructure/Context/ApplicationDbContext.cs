@@ -16,6 +16,7 @@ namespace Infrastructure.Context
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Transactions> Transactions { get; set; }
         public DbSet<Reminder> Reminders { get; set; }
+        public DbSet<OtpRecords> OtpRecords { get; set; }
 
     }
 }

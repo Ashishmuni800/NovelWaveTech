@@ -174,12 +174,39 @@ namespace NovelWaveTechUI.Controllers
                 TempData["ErrorMessage"] = "Please entered the correct username or password due to the username or password is Invalid";
                 return BadRequest(response);
             }
+            //var tokenObj = JsonConvert.DeserializeObject<TokenResponse>(response);
+            //var token = tokenObj?.Token;
+
+            //if (string.IsNullOrEmpty(token))
+            //{
+            //    return BadRequest("Invalid token received.");
+            //}
+            //var cookieOptions = new CookieOptions
+            //{
+            //    HttpOnly = true,
+            //    Secure = true, // ?? keep false for localhost, true in prod
+            //    SameSite = SameSiteMode.Strict,
+            //    Expires = DateTime.Now.AddMinutes(15)
+            //};
+
+            //Response.Cookies.Append("AuthToken", token, cookieOptions);
+            TempData["SuccessMessage"] = "OTP sent successfully";
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult> VerifyOtp(string otp)
+        {
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/VerifyOtp/{otp}";
+            var response = await _httpClient.GetAsync(fullUrl).ConfigureAwait(false);
+            //if(response) return BadRequest("Invalid token received.");
             var tokenObj = JsonConvert.DeserializeObject<TokenResponse>(response);
             var token = tokenObj?.Token;
 
             if (string.IsNullOrEmpty(token))
             {
-                return BadRequest("Invalid token received.");
+                TempData["ErrorMessage"] = tokenObj.Massage;
+                return RedirectToAction("Login");
             }
             var cookieOptions = new CookieOptions
             {
@@ -190,9 +217,8 @@ namespace NovelWaveTechUI.Controllers
             };
 
             Response.Cookies.Append("AuthToken", token, cookieOptions);
-            return Ok(response);
+            return RedirectToAction("Index");
         }
-
         [HttpGet]
         public IActionResult Proctected()
         {
@@ -463,6 +489,9 @@ namespace NovelWaveTechUI.Controllers
             if (string.IsNullOrEmpty(response)) return Unauthorized();
             return Ok(response);
         }
-
+        public IActionResult OTPLogin()
+        {
+            return View();
+        }
     }
 }

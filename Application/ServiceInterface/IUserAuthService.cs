@@ -15,6 +15,9 @@ namespace Application.ServiceInterface
         Task<UpdatePermissionsRequestDTO> UpdateUserPermissions(UpdatePermissionsRequestDTO request);
         Task<List<UserPermissionDTO>> GetUserPermissions(string UserId);
         Task<PaginatedResult<UserDto>> GetUsersIncrementalAsync(int skip, int take);
+        Task<OtpRecordsDTO> FindByOtpAsync(string Otp);
+        Task<OtpRecordsDTO> CreateOtpAsync(OtpRecordsDTO otpRecords);
+        Task<OtpRecordsDTO> UpdateOtpAsync(OtpRecordsDTO otpRecords);
         Task<UserDto> GetUsersAsync(string UserId);
         Task<RegisterDTO> RegisterAsync(RegisterDTO registerDTO);
         Task<RegisterDTO> FindByEmailAsync(string Email);

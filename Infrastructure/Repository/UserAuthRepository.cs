@@ -4,11 +4,6 @@ using Infrastructure.Context;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repository
 {
@@ -82,6 +77,14 @@ namespace Infrastructure.Repository
             return passwordHistory; // ← returning the saved entity makes more sense
         }
 
+        public async Task<OtpRecords> CreateOtpAsync(OtpRecords otpRecords)
+        {
+            await _dbContext.OtpRecords.AddAsync(otpRecords);
+            await _dbContext.SaveChangesAsync();
+
+            return otpRecords;
+        }
+
         public async Task<bool> DeleteByAuthorizationDataAsync()
         {
             var ExpireDataTime = DateTime.Now.AddMinutes(-5);
@@ -120,6 +123,11 @@ namespace Infrastructure.Repository
             {
                 return register;
             }
+        }
+
+        public async Task<OtpRecords> FindByOtpAsync(string Otp)
+        {
+            return await _dbContext.OtpRecords.Where(op => op.Otp == Otp && op.OtpUsed == true).FirstOrDefaultAsync();
         }
 
         public async Task<RegisterModel> FindByUserNameAsync(string Name)
@@ -168,6 +176,23 @@ namespace Infrastructure.Repository
             };
             await _userManager.CreateAsync(user, registerModel.Password);
             return registerModel;
+        }
+
+        public async Task<OtpRecords> UpdateOtpAsync(OtpRecords otpRecords)
+        {
+            var result = await _dbContext.OtpRecords
+                .FirstOrDefaultAsync(op => op.Id == otpRecords.Id);
+
+            if (result != null)
+            {
+                result.OtpUsed = otpRecords.OtpUsed;
+
+                await _dbContext.SaveChangesAsync();
+
+                return result;
+            }
+
+            return null;
         }
 
         public async Task<UpdatePermissionsRequest> UpdateUserPermissions(UpdatePermissionsRequest request)

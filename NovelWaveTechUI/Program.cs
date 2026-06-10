@@ -1,4 +1,5 @@
 using Application.ApiHttpClient;
+using Application.AppSettings;
 using NovelWaveTechUI.BaseURL;
 using NovelWaveTechUI.Chat;
 using QuestPDF.Infrastructure;
@@ -34,7 +35,7 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
-        pattern: "{controller=Admin}/{action=Index2}/{id?}");
+        pattern: "{controller=Home}/{action=Login}/{id?}");
 
     // Map SignalR hub
     endpoints.MapHub<ChatHub>("/chathub");
