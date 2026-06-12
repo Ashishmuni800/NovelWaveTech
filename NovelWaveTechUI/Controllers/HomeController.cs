@@ -206,7 +206,7 @@ namespace NovelWaveTechUI.Controllers
             if (string.IsNullOrEmpty(token))
             {
                 TempData["ErrorMessage"] = tokenObj.Massage;
-                return RedirectToAction("Login");
+                return RedirectToAction("OTPLogin");
             }
             var cookieOptions = new CookieOptions
             {

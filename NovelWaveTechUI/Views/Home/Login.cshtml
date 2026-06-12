@@ -13,6 +13,105 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/Loginlayout.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/LogoCSS.css" asp-append-version="true" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 80vh;
+            background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('@Url.Content("~/images/login-bg.png")');
+            background-size: cover;
+            /* background-position: center; */
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,.25);
+        }
+
+        .brand-header {
+            text-align: center;
+            padding: 25px;
+            color: white;
+            background: linear-gradient( 135deg, #0d6efd, #0a58ca );
+        }
+
+            .brand-header p {
+                margin: 5px 0 0;
+            }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+            .logo-text .novel {
+                color: white;
+            }
+
+            .logo-text .wave {
+                color: #ffd54f;
+            }
+
+            .logo-text .tech {
+                color: white;
+            }
+
+        .login-body {
+            /* padding: 30px; */
+            margin-top: 20px;
+            margin-left: 30px;
+            margin-right: 30px;
+        }
+
+        .form-control {
+            height: 50px;
+            border-radius: 10px;
+        }
+
+        .btn-login {
+            height: 50px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .field-icon {
+            position: absolute;
+            top: 42px;
+            left: 15px;
+            color: #6c757d;
+        }
+
+        .captcha-img {
+            height: 45px;
+            border-radius: 6px;
+        }
+
+        @@media (max-width:576px) {
+
+            .login-body {
+                padding: 20px;
+            }
+
+            .login-card {
+                margin: 10px;
+            }
+        }
+    </style>
 </head>
 
 <body class="light">
@@ -41,31 +140,10 @@
             <div class="toast-body">@TempData["ErrorMessage"]</div>
         </div>
     }
-    <div class="container mb-3">
+@*     <div class="container mb-3 mt-5">
         <div class="row justify-content-center">
             <div class="col-12 col-sm-10 col-md-6 col-lg-6">
                 <div class="wrap">
-                    <div class="card stage">
-                        <div class="logo-grid">
-                            <svg class="mark" viewBox="0 0 160 160">
-                                <circle cx="80" cy="80" r="62" fill="none" stroke="var(--ink)" stroke-width="2" />
-                                <g class="leaf">
-                                    <path d="M95 30c-22 8-38 23-47 45 10-5 24-6 34-2 10 4 18 12 22 22 7-22 4-47-9-65z" fill="var(--eco)" />
-                                </g>
-                                <g class="wave">
-                                    <path d="M36 104c18 0 24-14 40-14 18 0 20 14 38 14 12 0 20-6 24-14-6 24-26 40-58 40-30 0-52-15-58-38 5 7 10 12 14 12z" fill="var(--ocean)" />
-                                </g>
-                            </svg>
-                            <div class="wordmark">
-                                <div class="brand"><span class="novel">Novel</span><span class="wave">Wave</span><span class="tech">Tech</span></div>
-                                @* <div class="tag">Eco‑friendly innovation — clean energy, clean code.</div>
-                                <div class="controls">
-                                    <button id="toggleTheme">Toggle theme</button>
-                                </div> *@
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="card shadow-sm mb-5">
                         <div class="card-header text-center bg-primary text-white">
                             <h4 class="mb-0"><i class="fa fa-sign-in-alt me-2"></i>Sign In</h4>
@@ -105,8 +183,109 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> *@
+    <div class="login-wrapper">
 
+        <div class="login-card">
+
+            <div class="brand-header">
+                <div class="logo-text">
+                    <span class="novel">Novel</span>
+                    <span class="wave">Wave</span>
+                    <span class="tech">Tech</span>
+                </div>
+
+                <p>Secure Login Portal</p>
+            </div>
+
+            <div class="login-body">
+
+                <form id="loginForm" autocomplete="off">
+
+                    <div class="mb-3 position-relative">
+                        <label for="email" class="form-label">Email Address</label>
+
+                        <i class="fa fa-envelope field-icon"></i>
+
+                        <input type="email"
+                               class="form-control ps-5"
+                               id="email"
+                               name="email"
+                               placeholder="Enter Email Address"
+                               required />
+                    </div>
+
+                    <div class="mb-3 position-relative">
+                        <label for="password" class="form-label">Password</label>
+
+                        <i class="fa fa-lock field-icon"></i>
+
+                        <input type="password"
+                               class="form-control ps-5"
+                               id="password"
+                               name="password"
+                               placeholder="Enter Password"
+                               required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Captcha</label>
+
+                        <div class="input-group mb-2">
+                            <img id="img-captcha"
+                                 src="/Home/Captcha"
+                                 alt="captcha"
+                                 class="captcha-img" />
+
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    id="captchaRefresh">
+                                <i class="fa fa-sync-alt"></i>
+                            </button>
+                        </div>
+
+                        <input type="text"
+                               class="form-control"
+                               id="CaptchaCode"
+                               name="CaptchaCode"
+                               maxlength="6"
+                               placeholder="Enter Captcha"
+                               required />
+                    </div>
+
+                    <input type="hidden" id="Id" name="Id" />
+
+                    <div class="d-grid mb-3">
+                        <button type="submit"
+                                class="btn btn-primary btn-login">
+                            <i class="fa fa-key me-2"></i>
+                            Sign In
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <p>
+                            Already have a QR Code account?
+                            <a href="/Home/QRScan">Sign In with QR Code</a>
+                        </p>
+
+                        <p>
+                            Don't have an account?
+                            <a href="/Home/Register">Sign Up Here</a>
+                        </p>
+                    </div>
+
+                    <div id="statusMessageDisplay"
+                         class="text-center mt-3">
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var toastElList = [].slice.call(document.querySelectorAll('.toast'))
