@@ -40,8 +40,8 @@
         .Select(op => $"<b>Username:</b> {op.Name}, <b>Total:</b> {((decimal)op.TotalPrice).ToString("C", new System.Globalization.CultureInfo("en-IN"))}")))
 </p>
     }
-
-    <table class="table table-bordered" id="productsTable">
+<div class="table-responsive">
+    <table class="table table-hover align-middle mt-3">
         <thead>
             <tr>
                 <th>Price</th>
@@ -89,6 +89,7 @@
             }
         </tbody>
     </table>
+    </div>
 }
 else
 {
@@ -175,7 +176,6 @@ else
         </div>
     </div>
 </div>
-
 
 @section Scripts {
     <script>

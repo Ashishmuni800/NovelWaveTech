@@ -1,20 +1,9 @@
 using Application.ApiHttpClient;
 using Application.DTO;
 using Application.ViewModel;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NovelWaveTechUI.BaseURL;
-using NovelWaveTechUI.Filters;
-using NovelWaveTechUI.Models;
-using System;
-using System.Buffers.Text;
-using System.Diagnostics;
 using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NovelWaveTechUI.Controllers
 {
@@ -50,7 +39,7 @@ namespace NovelWaveTechUI.Controllers
             }
             else
             {
-                return RedirectToAction("Index"); // fallback for non-admin
+                return RedirectToAction("index"); // fallback for non-admin
             }
         }
 
@@ -84,7 +73,7 @@ namespace NovelWaveTechUI.Controllers
             var response = await _httpClient.GetAsync(fullUrl, true).ConfigureAwait(false);
             return Ok(response);
         }
-        public IActionResult Index()
+        public IActionResult index()
         {
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
@@ -95,10 +84,6 @@ namespace NovelWaveTechUI.Controllers
             {
                 return View();
             }
-        }
-        public IActionResult Register()
-        {
-            return View();
         }
         [HttpPost]
         public async Task<IActionResult> RegisterPost([FromBody] RegisterDTO registerDTO)
@@ -144,7 +129,7 @@ namespace NovelWaveTechUI.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("index");
             }
         }
         [HttpPost]
@@ -196,6 +181,7 @@ namespace NovelWaveTechUI.Controllers
         [HttpPost]
         public async Task<IActionResult> VerifyOtp(string otp)
         {
+            if(string.IsNullOrEmpty(otp)) return RedirectToAction("OTPLogin");
             string baseUrl = _configuration["BaseUrl"];
             string fullUrl = $"{baseUrl}/api/UserAuth/VerifyOtp/{otp}";
             var response = await _httpClient.GetAsync(fullUrl).ConfigureAwait(false);
@@ -217,7 +203,7 @@ namespace NovelWaveTechUI.Controllers
             };
 
             Response.Cookies.Append("AuthToken", token, cookieOptions);
-            return RedirectToAction("Index");
+            return RedirectToAction("index");
         }
         [HttpGet]
         public IActionResult Proctected()

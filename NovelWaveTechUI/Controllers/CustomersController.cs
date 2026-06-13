@@ -15,7 +15,7 @@ namespace NovelWaveTechUI.Controllers
             _configuration = configuration;
             _httpClient = httpClient;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> CustomersDetails()
         {
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))

@@ -1,5 +1,4 @@
 ﻿@model Application.ViewModel.ManageRolesViewModel
-
 <h2>Manage Roles for @Model.Email</h2>
 
 <form asp-action="UpdateRoles" method="post">
@@ -15,9 +14,8 @@
             </div>
         }
     </div>
-
-    <button type="submit">Update Roles</button>
+    <button type="submit" class="btn btn-success mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#addProductModal">Update Roles</button>
 </form>
 
-<a asp-action="Index">Back to User List</a>
+<a asp-action="ManageRolesOprations">Back to User List</a>
 

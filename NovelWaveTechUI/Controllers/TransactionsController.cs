@@ -28,7 +28,7 @@ namespace NovelWaveTechUI.Controllers
             _httpClient = httpClient;
             _logger = logger;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> TransactionOpration()
         {
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))
@@ -410,7 +410,7 @@ namespace NovelWaveTechUI.Controllers
                 return Ok(product);
             }
         }
-        public async Task<IActionResult> Delete([FromRoute] int Id)
+        public async Task<IActionResult> Delete([FromRoute] string Id)
         {
             var token = Request.Cookies["AuthToken"];
             if (string.IsNullOrEmpty(token))

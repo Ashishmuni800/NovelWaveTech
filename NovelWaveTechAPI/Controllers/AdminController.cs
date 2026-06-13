@@ -30,7 +30,7 @@ namespace NovelWaveTechAPI.Controllers
             _EmailServices = EmailServices;
             _userAuthService = userAuthService;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> index()
         {
             var users = _userManager.Users.ToList();
             var model = new List<UserWithRolesViewModel>();

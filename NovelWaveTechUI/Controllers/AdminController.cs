@@ -24,7 +24,7 @@ namespace NovelWaveTechUI.Controllers
             _configuration = configuration;
             _httpClient = httpClient;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> ManageRolesOprations()
         {
 
             string baseUrl = _configuration["BaseUrl"];
@@ -62,7 +62,7 @@ namespace NovelWaveTechUI.Controllers
             }
             else
             {
-                return RedirectToAction("Index","Home"); // fallback for non-admin
+                return RedirectToAction("index","Home"); // fallback for non-admin
             }
         }
 
@@ -119,7 +119,7 @@ namespace NovelWaveTechUI.Controllers
             }
             else
             {
-                return RedirectToAction("Index", "Home"); // fallback for non-admin
+                return RedirectToAction("index", "Home"); // fallback for non-admin
             }
 
             
@@ -164,17 +164,17 @@ namespace NovelWaveTechUI.Controllers
                         TempData["ErrorMessage"] = "Failed to update roles.";
                     }
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("ManageRolesOprations");
                 }
                 catch (Exception ex)
                 {
                     TempData["ErrorMessage"] = "An error occurred while updating roles.";
-                    return RedirectToAction("Index");
+                    return RedirectToAction("index");
                 }
             }
             else
             {
-                return RedirectToAction("Index", "Home"); // fallback for non-admin
+                return RedirectToAction("index", "Home"); // fallback for non-admin
             }
 
             
@@ -216,7 +216,7 @@ namespace NovelWaveTechUI.Controllers
             }
             else
             {
-                return RedirectToAction("Index", "Home"); // fallback for non-admin
+                return RedirectToAction("index", "Home"); // fallback for non-admin
             }
 
             
@@ -258,17 +258,17 @@ namespace NovelWaveTechUI.Controllers
                         TempData["ErrorMessage"] = "Failed to update Permissios.";
                     }
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("ManageRolesOprations");
                 }
                 catch (Exception ex)
                 {
                     TempData["ErrorMessage"] = "An error occurred while updating Permissios.";
-                    return RedirectToAction("Index");
+                    return RedirectToAction("index");
                 }
             }
             else
             {
-                return RedirectToAction("Index", "Home"); // fallback for non-admin
+                return RedirectToAction("index", "Home"); // fallback for non-admin
             }
 
             
@@ -287,7 +287,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (!string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("index", "Home");
             }
             else
             {
@@ -303,7 +303,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (!string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("index", "Home");
             }
             else
             {
@@ -315,7 +315,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (!string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Index","Home");
+                return RedirectToAction("index","Home");
             }
             else
             {
@@ -327,7 +327,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (!string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("index", "Home");
             }
             else
             {
@@ -339,7 +339,7 @@ namespace NovelWaveTechUI.Controllers
             var token = Request.Cookies["AuthToken"];
             if (!string.IsNullOrEmpty(token))
             {
-                return RedirectToAction("Index","Home");
+                return RedirectToAction("index","Home");
             }
             else
             {

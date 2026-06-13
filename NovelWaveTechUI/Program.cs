@@ -25,8 +25,16 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseRouting();
 
+app.UseStatusCodePages(async context =>
+{
+    if (context.HttpContext.Response.StatusCode == 404)
+    {
+        context.HttpContext.Response.Redirect("/Admin/NotFounds");
+    }
+});
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -35,7 +43,7 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "default",
-        pattern: "{controller=Home}/{action=Login}/{id?}");
+        pattern: "{controller=Admin}/{action=index2}/{id?}");
 
     // Map SignalR hub
     endpoints.MapHub<ChatHub>("/chathub");

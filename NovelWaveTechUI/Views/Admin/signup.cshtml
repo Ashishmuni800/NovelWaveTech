@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = "_OTPLayout";
+}
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -89,7 +92,7 @@
                             <ul class="a" :class="{ 'tc': dropdown }">
                                 <li><a href="/admin/blogGrid" class="xl" :class="{ 'mk': page === 'blog-grid' }">Blog Grid</a></li>
                                 <li><a href="/admin/blogSingle" class="xl" :class="{ 'mk': page === 'blog-single' }">Blog Single</a></li>
-                                <li><a href="/admin/signin" class="xl" :class="{ 'mk': page === 'signin' }">Sign In</a></li>
+                                <li><a href="/Home/Login" class="xl" :class="{ 'mk': page === 'signin' }">Sign In</a></li>
                                 <li><a href="/admin/signup" class="xl" :class="{ 'mk': page === 'signup' }">Sign Up</a></li>
                                 <li><a href="/admin/NotFounds" class="xl" :class="{ 'mk': page === '404' }">404</a></li>
                             </ul>

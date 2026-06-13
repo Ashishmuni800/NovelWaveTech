@@ -4,7 +4,7 @@
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="toast position-fixed bottom-0 end-0 m-4" role="alert"
+    <div class="toast position-fixed top-0 end-0 m-4" role="alert"
          aria-live="assertive" aria-atomic="true"
          data-bs-delay="5000" data-bs-autohide="true" style="z-index: 1055;">
         <div class="toast-header bg-success text-white">
@@ -28,10 +28,9 @@
     </div>
 }
 
-
-
+<div class="table-responsive">
 <h2>Manage Users Roles</h2>
-<table class="table">
+    <table class="table table-hover align-middle mt-3">
     <thead>
         <tr>
             <th>Email</th>
@@ -46,15 +45,20 @@
                 <td>@user.Email</td>
                 <td>@string.Join(", ", user.Roles)</td>
                 <td>
-                    <a asp-action="ManageRoles" id="ManageRoles-@user.UserId" style="display:none;"
-                       asp-route-userId="@user.UserId">Manage Roles</a>
-                    <a asp-action="PermissionMatrix" id="ManageRoles2-@user.UserId" style="display:none;"
-                       asp-route-userId="@user.UserId">Permission Matrix</a>
+                        <button type="button" class="btn btn-success btn-rounded btn-fw" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                            <a asp-action="ManageRoles" class="text-white text-decoration-none" id="ManageRoles-@user.UserId"
+                               asp-route-userId="@user.UserId">Manage Roles</a>
+                        </button>
+                        <button type="button" class="btn btn-success btn-rounded btn-fw" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                            <a asp-action="PermissionMatrix" class="text-white text-decoration-none" id="ManageRoles2-@user.UserId"
+                               asp-route-userId="@user.UserId">Permission Matrix</a>
+                        </button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+</div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var toastElList = [].slice.call(document.querySelectorAll('.toast'))
