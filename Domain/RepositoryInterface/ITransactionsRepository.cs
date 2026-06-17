@@ -11,8 +11,9 @@ namespace Domain.RepositoryInterface
     {
         Task<Transactions> CreateTransactionsAsync(Transactions Transactions);
         Task<List<Transactions>> GetTransactionsBycustomerIdAsync(Guid customerId);
-        Task<CustomerBalance> GetBalanceBycustomerIdAsync(Guid customerId);
-        Task<CustomerBalance> GetBalanceAsync();
+        Task<List<CustomerBalance>> GetBalanceBycustomerIdAsync(Guid customerId);
+        Task<List<CustomerBalance>> GetBalanceAsync();
+        Task<List<CustomerBalance>> GetTotalBalance();
         Task<Transactions> GetTransactionsByIdAsync(Guid Id);
         Task<IEnumerable<Transactions>> GetAllTransactionsAsync();
         Task<Transactions> UpdateTransactionsAsync(Transactions Transactions, Guid customerId, Guid Id);

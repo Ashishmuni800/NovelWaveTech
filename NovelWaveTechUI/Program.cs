@@ -9,6 +9,13 @@ QuestPDF.Settings.License = LicenseType.Community;
 builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(15); // session timeout
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<HttpClient, HttpClient>();
 //builder.Services.AddSingleton<IHttpContextAccessor, IHttpContextAccessor>();
@@ -27,6 +34,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseStatusCodePages(async context =>
 {

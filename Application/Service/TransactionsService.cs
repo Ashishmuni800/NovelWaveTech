@@ -43,17 +43,21 @@ namespace Application.Service
             return _mapper.Map<IEnumerable<TransactionViewModel>>(entities);
         }
 
-        public async Task<CustomerBalanceDTO> GetBalanceBycustomerIdAsync(Guid customerId)
+        public async Task<List<CustomerBalanceDTO>> GetBalanceBycustomerIdAsync(Guid customerId)
         {
             var entity = await _transactionsRepository.TransactionsRepo.GetBalanceBycustomerIdAsync(customerId);
-            return _mapper.Map<CustomerBalanceDTO>(entity);
+            return _mapper.Map<List<CustomerBalanceDTO>>(entity);
         }
-        public async Task<CustomerBalanceDTO> GetBalanceAsync()
+        public async Task<List<CustomerBalanceDTO>> GetBalanceAsync()
         {
             var entity = await _transactionsRepository.TransactionsRepo.GetBalanceAsync();
-            return _mapper.Map<CustomerBalanceDTO>(entity);
+            return _mapper.Map<List<CustomerBalanceDTO>>(entity);
         }
-
+        public async Task<List<CustomerBalanceDTO>> GetTotalBalance()
+        {
+            var entity = await _transactionsRepository.TransactionsRepo.GetTotalBalance();
+            return _mapper.Map<List<CustomerBalanceDTO>>(entity);
+        }
         public async Task<List<TransactionViewModel>> GetTransactionBycustomerIdAsync(Guid customerId)
         {
             var entity = await _transactionsRepository.TransactionsRepo.GetTransactionsBycustomerIdAsync(customerId);

@@ -13,12 +13,12 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 1rem;
+            /* padding: 1rem; */
             background-color: #f9f9f9;
             font-size: clamp(0.9rem, 1vw + 0.5rem, 1.1rem); /* responsive font sizing */
         }
 
-        .container {
+        /* .container {
             width: 100%;
             max-width: 1200px;
             margin: auto;
@@ -28,7 +28,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
             overflow-x: auto;
             margin-top:25px;
-        }
+        } */
 
 
         h2 {
@@ -173,7 +173,7 @@
     </style>
 </head>
 <body>
-    <div class="container mt-6">
+    <div class="container mt-2">
         <h2>Users Management</h2>
         <div class="controls">
             <input type="text" id="searchInput" placeholder="Search by username or email" />
@@ -184,7 +184,7 @@
             </select>
         </div>
 
-        <table>
+        <table class="table table-hover align-middle mt-3">
             <thead>
                 <tr>
                     <th class="sortable" onclick="sortBy('Name')">Name</th>
@@ -252,11 +252,11 @@
                     <td class="email">${u.email}</td>
                     <td class="phoneNumber">${u.phoneNumber}</td>
                     <td class="actions">
-                        <span class="action-btn edit-btn" title="Edit"
+                        <span class="action-btn btn btn-sm btn-primary edit-btn" title="Edit"
                             onclick="editUser('${u.id}', '${u.name}', '${u.userName}', '${u.email}', '${u.phoneNumber}')">
-                            <i class="fas fa-edit"></i>
+                            <i class="fa fa-pencil"></i>
                         </span>
-                        <span class="action-btn delete-btn" title="Delete"
+                        <span class="action-btn btn btn-sm btn-danger delete-btn" title="Delete"
                             onclick="deleteUser('${u.id}')">
                             <i class="fas fa-trash-alt"></i>
                         </span>

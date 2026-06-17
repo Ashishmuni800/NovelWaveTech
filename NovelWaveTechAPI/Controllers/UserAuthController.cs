@@ -14,6 +14,7 @@ using SixLaborsCaptcha.Core;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ZXing;
 using static QRCoder.PayloadGenerator;
 namespace NovelWaveTechAPI.Controllers
 {
@@ -332,7 +333,7 @@ namespace NovelWaveTechAPI.Controllers
 
             if (record.ExpiryAt < DateTime.UtcNow)
                 return BadRequest(new { success = false, token = "", Massage = "OTP expired" });
-            var result = await _userAuthService.AuthService.FindByEmailUserAsync(record.Email).ConfigureAwait(false); ;
+            var result = await _userAuthService.AuthService.FindByEmailUserAsync(record.Email).ConfigureAwait(false);
             if (result == null)
             {
                 return Unauthorized(new { success = false, token = "", Massage = "Invalid username" });
@@ -356,6 +357,20 @@ namespace NovelWaveTechAPI.Controllers
             await _userAuthService.AuthService.CreateByAuthorizationDataAsync(authorizationDataDTO);
             return Ok(new { success = true, token });
             //return Ok("OTP verified successfully");
+        }
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var Email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var result = await _userAuthService.AuthService.FindByEmailUserAsync(Email).ConfigureAwait(false);
+            var token = await GenerateJwtToken(result, _userManager, _configuration);
+            DateTime CreatedDate = DateTime.Now;
+            AuthorizationDataDTO authorizationDataDTO = new AuthorizationDataDTO();
+            authorizationDataDTO.token = token;
+            authorizationDataDTO.CreatedDatetime = CreatedDate;
+            await _userAuthService.AuthService.CreateByAuthorizationDataAsync(authorizationDataDTO);
+            return Ok(new { success = true, token });
         }
         [HttpGet]
         [Authorize]
@@ -673,7 +688,8 @@ namespace NovelWaveTechAPI.Controllers
     {
         new Claim(ClaimTypes.Name, user.Name),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new Claim(ClaimTypes.NameIdentifier, user.Id)
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Email, user.Email)
     };
 
             foreach (var userRole in userRoles.Distinct())

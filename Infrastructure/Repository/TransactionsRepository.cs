@@ -46,10 +46,56 @@ namespace Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<CustomerBalance> GetBalanceBycustomerIdAsync(Guid customerId)
+        public async Task<List<CustomerBalance>> GetBalanceBycustomerIdAsync(Guid customerId)
         {
+            var result = await (
+                from c in _dbContext.Customers
+                join t in _dbContext.Transactions
+                    on c.Id equals t.CustomerId
+                where c.Id == customerId
+                group t by new
+                {
+                    c.Id,
+                    c.Name
+                }
+                into g
+                select new CustomerBalance
+                {
+                    Id = g.Key.Id,
+                    Name = g.Key.Name,
+                    TotalCredit = g.Where(x => x.Type == TransactionType.Credit)
+                                   .Sum(x => x.Amount),
+                    TotalDebit = g.Where(x => x.Type == TransactionType.Debit)
+                                  .Sum(x => x.Amount)
+                }
+            ).ToListAsync();
+
+            return result ?? new List<CustomerBalance>();
+        }
+
+        public async Task<List<CustomerBalance>> GetBalanceAsync()
+        {
+            return await _dbContext.Transactions
+                .GroupBy(t => new
+                {
+                    t.Customer.Id,
+                    t.Customer.Name
+                })
+                .Select(g => new CustomerBalance
+                {
+                    Id = g.Key.Id,
+                    Name = g.Key.Name,
+                    TotalCredit = g.Where(x => x.Type == TransactionType.Credit)
+                                   .Sum(x => x.Amount),
+                    TotalDebit = g.Where(x => x.Type == TransactionType.Debit)
+                                  .Sum(x => x.Amount)
+                })
+                .ToListAsync();
+        }
+        public async Task<List<CustomerBalance>> GetTotalBalance()
+        {
+            List<CustomerBalance> items = new List<CustomerBalance>();
             var transactions = await _dbContext.Transactions
-                .Where(t => t.CustomerId == customerId)
                 .ToListAsync();
 
             var totalCredit = transactions
@@ -60,33 +106,14 @@ namespace Infrastructure.Repository
                 .Where(t => t.Type == TransactionType.Debit)
                 .Sum(t => t.Amount);
 
-            return new CustomerBalance
+            items.Add(new CustomerBalance
             {
                 TotalCredit = totalCredit,
                 TotalDebit = totalDebit
-            };
+            });
+
+            return items;
         }
-
-        public async Task<CustomerBalance> GetBalanceAsync()
-        {
-            var transactions = await _dbContext.Transactions
-                .ToListAsync();
-
-            var totalCredit = transactions
-                .Where(t => t.Type == TransactionType.Credit)
-                .Sum(t => t.Amount);
-
-            var totalDebit = transactions
-                .Where(t => t.Type == TransactionType.Debit)
-                .Sum(t => t.Amount);
-
-            return new CustomerBalance
-            {
-                TotalCredit = totalCredit,
-                TotalDebit = totalDebit
-            };
-        }
-
         public async Task<List<Transactions>> GetTransactionsBycustomerIdAsync(Guid customerId)
         {
             return await _dbContext.Transactions.Where(op => op.CustomerId == customerId).ToListAsync();

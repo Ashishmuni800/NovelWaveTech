@@ -67,7 +67,7 @@
                             <ul class="a" :class="{ 'tc': dropdown }">
                                 <li><a href="/admin/blogGrid" class="xl" :class="{ 'mk': page === 'blog-grid' }">Blog Grid</a></li>
                                 <li><a href="/admin/blogSingle" class="xl" :class="{ 'mk': page === 'blog-single' }">Blog Single</a></li>
-                                <li><a href="/admin/signin" class="xl" :class="{ 'mk': page === 'signin' }">Sign In</a></li>
+                                <li><a href="/Home/Login" class="xl" :class="{ 'mk': page === 'Login' }">Sign In</a></li>
                                 <li><a href="/admin/signup" class="xl" :class="{ 'mk': page === 'signup' }">Sign Up</a></li>
                                 <li><a href="/admin/NotFounds" class="xl" :class="{ 'mk': page === '404' }">404</a></li>
                             </ul>
@@ -92,7 +92,7 @@
                         </label>
                     </div>
 
-                    <a href="/admin/signin" :class="{ 'nk yl' : page === 'home', 'ok' : page === 'home' && stickyMenu }"
+                    <a href="/Home/Login" :class="{ 'nk yl' : page === 'home', 'ok' : page === 'home' && stickyMenu }"
                        class="ek pk xl">Sign In</a>
                     <a href="/admin/signup" :class="{ 'hh/[0.15]' : page === 'home', 'sh' : page === 'home' && stickyMenu }"
                        class="lk gh dk rg tc wf xf _l gi hi">Sign Up</a>

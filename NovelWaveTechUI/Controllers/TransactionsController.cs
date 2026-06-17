@@ -57,7 +57,17 @@ namespace NovelWaveTechUI.Controllers
                         string fullUrls = $"{baseUrl}/api/customers/Transactions/GetBalance";
 
                         var responses = await _httpClient.GetAsync(fullUrls, true);
-                        var product = JsonConvert.DeserializeObject<CustomerBalanceDTO>(responses);
+                        var product = JsonConvert.DeserializeObject<List<CustomerBalanceDTO>>(responses);
+                        //ViewBag.data = product;
+                        return View(product);
+                    }
+                    else if (accountNumber == "Total")
+                    {
+                        string baseUrl = _configuration["BaseUrl"];
+                        string fullUrls = $"{baseUrl}/api/customers/Transactions/GetTotalBalance";
+
+                        var responses = await _httpClient.GetAsync(fullUrls, true);
+                        var product = JsonConvert.DeserializeObject<List<CustomerBalanceDTO>>(responses);
                         //ViewBag.data = product;
                         return View(product);
                     }
@@ -73,7 +83,7 @@ namespace NovelWaveTechUI.Controllers
                             string fullUrls = $"{baseUrl}/api/customers/Transactions/GetBalanceBycustomerId/{customer.Id}";
 
                             var responses = await _httpClient.GetAsync(fullUrls, true);
-                            var product = JsonConvert.DeserializeObject<CustomerBalanceDTO>(responses);
+                            var product = JsonConvert.DeserializeObject<List<CustomerBalanceDTO>>(responses);
                             //ViewBag.data = product;
                             return View(product);
                         }

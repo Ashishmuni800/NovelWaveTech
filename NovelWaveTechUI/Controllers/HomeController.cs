@@ -18,6 +18,34 @@ namespace NovelWaveTechUI.Controllers
             _configuration = configuration;
             _httpClient=httpClient;
         }
+        [HttpGet]
+        public async Task<IActionResult> KeepAlive()
+        {
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/RefreshToken";
+            var response = await _httpClient.GetAsync(fullUrl).ConfigureAwait(false);
+            //if(response) return BadRequest("Invalid token received.");
+            var tokenObj = JsonConvert.DeserializeObject<TokenResponse>(response);
+            var token = tokenObj?.Token;
+
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["ErrorMessage"] = tokenObj.Massage;
+                return RedirectToAction("OTPLogin");
+            }
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // ?? keep false for localhost, true in prod
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.Now.AddMinutes(15)
+            };
+            Response.Cookies.Delete("AuthToken");
+            Response.Cookies.Append("AuthToken", token, cookieOptions);
+            HttpContext.Session.SetString("LastActivity", DateTime.Now.ToString());
+            return RedirectToAction("index");
+            //return Ok();
+        }
         public async Task<IActionResult> Userlist()
         {
             string baseUrl = _configuration["BaseUrl"];

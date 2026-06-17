@@ -11,6 +11,7 @@ namespace Application.DTO
         public decimal TotalCredit { get; set; }
         public decimal TotalDebit { get; set; }
         public decimal Balance => TotalCredit - TotalDebit;
+        public string Name { get; set; }
     }
 
 }

@@ -11,9 +11,9 @@
     <link rel="stylesheet" href="~/css/user.css" asp-append-version="true" />
 </head>
 <body>
-    <div class="container mt-6">
+    <div class="table-responsive">
         <h2>Users Management</h2>
-        <table>
+        <table class="table table-hover align-middle mt-3">
             <thead>
                 <tr>
                     <th class="sortable">Name</th>
@@ -73,9 +73,13 @@
                     <td data-label="Email">${u.email}</td>
                     <td data-label="Phone">${u.phoneNumber}</td>
                     <td data-label="Actions" class="actions">
-                        <span class="action-btn edit-btn" title="Edit"
+                        <span class="action-btn btn btn-sm btn-primary edit-btn" title="Edit"
                             onclick="editUser('${u.id}', '${u.name}', '${u.userName}', '${u.email}', '${u.phoneNumber}')">
-                            <i class="fas fa-edit"></i>
+                            <i class="fa fa-pencil"></i>
+                        </span>
+                        <span class="action-btn btn btn-sm btn-danger delete-btn" title="Delete"
+                            onclick="deleteUser('${u.id}')">
+                            <i class="fas fa-trash-alt"></i>
                         </span>
                     </td>
                 `;

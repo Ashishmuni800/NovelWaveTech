@@ -484,6 +484,89 @@
             });
         });
 
+        let idleTime = 0;
+        const warningTime = 13 * 60;   // 8 minutes
+        const logoutTime = 15 * 60;   // 10 minutes
+        let warningShown = false;
+
+        function resetTimer() {
+            idleTime = 0;
+        }
+
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
+        document.onclick = resetTimer;
+
+        // 🔄 Keep session alive (optional but recommended)
+        function keepSessionAlive() {
+            fetch('/Home/KeepAlive', {
+                method: 'GET',
+                credentials: 'include'
+            });
+        }
+
+        setInterval(() => {
+            idleTime++;
+
+            // 🔔 Warning popup
+            if (idleTime >= warningTime && !warningShown) {
+                warningShown = true;
+
+                Swal.fire({
+                    title: 'Session Expiring Soon!',
+                    text: 'Do you want to stay logged in?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Stay Logged In',
+                    cancelButtonText: 'Logout',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+                        // 🔵 User stays logged in
+                        warningShown = false;
+                        resetTimer();
+                        keepSessionAlive();
+                    }
+                    else {
+                        logoutUser();
+                    }
+                });
+            }
+
+            // ⛔ Auto logout
+            if (idleTime >= logoutTime) {
+                logoutUser();
+            }
+
+        }, 1000);
+
+        // 🚪 Logout function
+        function logoutUser() {
+            fetch('/Home/Logout', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(r => {
+                if (r.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Logged out successfully',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '/Home/Login';
+                    });
+                } else {
+                    Swal.fire('Logout failed');
+                }
+            })
+            .catch(() => Swal.fire('Error logging out'));
+        }
+
         // // Hide sidebar when overlay is clicked
         // overlay.addEventListener('click', () => {
         //     sidebar.classList.remove('mobile-visible');
@@ -552,6 +635,7 @@
                 <!-- Custom js for this page -->
                 <script src="~/assets/js/dashboard.js"></script>
                 <!-- End custom js for this page -->
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </body>
 </html>

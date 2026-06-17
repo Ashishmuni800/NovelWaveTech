@@ -12,8 +12,9 @@ namespace Application.ServiceInterface
     {
         Task<TransactionDTO> CreateTransactionAsync(TransactionDTO transactionDTO);
         Task<List<TransactionViewModel>> GetTransactionBycustomerIdAsync(Guid customerId);
-        Task<CustomerBalanceDTO> GetBalanceBycustomerIdAsync(Guid customerId);
-        Task<CustomerBalanceDTO> GetBalanceAsync();
+        Task<List<CustomerBalanceDTO>> GetBalanceBycustomerIdAsync(Guid customerId);
+        Task<List<CustomerBalanceDTO>> GetBalanceAsync();
+        Task<List<CustomerBalanceDTO>> GetTotalBalance();
         Task<TransactionViewModel> GetTransactionByIdAsync(Guid Id);
         Task<IEnumerable<TransactionViewModel>> GetAllTransactionAsync();
         Task<TransactionDTO> UpdateTransactionAsync(TransactionDTO transactionDTO, Guid customerId, Guid Id);

@@ -11,7 +11,7 @@
 
 .search-box {
     position: relative;
-    width: 380px;
+    width: 300px;
 }
 
     .search-box input {
@@ -23,8 +23,8 @@
         color: #fff;
         font-size: 16px;
         outline: none;
-        animation: glow 2s infinite alternate;
-        transition: 0.3s ease-in-out;
+        /*animation: glow 2s infinite alternate;
+        transition: 0.3s ease-in-out;*/
     }
 
 @keyframes glow {
@@ -37,9 +37,9 @@
     }
 }
 
-.search-box input:focus {
+/*.search-box input:focus {
     animation: glow-focus 1.5s infinite alternate;
-}
+}*/
 
 @keyframes glow-focus {
     0% {

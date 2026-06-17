@@ -92,7 +92,7 @@
                             <ul class="a" :class="{ 'tc': dropdown }">
                                 <li><a href="/admin/blogGrid" class="xl" :class="{ 'mk': page === 'blog-grid' }">Blog Grid</a></li>
                                 <li><a href="/admin/blogSingle" class="xl" :class="{ 'mk': page === 'blog-single' }">Blog Single</a></li>
-                                <li><a href="/Home/Login" class="xl" :class="{ 'mk': page === 'signin' }">Sign In</a></li>
+                                <li><a href="/Home/Login" class="xl" :class="{ 'mk': page === 'Login' }">Sign In</a></li>
                                 <li><a href="/admin/signup" class="xl" :class="{ 'mk': page === 'signup' }">Sign Up</a></li>
                                 <li><a href="/admin/NotFounds" class="xl" :class="{ 'mk': page === '404' }">404</a></li>
                             </ul>
@@ -117,10 +117,10 @@
                         </label>
                     </div>
 
-                    @* <a href="/admin/signin" :class="{ 'nk yl' : page === 'home', 'ok' : page === 'home' && stickyMenu }"
-                       class="ek pk xl">Sign In</a> *@
-                    <a href="/admin/signup" :class="{ 'hh/[0.15]' : page === 'home', 'sh' : page === 'home' && stickyMenu }"
-                       class="lk gh dk rg tc wf xf _l gi hi">Sign Up</a>
+                    <a href="/Home/Login" :class="{ 'nk yl' : page === 'home', 'ok' : page === 'home' && stickyMenu }"
+                       class="ek pk xl">Sign In</a>
+                    @* <a href="/admin/signup" :class="{ 'hh/[0.15]' : page === 'home', 'sh' : page === 'home' && stickyMenu }"
+                       class="lk gh dk rg tc wf xf _l gi hi">Sign Up</a> *@
                 </div>
             </div>
         </div>
@@ -239,13 +239,13 @@
                         <input type="text" class="vd hh rg zk _g ch hm dm fm pl/50 xi mi sm xm pm dn/40 mt-2" id="CaptchaCode" name="CaptchaCode" maxlength="6" placeholder="Enter Captcha" required />
                     </div>
                     <input type="hidden" id="Id" name="Id" />
-                    <button class="vd rj ek rc rg gh lk ml il _l gi hi">
+                    <button class="vd rj ek rc rg gh lk ml il _l gi hi" style="margin-top:10px;">
                         Sign Up
                     </button>
 
                     <p class="sj hk xj rj ob">
                         Already have an account?
-                        <a class="mk" href="/admin/signin"> Sign In </a>
+                        <a class="mk" href="/Home/Login"> Sign In </a>
                     </p>
                 </form>
             </div>
