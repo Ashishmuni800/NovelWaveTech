@@ -1,8 +1,10 @@
 ﻿using Application.ApiHttpClient;
 using Application.DTO;
 using Application.ViewModel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Infrastructure.Context;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -18,11 +20,13 @@ namespace NovelWaveTechUI.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpClients _httpClient;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AdminController(IConfiguration configuration, IHttpClients httpClient)
+        public AdminController(IConfiguration configuration, IHttpClients httpClient, IWebHostEnvironment webHostEnvironment)
         {
             _configuration = configuration;
             _httpClient = httpClient;
+            _webHostEnvironment = webHostEnvironment;
         }
         public async Task<IActionResult> ManageRolesOprations()
         {
@@ -345,6 +349,69 @@ namespace NovelWaveTechUI.Controllers
             {
                 return View();
             }
+        }
+        public async Task<IActionResult> AccountSettings()
+        {
+            var token = Request.Cookies["AuthToken"];
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login","Home");
+            }
+            else
+            {
+                string baseUrl = _configuration["BaseUrl"];
+                string fullUrl = $"{baseUrl}/api/UserAuth/ProfileImages";
+                var response = await _httpClient.GetAsync(fullUrl, true).ConfigureAwait(false);
+                var Obj = JsonConvert.DeserializeObject<UserProfileVM>(response);
+                if (string.IsNullOrEmpty(response)) return Unauthorized();
+                var model = new UserProfileVM
+                {
+                    ProfileImage = $"/assets/images/avatars/{(string.IsNullOrEmpty(Obj.ProfileImage) ? "1.png" : Obj.ProfileImage)}"
+                };
+                return View(model);
+            }
+        }
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+            string folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "assets/images/avatars");
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Database me save karne ke liye
+            //user.ProfileImage = "/uploads/" + fileName;
+            var ProfileImage = fileName;
+            if (string.IsNullOrEmpty(ProfileImage)) return RedirectToAction("OTPLogin");
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/UploadImages/{ProfileImage}";
+            var response = await _httpClient.GetAsync(fullUrl).ConfigureAwait(false);
+            return RedirectToAction("AccountSettings");
+        }
+        public async Task<IActionResult> DeleteImage(string file)
+        {
+            var img = file.Split('/').LastOrDefault();
+            var imagePath = Path.Combine(
+        _webHostEnvironment.WebRootPath, "assets/images/avatars", img); // Get from DB
+
+            if (System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
+            if (string.IsNullOrEmpty(img)) return RedirectToAction("AccountSettings");
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/DeleteImage";
+            var response = await _httpClient.GetAsync(fullUrl,true).ConfigureAwait(false);
+            return RedirectToAction("AccountSettings");
         }
     }
 }

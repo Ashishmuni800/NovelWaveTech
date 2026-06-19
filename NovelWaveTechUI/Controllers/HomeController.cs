@@ -203,6 +203,7 @@ namespace NovelWaveTechUI.Controllers
             //};
 
             //Response.Cookies.Append("AuthToken", token, cookieOptions);
+            HttpContext.Session.SetString("User", loginDTO.Email);
             TempData["SuccessMessage"] = "OTP sent successfully";
             return Ok(response);
         }
@@ -229,9 +230,27 @@ namespace NovelWaveTechUI.Controllers
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.Now.AddMinutes(15)
             };
-
+            HttpContext.Session.Remove("User");
             Response.Cookies.Append("AuthToken", token, cookieOptions);
             return RedirectToAction("index");
+        }
+        [HttpGet]
+        public async Task<IActionResult> OtpResend()
+        {
+            var email= HttpContext.Session.GetString("User");
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("OTPLogin");
+            string baseUrl = _configuration["BaseUrl"];
+            string fullUrl = $"{baseUrl}/api/UserAuth/OtpResend/{email}";
+            var response = await _httpClient.GetAsync(fullUrl).ConfigureAwait(false);
+            var tokenObj = JsonConvert.DeserializeObject<TokenResponse>(response);
+
+            if (!string.IsNullOrEmpty(tokenObj.Massage) && tokenObj.Massage == "OTP sent successfully")
+            {
+                TempData["SuccessMessage"] = tokenObj.Massage;
+                return RedirectToAction("OTPLogin");
+            }
+            TempData["ErrorMessage"] = tokenObj.Massage;
+            return RedirectToAction("OTPLogin");
         }
         [HttpGet]
         public IActionResult Proctected()

@@ -192,7 +192,7 @@ namespace NovelWaveTechAPI.Controllers
             if (captchaCode != null)
             {
                 DateTime CreatedDate = DateTime.Now;
-                if(CreatedDate-captchaCode.CreatedDate<TimeSpan.FromMinutes(3))
+                if (CreatedDate - captchaCode.CreatedDate < TimeSpan.FromMinutes(3))
                 {
                     var result = await _userAuthService.AuthService.FindByEmailUserAsync(loginDTO.Email).ConfigureAwait(false); ;
                     if (result == null)
@@ -212,10 +212,10 @@ namespace NovelWaveTechAPI.Controllers
                         Otp = otp,
                         CreatedAt = DateTime.UtcNow,
                         ExpiryAt = DateTime.UtcNow.AddMinutes(3),
-                        OtpUsed= true
+                        OtpUsed = true
                     };
                     var AddOtp = await _userAuthService.AuthService.CreateOtpAsync(model).ConfigureAwait(false);
-                    if(AddOtp == null)
+                    if (AddOtp == null)
                     {
                         return BadRequest("OTP is not generated");
                     }
@@ -329,7 +329,7 @@ namespace NovelWaveTechAPI.Controllers
             var record = await _userAuthService.AuthService.FindByOtpAsync(otp).ConfigureAwait(false);
 
             if (record == null)
-                return BadRequest(new { success = false, token="" ,Massage= "Invalid OTP" } );
+                return BadRequest(new { success = false, token = "", Massage = "Invalid OTP" });
 
             if (record.ExpiryAt < DateTime.UtcNow)
                 return BadRequest(new { success = false, token = "", Massage = "OTP expired" });
@@ -357,6 +357,117 @@ namespace NovelWaveTechAPI.Controllers
             await _userAuthService.AuthService.CreateByAuthorizationDataAsync(authorizationDataDTO);
             return Ok(new { success = true, token });
             //return Ok("OTP verified successfully");
+        }
+        [HttpGet("{Email}")]
+        public async Task<IActionResult> OtpResend([FromRoute] string Email)
+        {
+            var otp = Generate.GenerateOtp();
+
+            var model = new OtpRecordsDTO
+            {
+                Email = Email,
+                Otp = otp,
+                CreatedAt = DateTime.UtcNow,
+                ExpiryAt = DateTime.UtcNow.AddMinutes(3),
+                OtpUsed = true
+            };
+            var AddOtp = await _userAuthService.AuthService.CreateOtpAsync(model).ConfigureAwait(false);
+            if (AddOtp == null)
+            {
+                return BadRequest("OTP is not generated");
+            }
+            string Body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>OTP Verification</title>
+</head>
+<body style='margin:0;padding:0;background-color:#f4f6f9;font-family:Arial,Helvetica,sans-serif;'>
+
+    <table width='100%' cellpadding='0' cellspacing='0' style='background-color:#f4f6f9;padding:30px 0;'>
+        <tr>
+            <td align='center'>
+
+                <table width='600' cellpadding='0' cellspacing='0' style='background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);'>
+
+                    <!-- Header -->
+                    <tr>
+                        <td align='center' style='background:#0d6efd;padding:25px;'>
+                            <h1 style='color:#ffffff;margin:0;font-size:28px;'>
+                                NovelWaveTech
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style='padding:40px 30px;'>
+
+                            <h2 style='color:#333333;margin-top:0;text-align:center;'>
+                                OTP Verification
+                            </h2>
+
+                            <p style='font-size:16px;color:#555555;line-height:1.6;'>
+                                Hello,
+                            </p>
+
+                            <p style='font-size:16px;color:#555555;line-height:1.6;'>
+                                Use the following One-Time Password (OTP) to complete your login process.
+                            </p>
+
+                            <div style='text-align:center;margin:35px 0;'>
+                                <span style='display:inline-block;
+                                             background:#f8f9fa;
+                                             border:2px dashed #0d6efd;
+                                             color:#0d6efd;
+                                             font-size:32px;
+                                             font-weight:bold;
+                                             letter-spacing:8px;
+                                             padding:15px 30px;
+                                             border-radius:10px;'>
+                                    {otp}
+                                </span>
+                            </div>
+
+                            <p style='font-size:16px;color:#555555;text-align:center;'>
+                                ⏳ This OTP is valid for <strong>3 minutes</strong>.
+                            </p>
+
+                            <p style='font-size:14px;color:#888888;line-height:1.6;margin-top:30px;'>
+                                If you did not request this OTP, please ignore this email.
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align='center' style='background:#f8f9fa;padding:20px;border-top:1px solid #eeeeee;'>
+
+                            <p style='margin:0;font-size:13px;color:#777777;'>
+                                © {DateTime.Now.Year} NovelWaveTech. All Rights Reserved.
+                            </p>
+
+                            <p style='margin:8px 0 0 0;font-size:12px;color:#999999;'>
+                                This is an automated email. Please do not reply.
+                            </p>
+
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>";
+            string Subject = "OTP Verification";
+            //await _emailService.SendEmailAsync(Email, Subject, Body);
+
+            return Ok(new { Massage = "OTP sent successfully" });
         }
         [HttpGet]
         [Authorize]
@@ -440,7 +551,7 @@ namespace NovelWaveTechAPI.Controllers
         [HttpGet("{UserPassword}")]
         public async Task<IActionResult> GetByPasswordChangeHistory([FromRoute] string UserPassword)
         {
-            var data= await _userAuthService.AuthService.GetByPasswordChangeHistoryAsync(UserPassword);
+            var data = await _userAuthService.AuthService.GetByPasswordChangeHistoryAsync(UserPassword);
             return Ok(data);
         }
         [Authorize]
@@ -569,7 +680,7 @@ namespace NovelWaveTechAPI.Controllers
             {
                 Email = request.Email,
                 Password = request.Password,
-                CreatedDate= CreatedDatenow
+                CreatedDate = CreatedDatenow
             };
 
             string fileName = $"{Guid.NewGuid()}.png";
@@ -678,6 +789,36 @@ namespace NovelWaveTechAPI.Controllers
         {
             var username = User.FindFirst(ClaimTypes.Name)?.Value;
             return Ok(new { username });
+        }
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> ProfileImages()
+        {
+            var username = User.FindFirst(ClaimTypes.Email)?.Value;
+            var result = await _userAuthService.AuthService.FindByEmailUserAsync(username).ConfigureAwait(false);
+            return Ok(new { result.ProfileImage });
+        }
+        [Authorize]
+        [HttpGet("{ProfileImage}")]
+        public async Task<IActionResult> UploadImages([FromRoute] string ProfileImage)
+        {
+            var username = User.FindFirst(ClaimTypes.Email)?.Value;
+            var result = await _userAuthService.AuthService.FindByEmailUserAsync(username).ConfigureAwait(false);
+            result.ProfileImage = ProfileImage;
+            var result2 = await _userManager.UpdateAsync(result).ConfigureAwait(false);
+            if (!result2.Succeeded) return BadRequest("Profile Image is not updated");
+            return Ok(new { result.ProfileImage });
+        }
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> DeleteImage()
+        {
+            var username = User.FindFirst(ClaimTypes.Email)?.Value;
+            var result = await _userAuthService.AuthService.FindByEmailUserAsync(username).ConfigureAwait(false);
+            result.ProfileImage = null;
+            var result2 = await _userManager.UpdateAsync(result).ConfigureAwait(false);
+            if (!result2.Succeeded) return BadRequest("Profile Image is not updated");
+            return Ok(new { result.ProfileImage });
         }
         public async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
